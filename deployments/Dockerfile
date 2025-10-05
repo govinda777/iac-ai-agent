@@ -1,0 +1,1 @@
+// Dockerfile - Arquivo criado automaticamente
