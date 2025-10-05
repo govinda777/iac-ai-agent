@@ -1,1 +1,1 @@
-// analysis_test.go - Arquivo criado automaticamente
+// Placeholder file - see analysis_service_test.go for actual tests

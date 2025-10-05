@@ -220,3 +220,8 @@ func (ca *CheckovAnalyzer) getBridgecrewLink(checkID string) string {
 	}
 	return fmt.Sprintf("https://docs.bridgecrew.io/docs/%s", strings.ToLower(checkID))
 }
+
+// GetSecurityAnalysis converte resultado Checkov para SecurityAnalysis (método público para testes)
+func (ca *CheckovAnalyzer) GetSecurityAnalysis(result *models.CheckovResult) *models.SecurityAnalysis {
+	return ca.convertToSecurityAnalysis(result)
+}

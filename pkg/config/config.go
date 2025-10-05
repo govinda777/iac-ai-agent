@@ -1,1 +1,188 @@
-// config.go - Arquivo criado automaticamente
+package config
+
+import (
+	"fmt"
+	"os"
+
+	"gopkg.in/yaml.v3"
+)
+
+// Config representa a configuração completa da aplicação
+type Config struct {
+	Server   ServerConfig   `yaml:"server"`
+	LLM      LLMConfig      `yaml:"llm"`
+	GitHub   GitHubConfig   `yaml:"github"`
+	Analysis AnalysisConfig `yaml:"analysis"`
+	Scoring  ScoringConfig  `yaml:"scoring"`
+	Logging  LoggingConfig  `yaml:"logging"`
+}
+
+// ServerConfig configurações do servidor HTTP
+type ServerConfig struct {
+	Port string `yaml:"port"`
+	Host string `yaml:"host"`
+}
+
+// LLMConfig configurações do LLM
+type LLMConfig struct {
+	Provider    string  `yaml:"provider"`    // openai, anthropic
+	APIKey      string  `yaml:"api_key"`
+	Model       string  `yaml:"model"`
+	Temperature float64 `yaml:"temperature"`
+	MaxTokens   int     `yaml:"max_tokens"`
+}
+
+// GitHubConfig configurações do GitHub
+type GitHubConfig struct {
+	Token         string `yaml:"token"`
+	WebhookSecret string `yaml:"webhook_secret"`
+	AutoComment   bool   `yaml:"auto_comment"`
+}
+
+// AnalysisConfig configurações de análise
+type AnalysisConfig struct {
+	CheckovEnabled           bool `yaml:"checkov_enabled"`
+	IAMAnalysisEnabled       bool `yaml:"iam_analysis_enabled"`
+	CostOptimizationEnabled  bool `yaml:"cost_optimization_enabled"`
+}
+
+// ScoringConfig configurações de scoring
+type ScoringConfig struct {
+	MinPassScore int `yaml:"min_pass_score"`
+}
+
+// LoggingConfig configurações de logging
+type LoggingConfig struct {
+	Level  string `yaml:"level"`  // debug, info, warn, error
+	Format string `yaml:"format"` // json, text
+}
+
+// Load carrega configuração de um arquivo YAML
+func Load(path string) (*Config, error) {
+	// Valores padrão
+	config := &Config{
+		Server: ServerConfig{
+			Port: "8080",
+			Host: "0.0.0.0",
+		},
+		LLM: LLMConfig{
+			Provider:    "openai",
+			Model:       "gpt-4",
+			Temperature: 0.2,
+			MaxTokens:   2000,
+		},
+		GitHub: GitHubConfig{
+			AutoComment: true,
+		},
+		Analysis: AnalysisConfig{
+			CheckovEnabled:          true,
+			IAMAnalysisEnabled:      true,
+			CostOptimizationEnabled: true,
+		},
+		Scoring: ScoringConfig{
+			MinPassScore: 70,
+		},
+		Logging: LoggingConfig{
+			Level:  "info",
+			Format: "json",
+		},
+	}
+
+	// Lê arquivo de configuração se existir
+	if path != "" {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			if os.IsNotExist(err) {
+				// Arquivo não existe, usa defaults
+				fmt.Printf("Arquivo de configuração não encontrado, usando defaults\n")
+			} else {
+				return nil, fmt.Errorf("erro ao ler arquivo de configuração: %w", err)
+			}
+		} else {
+			// Parse YAML
+			if err := yaml.Unmarshal(data, config); err != nil {
+				return nil, fmt.Errorf("erro ao fazer parse do YAML: %w", err)
+			}
+		}
+	}
+
+	// Sobrescreve com variáveis de ambiente
+	config.loadFromEnv()
+
+	// Valida configuração
+	if err := config.Validate(); err != nil {
+		return nil, err
+	}
+
+	return config, nil
+}
+
+// loadFromEnv carrega valores de variáveis de ambiente
+func (c *Config) loadFromEnv() {
+	// Server
+	if port := os.Getenv("PORT"); port != "" {
+		c.Server.Port = port
+	}
+	if host := os.Getenv("HOST"); host != "" {
+		c.Server.Host = host
+	}
+
+	// LLM
+	if provider := os.Getenv("LLM_PROVIDER"); provider != "" {
+		c.LLM.Provider = provider
+	}
+	if apiKey := os.Getenv("LLM_API_KEY"); apiKey != "" {
+		c.LLM.APIKey = apiKey
+	}
+	if model := os.Getenv("LLM_MODEL"); model != "" {
+		c.LLM.Model = model
+	}
+
+	// GitHub
+	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
+		c.GitHub.Token = token
+	}
+	if secret := os.Getenv("GITHUB_WEBHOOK_SECRET"); secret != "" {
+		c.GitHub.WebhookSecret = secret
+	}
+
+	// Analysis
+	if checkov := os.Getenv("CHECKOV_ENABLED"); checkov == "false" {
+		c.Analysis.CheckovEnabled = false
+	}
+	if iam := os.Getenv("IAM_ANALYSIS_ENABLED"); iam == "false" {
+		c.Analysis.IAMAnalysisEnabled = false
+	}
+	if cost := os.Getenv("COST_OPTIMIZATION_ENABLED"); cost == "false" {
+		c.Analysis.CostOptimizationEnabled = false
+	}
+
+	// Logging
+	if level := os.Getenv("LOG_LEVEL"); level != "" {
+		c.Logging.Level = level
+	}
+	if format := os.Getenv("LOG_FORMAT"); format != "" {
+		c.Logging.Format = format
+	}
+}
+
+// Validate valida a configuração
+func (c *Config) Validate() error {
+	// Valida provider LLM
+	if c.LLM.Provider != "" && c.LLM.Provider != "openai" && c.LLM.Provider != "anthropic" {
+		return fmt.Errorf("LLM provider inválido: %s (use 'openai' ou 'anthropic')", c.LLM.Provider)
+	}
+
+	// Valida log level
+	validLevels := map[string]bool{"debug": true, "info": true, "warn": true, "error": true}
+	if !validLevels[c.Logging.Level] {
+		return fmt.Errorf("log level inválido: %s", c.Logging.Level)
+	}
+
+	return nil
+}
+
+// GetAddress retorna o endereço completo do servidor
+func (c *Config) GetAddress() string {
+	return c.Server.Host + ":" + c.Server.Port
+}

@@ -1,1 +1,26 @@
-// app.yaml - Arquivo criado automaticamente
+# IaC AI Agent Configuration
+
+server:
+  host: "0.0.0.0"
+  port: "8080"
+
+llm:
+  provider: "openai"  # openai or anthropic
+  model: "gpt-4"
+  temperature: 0.2
+  max_tokens: 2000
+
+github:
+  auto_comment: true
+
+analysis:
+  checkov_enabled: true
+  iam_analysis_enabled: true
+  cost_optimization_enabled: true
+
+scoring:
+  min_pass_score: 70
+
+logging:
+  level: "info"  # debug, info, warn, error
+  format: "json"  # json or text
