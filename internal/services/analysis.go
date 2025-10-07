@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,6 +18,12 @@ type AnalysisService struct {
 	prScorer        PRScorerInterface
 	costOptimizer   CostOptimizerInterface
 	securityAdvisor SecurityAdvisorInterface
+	previewAnalyzer PreviewAnalyzerInterface
+	secretsAnalyzer SecretsAnalyzerInterface
+	llmClient       LLMClientInterface
+	knowledgeBase   KnowledgeBaseInterface
+	moduleRegistry  ModuleRegistryInterface
+	promptBuilder   PromptBuilderInterface
 	logger          *logger.Logger
 	minPassScore    int
 }
@@ -31,6 +38,12 @@ func NewAnalysisService(
 	prScorer PRScorerInterface,
 	costOptimizer CostOptimizerInterface,
 	securityAdvisor SecurityAdvisorInterface,
+	previewAnalyzer PreviewAnalyzerInterface,
+	secretsAnalyzer SecretsAnalyzerInterface,
+	llmClient LLMClientInterface,
+	knowledgeBase KnowledgeBaseInterface,
+	moduleRegistry ModuleRegistryInterface,
+	promptBuilder PromptBuilderInterface,
 ) *AnalysisService {
 	return &AnalysisService{
 		tfAnalyzer:      tfAnalyzer,
@@ -39,6 +52,12 @@ func NewAnalysisService(
 		prScorer:        prScorer,
 		costOptimizer:   costOptimizer,
 		securityAdvisor: securityAdvisor,
+		previewAnalyzer: previewAnalyzer,
+		secretsAnalyzer: secretsAnalyzer,
+		llmClient:       llmClient,
+		knowledgeBase:   knowledgeBase,
+		moduleRegistry:  moduleRegistry,
+		promptBuilder:   promptBuilder,
 		logger:          log,
 		minPassScore:    minPassScore,
 	}
@@ -86,17 +105,25 @@ func (as *AnalysisService) AnalyzeContent(content string, filename string) (*mod
 		securityAnalysis = &models.SecurityAnalysis{}
 	}
 
-	// 4. Gera sugestões
-	suggestions := as.generateSuggestions(tfAnalysis, securityAnalysis, iamAnalysis)
-
-	// 5. Monta análise completa
-	analysisDetails := models.AnalysisDetails{
-		Terraform: *tfAnalysis,
-		Security:  *securityAnalysis,
-		IAM:       *iamAnalysis,
+	// 4. Análise de Secrets
+	var secretFindings []models.SecretFinding
+	if as.secretsAnalyzer != nil {
+		as.logger.Info("Executando análise de secrets")
+		secretFindings = as.secretsAnalyzer.ScanContent(content, filename)
 	}
 
-	// 6. Calcula score
+	// 5. Gera sugestões
+	suggestions := as.generateSuggestions(tfAnalysis, securityAnalysis, iamAnalysis, secretFindings)
+
+	// 6. Monta análise completa
+	analysisDetails := models.AnalysisDetails{
+		Terraform:      *tfAnalysis,
+		Security:       *securityAnalysis,
+		IAM:            *iamAnalysis,
+		SecretFindings: secretFindings,
+	}
+
+	// 7. Calcula score
 	score := as.prScorer.CalculateScore(&analysisDetails)
 
 	// 7. Monta resposta
@@ -159,24 +186,41 @@ func (as *AnalysisService) AnalyzeDirectory(dir string) (*models.AnalysisRespons
 		securityAnalysis = &models.SecurityAnalysis{}
 	}
 
-	// 4. Gera sugestões
-	suggestions := as.generateSuggestions(tfAnalysis, securityAnalysis, iamAnalysis)
-
-	// 5. Análise de custo (se habilitada)
-	costAnalysis := as.costOptimizer.AnalyzeCosts(tfAnalysis)
-
-	// 6. Monta análise completa
-	analysisDetails := models.AnalysisDetails{
-		Terraform: *tfAnalysis,
-		Security:  *securityAnalysis,
-		IAM:       *iamAnalysis,
-		Cost:      *costAnalysis,
+	// 4. Análise de Secrets
+	var allSecretFindings []models.SecretFinding
+	if as.secretsAnalyzer != nil {
+		as.logger.Info("Executando análise de secrets no diretório")
+		// tfAnalysis.Files contains the list of files parsed by terraform
+		for _, file := range tfAnalysis.Files {
+			content, err := os.ReadFile(file)
+			if err != nil {
+				as.logger.Warn("Falha ao ler arquivo para análise de secret", "file", file, "error", err)
+				continue
+			}
+			findings := as.secretsAnalyzer.ScanContent(string(content), file)
+			allSecretFindings = append(allSecretFindings, findings...)
+		}
 	}
 
-	// 7. Calcula score
+	// 5. Gera sugestões
+	suggestions := as.generateSuggestions(tfAnalysis, securityAnalysis, iamAnalysis, allSecretFindings)
+
+	// 6. Análise de custo (se habilitada)
+	costAnalysis := as.costOptimizer.AnalyzeCosts(tfAnalysis)
+
+	// 7. Monta análise completa
+	analysisDetails := models.AnalysisDetails{
+		Terraform:      *tfAnalysis,
+		Security:       *securityAnalysis,
+		IAM:            *iamAnalysis,
+		Cost:           *costAnalysis,
+		SecretFindings: allSecretFindings,
+	}
+
+	// 8. Calcula score
 	score := as.prScorer.CalculateScore(&analysisDetails)
 
-	// 8. Monta resposta
+	// 9. Monta resposta
 	response := &models.AnalysisResponse{
 		ID:          uuid.New().String(),
 		Score:       score.Total,
@@ -205,6 +249,7 @@ func (as *AnalysisService) generateSuggestions(
 	tfAnalysis *models.TerraformAnalysis,
 	securityAnalysis *models.SecurityAnalysis,
 	iamAnalysis *models.IAMAnalysis,
+	secretFindings []models.SecretFinding,
 ) []models.Suggestion {
 	suggestions := []models.Suggestion{}
 
@@ -226,6 +271,18 @@ func (as *AnalysisService) generateSuggestions(
 	costSuggestions := as.costOptimizer.GenerateSuggestions(tfAnalysis)
 	suggestions = append(suggestions, costSuggestions...)
 
+	// Sugestões de secrets
+	for _, finding := range secretFindings {
+		suggestions = append(suggestions, models.Suggestion{
+			Type:           "security",
+			Severity:       finding.Severity,
+			Message:        finding.Description,
+			Recommendation: finding.Suggestion,
+			File:           finding.File,
+			Line:           finding.Line,
+		})
+	}
+
 	return suggestions
 }
 
@@ -244,6 +301,25 @@ func (as *AnalysisService) ValidateAnalysis(analysis *models.AnalysisResponse) e
 	}
 
 	return nil
+}
+
+// AnalyzePreviewPlan analyzes a Terraform plan JSON and returns a structured analysis.
+func (as *AnalysisService) AnalyzePreviewPlan(planJSON []byte) (*models.PreviewAnalysis, error) {
+	as.logger.Info("Starting Terraform plan preview analysis")
+
+	if as.previewAnalyzer == nil {
+		as.logger.Error("PreviewAnalyzer is not initialized")
+		return nil, fmt.Errorf("preview analyzer is not available")
+	}
+
+	previewAnalysis, err := as.previewAnalyzer.AnalyzePreview(planJSON)
+	if err != nil {
+		as.logger.Error("Error during preview analysis", "error", err)
+		return nil, fmt.Errorf("failed to analyze Terraform plan: %w", err)
+	}
+
+	as.logger.Info("Terraform plan preview analysis completed", "risk_level", previewAnalysis.RiskLevel, "changes", previewAnalysis.ResourcesAffected)
+	return previewAnalysis, nil
 }
 
 // ValidatePreExistingResults valida resultados de análises já executadas externamente
@@ -286,7 +362,8 @@ func (as *AnalysisService) ValidatePreExistingResults(
 	}
 
 	// 4. Gera sugestões
-	suggestions := as.generateSuggestions(tfAnalysis, securityAnalysis, iamAnalysis)
+	// No secret scan is performed in this mode, so we pass an empty slice.
+	suggestions := as.generateSuggestions(tfAnalysis, securityAnalysis, iamAnalysis, []models.SecretFinding{})
 
 	// 5. Análise de custo
 	costAnalysis := as.costOptimizer.AnalyzeCosts(tfAnalysis)

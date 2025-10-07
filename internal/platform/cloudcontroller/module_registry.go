@@ -1,5 +1,7 @@
 package cloudcontroller
 
+import "github.com/gosouza/iac-ai-agent/internal/models"
+
 // TerraformModule representa um módulo Terraform recomendado
 type TerraformModule struct {
 	Name        string
@@ -113,6 +115,13 @@ func (mr *ModuleRegistry) GetModulesByProvider(provider string) []*TerraformModu
 		}
 	}
 	return modules
+}
+
+// FindApplicableModules is a placeholder implementation to satisfy the interface.
+func (mr *ModuleRegistry) FindApplicableModules(resources []models.TerraformResource) []models.ApprovedModule {
+	// This is a basic implementation. A real one would have more complex logic
+	// to suggest modules based on the resources being used.
+	return []models.ApprovedModule{}
 }
 
 // GetModulesByUseCase retorna módulos por caso de uso

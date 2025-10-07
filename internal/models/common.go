@@ -23,10 +23,11 @@ type AnalysisResponse struct {
 
 // AnalysisDetails contém detalhes de todas as análises
 type AnalysisDetails struct {
-	Terraform TerraformAnalysis `json:"terraform"`
-	Security  SecurityAnalysis  `json:"security"`
-	IAM       IAMAnalysis       `json:"iam"`
-	Cost      CostAnalysis      `json:"cost,omitempty"`
+	Terraform      TerraformAnalysis `json:"terraform"`
+	Security       SecurityAnalysis  `json:"security"`
+	IAM            IAMAnalysis       `json:"iam"`
+	Cost           CostAnalysis      `json:"cost,omitempty"`
+	SecretFindings []SecretFinding   `json:"secret_findings,omitempty"`
 }
 
 // Suggestion representa uma sugestão de melhoria

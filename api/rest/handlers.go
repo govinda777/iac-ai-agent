@@ -6,9 +6,11 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/gosouza/iac-ai-agent/internal/agent/analyzer"
+	"github.com/gosouza/iac-ai-agent/internal/agent/llm"
 	"github.com/gosouza/iac-ai-agent/internal/agent/scorer"
 	"github.com/gosouza/iac-ai-agent/internal/agent/suggester"
 	"github.com/gosouza/iac-ai-agent/internal/models"
+	"github.com/gosouza/iac-ai-agent/internal/platform/cloudcontroller"
 	"github.com/gosouza/iac-ai-agent/internal/services"
 	"github.com/gosouza/iac-ai-agent/pkg/config"
 	"github.com/gosouza/iac-ai-agent/pkg/logger"
@@ -47,6 +49,12 @@ func NewHandler(cfg *config.Config, log *logger.Logger) *Handler {
 	prScorer := scorer.NewPRScorer()
 	costOptimizer := suggester.NewCostOptimizer(log)
 	securityAdvisor := suggester.NewSecurityAdvisor(log)
+	previewAnalyzer := analyzer.NewPreviewAnalyzer(log)
+	secretsAnalyzer := analyzer.NewSecretsAnalyzer(log)
+	llmClient := llm.NewClient(cfg, log)
+	knowledgeBase := cloudcontroller.NewKnowledgeBase()
+	moduleRegistry := cloudcontroller.NewModuleRegistry()
+	promptBuilder := llm.NewPromptBuilder(log)
 
 	analysisService := services.NewAnalysisService(
 		log,
@@ -57,6 +65,12 @@ func NewHandler(cfg *config.Config, log *logger.Logger) *Handler {
 		prScorer,
 		costOptimizer,
 		securityAdvisor,
+		previewAnalyzer,
+		secretsAnalyzer,
+		llmClient,
+		knowledgeBase,
+		moduleRegistry,
+		promptBuilder,
 	)
 	return &Handler{
 		config:          cfg,

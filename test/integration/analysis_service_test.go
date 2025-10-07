@@ -8,9 +8,12 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/gosouza/iac-ai-agent/internal/agent/analyzer"
+	"github.com/gosouza/iac-ai-agent/internal/agent/llm"
 	"github.com/gosouza/iac-ai-agent/internal/agent/scorer"
 	"github.com/gosouza/iac-ai-agent/internal/agent/suggester"
+	"github.com/gosouza/iac-ai-agent/internal/platform/cloudcontroller"
 	"github.com/gosouza/iac-ai-agent/internal/services"
+	"github.com/gosouza/iac-ai-agent/pkg/config"
 	"github.com/gosouza/iac-ai-agent/pkg/logger"
 	"github.com/gosouza/iac-ai-agent/test/mocks"
 )
@@ -38,6 +41,14 @@ var _ = Describe("AnalysisService Integration", func() {
 			return true
 		}
 
+		cfg := &config.Config{}
+		previewAnalyzer := analyzer.NewPreviewAnalyzer(log)
+		secretsAnalyzer := analyzer.NewSecretsAnalyzer(log)
+		llmClient := llm.NewClient(cfg, log)
+		knowledgeBase := cloudcontroller.NewKnowledgeBase()
+		moduleRegistry := cloudcontroller.NewModuleRegistry()
+		promptBuilder := llm.NewPromptBuilder(log)
+
 		analysisService = services.NewAnalysisService(
 			log,
 			70, // minPassScore
@@ -47,6 +58,12 @@ var _ = Describe("AnalysisService Integration", func() {
 			prScorer,
 			costOptimizer,
 			securityAdvisor,
+			previewAnalyzer,
+			secretsAnalyzer,
+			llmClient,
+			knowledgeBase,
+			moduleRegistry,
+			promptBuilder,
 		)
 
 		var err error

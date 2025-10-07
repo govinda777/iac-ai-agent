@@ -6,6 +6,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/gosouza/iac-ai-agent/internal/agent/llm/prompts"
 	"github.com/gosouza/iac-ai-agent/internal/models"
 	"github.com/gosouza/iac-ai-agent/pkg/logger"
 )
@@ -146,6 +147,45 @@ func (b *PromptBuilder) BuildArchitecturePrompt(data *PromptData) (*models.LLMRe
 }
 
 // FormatCheckovResults formata os resultados do Checkov para o prompt
+func (b *PromptBuilder) BuildEnrichmentPrompt(
+	analysis *models.AnalysisDetails,
+	baseSuggestions []models.Suggestion,
+	relevantPractices []models.BestPractice,
+	relevantModules []models.ApprovedModule,
+) (string, error) {
+	tmpl, err := template.New("enrichment").Parse(prompts.EnrichmentPromptTemplate)
+	if err != nil {
+		b.logger.Error("Failed to parse enrichment prompt template", "error", err)
+		return "", fmt.Errorf("failed to parse enrichment prompt template: %w", err)
+	}
+
+	// Prepare data for the template
+	data := struct {
+		Resources       []models.TerraformResource
+		BaseSuggestions []models.Suggestion
+		BestPractices   []string
+		Modules         []models.ApprovedModule
+	}{
+		Resources:       analysis.Terraform.Resources,
+		BaseSuggestions: baseSuggestions,
+		Modules:         relevantModules,
+	}
+
+	// Convert best practices to a simpler format for the template
+	for _, p := range relevantPractices {
+		data.BestPractices = append(data.BestPractices, fmt.Sprintf("%s: %s", p.Title, p.Description))
+	}
+
+	var buf bytes.Buffer
+	if err := tmpl.Execute(&buf, data); err != nil {
+		b.logger.Error("Failed to execute enrichment prompt template", "error", err)
+		return "", fmt.Errorf("failed to execute enrichment prompt template: %w", err)
+	}
+
+	b.logger.Debug("Enrichment prompt built successfully")
+	return buf.String(), nil
+}
+
 func (b *PromptBuilder) FormatCheckovResults(results *models.CheckovResult) string {
 	if results == nil || len(results.Results.FailedChecks) == 0 {
 		return "Nenhum resultado Checkov disponível."

@@ -1,104 +1,129 @@
 package cloudcontroller
 
 import (
-	"strings"
+	"github.com/gosouza/iac-ai-agent/internal/models"
 )
 
-// KnowledgeBase contém conhecimento sobre best practices e padrões
+// KnowledgeBase contém conhecimento sobre best practices, padrões e políticas.
 type KnowledgeBase struct {
-	bestPractices map[string][]string
-	securityRules map[string]string
+	platformContext       models.PlatformContext
+	securityPolicies      []models.SecurityPolicy
+	bestPractices         map[string][]models.BestPractice
+	architecturePractices map[string][]models.BestPractice
+	providerPractices     map[string][]models.BestPractice
 }
 
-// NewKnowledgeBase cria uma nova base de conhecimento
+// NewKnowledgeBase cria e carrega uma nova base de conhecimento.
 func NewKnowledgeBase() *KnowledgeBase {
 	kb := &KnowledgeBase{
-		bestPractices: make(map[string][]string),
-		securityRules: make(map[string]string),
+		bestPractices:         make(map[string][]models.BestPractice),
+		architecturePractices: make(map[string][]models.BestPractice),
+		providerPractices:     make(map[string][]models.BestPractice),
 	}
 
-	kb.loadBestPractices()
-	kb.loadSecurityRules()
-
+	kb.loadPlatformContext()
+	kb.loadSecurityPolicies()
+	// Future loaders for best practices can be added here
 	return kb
 }
 
-// loadBestPractices carrega best practices
-func (kb *KnowledgeBase) loadBestPractices() {
-	kb.bestPractices["aws_s3_bucket"] = []string{
-		"Habilite versionamento para proteção contra exclusão acidental",
-		"Configure encriptação em repouso (AES-256 ou KMS)",
-		"Bloqueie acesso público a menos que seja absolutamente necessário",
-		"Configure lifecycle policies para otimizar custos",
-		"Habilite logging de acesso",
+// GetRelevantPractices coleta best practices relevantes para uma dada análise.
+func (kb *KnowledgeBase) GetRelevantPractices(
+	analysis *models.AnalysisDetails,
+) []models.BestPractice {
+	relevant := []models.BestPractice{}
+
+	// Por tipo de recurso
+	for _, resource := range analysis.Terraform.Resources {
+		if practices, ok := kb.bestPractices[resource.Type]; ok {
+			relevant = append(relevant, practices...)
+		}
 	}
 
-	kb.bestPractices["aws_instance"] = []string{
-		"Use IMDSv2 para metadata service",
-		"Habilite monitoring detalhado",
-		"Use Security Groups restritivos",
-		"Configure backup automático via AWS Backup",
-		"Considere usar Auto Scaling Groups",
+	// Por provider
+	for _, provider := range analysis.Terraform.Providers {
+		if practices, ok := kb.providerPractices[provider]; ok {
+			relevant = append(relevant, practices...)
+		}
 	}
 
-	kb.bestPractices["aws_rds_instance"] = []string{
-		"Habilite encriptação em repouso",
-		"Configure automated backups com retenção apropriada",
-		"Use Parameter Groups customizados",
-		"Habilite Enhanced Monitoring",
-		"Configure Multi-AZ para produção",
+	// Por padrão arquitetural detectado
+	pattern := kb.detectArchitecturalPattern(analysis)
+	if practices, ok := kb.architecturePractices[pattern]; ok {
+		relevant = append(relevant, practices...)
 	}
 
-	kb.bestPractices["aws_security_group"] = []string{
-		"Siga princípio do menor privilégio",
-		"Evite 0.0.0.0/0 para ingress (exceto portas públicas necessárias)",
-		"Use Security Group IDs como source ao invés de CIDRs",
-		"Adicione descrições claras em todas as regras",
-		"Revise periodicamente regras não utilizadas",
-	}
+	return kb.deduplicate(relevant)
 }
 
-// loadSecurityRules carrega regras de segurança
-func (kb *KnowledgeBase) loadSecurityRules() {
-	kb.securityRules["public_s3_bucket"] = "S3 buckets não devem ser públicos a menos que haja justificativa clara"
-	kb.securityRules["unencrypted_storage"] = "Todos os storages devem ser encriptados em repouso"
-	kb.securityRules["open_security_group"] = "Security groups não devem permitir acesso de 0.0.0.0/0 exceto para portas públicas"
-	kb.securityRules["weak_iam_policy"] = "Políticas IAM não devem usar wildcards (*) em Actions e Resources"
-	kb.securityRules["missing_logging"] = "Recursos críticos devem ter logging habilitado"
-}
+// detectArchitecturalPattern infere o padrão de arquitetura a partir dos recursos.
+func (kb *KnowledgeBase) detectArchitecturalPattern(
+	analysis *models.AnalysisDetails,
+) string {
+	resources := analysis.Terraform.Resources
 
-// GetBestPractices retorna best practices para um tipo de recurso
-func (kb *KnowledgeBase) GetBestPractices(resourceType string) []string {
-	if practices, ok := kb.bestPractices[resourceType]; ok {
-		return practices
+	// 3-tier web app
+	hasLB := containsResourceType(resources, "aws_lb", "aws_alb", "aws_elb")
+	hasCompute := containsResourceType(resources, "aws_instance", "aws_ecs_service")
+	hasDB := containsResourceType(resources, "aws_rds_instance", "aws_db_instance")
+	if hasLB && hasCompute && hasDB {
+		return "3-tier-web-app"
 	}
-	return []string{}
-}
 
-// GetSecurityRule retorna uma regra de segurança
-func (kb *KnowledgeBase) GetSecurityRule(ruleID string) string {
-	if rule, ok := kb.securityRules[ruleID]; ok {
-		return rule
+	// Serverless
+	hasLambda := containsResourceType(resources, "aws_lambda_function")
+	hasAPIGW := containsResourceType(resources, "aws_api_gateway_rest_api")
+	hasDynamoDB := containsResourceType(resources, "aws_dynamodb_table")
+	if hasLambda && (hasAPIGW || hasDynamoDB) {
+		return "serverless"
 	}
-	return ""
+
+	// Microservices
+	hasECS := containsResourceType(resources, "aws_ecs_service")
+	hasEKS := containsResourceType(resources, "aws_eks_cluster")
+	if (hasECS || hasEKS) && len(resources) > 10 {
+		return "microservices"
+	}
+
+	return "general"
 }
 
-// SearchBestPractices busca best practices por palavra-chave
-func (kb *KnowledgeBase) SearchBestPractices(keyword string) map[string][]string {
-	results := make(map[string][]string)
-	keyword = strings.ToLower(keyword)
+// containsResourceType é um helper para verificar a existência de tipos de recursos.
+func containsResourceType(resources []models.TerraformResource, types ...string) bool {
+	typeSet := make(map[string]struct{}, len(types))
+	for _, t := range types {
+		typeSet[t] = struct{}{}
+	}
 
-	for resourceType, practices := range kb.bestPractices {
-		matchingPractices := []string{}
-		for _, practice := range practices {
-			if strings.Contains(strings.ToLower(practice), keyword) {
-				matchingPractices = append(matchingPractices, practice)
+	for _, r := range resources {
+		if _, ok := typeSet[r.Type]; ok {
+			return true
+		}
+	}
+	return false
+}
+
+// deduplicate remove práticas duplicadas de uma lista.
+func (kb *KnowledgeBase) deduplicate(practices []models.BestPractice) []models.BestPractice {
+	seen := make(map[string]bool)
+	result := []models.BestPractice{}
+	for _, p := range practices {
+		if p.ID != "" {
+			if _, ok := seen[p.ID]; !ok {
+				seen[p.ID] = true
+				result = append(result, p)
 			}
 		}
-		if len(matchingPractices) > 0 {
-			results[resourceType] = matchingPractices
-		}
 	}
+	return result
+}
 
-	return results
+// GetSecurityPolicies retorna todas as políticas de segurança carregadas.
+func (kb *KnowledgeBase) GetSecurityPolicies() []models.SecurityPolicy {
+	return kb.securityPolicies
+}
+
+// GetPlatformContext retorna o contexto da plataforma carregado.
+func (kb *KnowledgeBase) GetPlatformContext() models.PlatformContext {
+	return kb.platformContext
 }

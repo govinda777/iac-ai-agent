@@ -3,6 +3,7 @@ package models
 // TerraformAnalysis contém resultados da análise do código Terraform
 type TerraformAnalysis struct {
 	Valid                bool                  `json:"valid"`
+	Files                []string              `json:"files"`
 	TotalResources       int                   `json:"total_resources"`
 	TotalModules         int                   `json:"total_modules"`
 	TotalVariables       int                   `json:"total_variables"`

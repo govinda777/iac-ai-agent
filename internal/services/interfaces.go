@@ -41,3 +41,40 @@ type SecurityAdvisorInterface interface {
 		iamAnalysis *models.IAMAnalysis,
 	) []models.Suggestion
 }
+
+// PreviewAnalyzerInterface defines the interface for a Terraform plan preview analyzer.
+type PreviewAnalyzerInterface interface {
+	AnalyzePreview(planJSON []byte) (*models.PreviewAnalysis, error)
+}
+
+// SecretsAnalyzerInterface defines the interface for a secrets scanner.
+type SecretsAnalyzerInterface interface {
+	ScanContent(content string, filename string) []models.SecretFinding
+}
+
+// LLMClientInterface defines the interface for an LLM client.
+type LLMClientInterface interface {
+	Generate(req *models.LLMRequest) (*models.LLMResponse, error)
+}
+
+// KnowledgeBaseInterface defines the interface for the knowledge base.
+type KnowledgeBaseInterface interface {
+	GetRelevantPractices(analysis *models.AnalysisDetails) []models.BestPractice
+	GetSecurityPolicies() []models.SecurityPolicy
+	GetPlatformContext() models.PlatformContext
+}
+
+// ModuleRegistryInterface defines the interface for a Terraform module registry.
+type ModuleRegistryInterface interface {
+	FindApplicableModules(resources []models.TerraformResource) []models.ApprovedModule
+}
+
+// PromptBuilderInterface defines the interface for building LLM prompts.
+type PromptBuilderInterface interface {
+	BuildEnrichmentPrompt(
+		analysis *models.AnalysisDetails,
+		baseSuggestions []models.Suggestion,
+		relevantPractices []models.BestPractice,
+		relevantModules []models.ApprovedModule,
+	) (string, error)
+}
