@@ -22,6 +22,10 @@ run: build ## Run the application
 	@echo "Running $(APP_NAME)..."
 	@./bin/$(APP_NAME)
 
+run-swagger: swagger build ## Generate Swagger docs and run the application
+	@echo "Running $(APP_NAME) with Swagger UI..."
+	@./bin/$(APP_NAME)
+
 test: ## Run all tests
 	@echo "Running all tests..."
 	@go test -v -race -coverprofile=coverage.out ./...
@@ -62,9 +66,21 @@ fmt: ## Format code
 	@gofmt -w $(GO_FILES)
 	@go mod tidy
 
+swagger: ## Generate Swagger documentation
+	@echo "Generating Swagger documentation..."
+	@which swag > /dev/null || go install github.com/swaggo/swag/cmd/swag@v1.8.12
+	@swag init -g cmd/agent/main.go -o docs --parseDependency --parseInternal
+	@echo "✅ Swagger docs generated! Access: http://localhost:8080/swagger/"
+
+swagger-install: ## Install Swagger CLI
+	@echo "Installing Swagger CLI..."
+	@go install github.com/swaggo/swag/cmd/swag@v1.8.12
+	@echo "✅ Swagger CLI installed!"
+
 clean: ## Clean build artifacts
 	@echo "Cleaning..."
 	@rm -rf bin/
+	@rm -rf docs/
 	@rm -f coverage.out
 
 docker-build: ## Build Docker image

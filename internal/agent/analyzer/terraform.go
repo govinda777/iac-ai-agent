@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gosouza/iac-ai-agent/internal/models"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
-	"github.com/gosouza/iac-ai-agent/internal/models"
 )
 
 // TerraformAnalyzer realiza análise de código Terraform
@@ -133,21 +133,17 @@ func (ta *TerraformAnalyzer) analyzeFile(path string) (*models.TerraformAnalysis
 
 // parseFile faz parsing de um arquivo HCL
 func (ta *TerraformAnalyzer) parseFile(file *hcl.File, filename string, analysis *models.TerraformAnalysis) {
-	body, ok := file.Body.(*hcl.BodyContent)
-	if !ok {
-		// Tenta converter para body content
-		content, _ := file.Body.Content(&hcl.BodySchema{
-			Blocks: []hcl.BlockHeaderSchema{
-				{Type: "resource", LabelNames: []string{"type", "name"}},
-				{Type: "module", LabelNames: []string{"name"}},
-				{Type: "variable", LabelNames: []string{"name"}},
-				{Type: "output", LabelNames: []string{"name"}},
-				{Type: "provider", LabelNames: []string{"name"}},
-				{Type: "data", LabelNames: []string{"type", "name"}},
-			},
-		})
-		body = content
-	}
+	// Extrai o conteúdo do body
+	body, _ := file.Body.Content(&hcl.BodySchema{
+		Blocks: []hcl.BlockHeaderSchema{
+			{Type: "resource", LabelNames: []string{"type", "name"}},
+			{Type: "module", LabelNames: []string{"name"}},
+			{Type: "variable", LabelNames: []string{"name"}},
+			{Type: "output", LabelNames: []string{"name"}},
+			{Type: "provider", LabelNames: []string{"name"}},
+			{Type: "data", LabelNames: []string{"type", "name"}},
+		},
+	})
 
 	// Parse blocks
 	for _, block := range body.Blocks {
@@ -177,12 +173,12 @@ func (ta *TerraformAnalyzer) parseResource(block *hcl.Block, filename string, an
 	}
 
 	resource := models.TerraformResource{
-		Type:      block.Labels[0],
-		Name:      block.Labels[1],
-		Provider:  strings.Split(block.Labels[0], "_")[0],
-		File:      filename,
-		LineStart: block.DefRange.Start.Line,
-		LineEnd:   block.DefRange.End.Line,
+		Type:       block.Labels[0],
+		Name:       block.Labels[1],
+		Provider:   strings.Split(block.Labels[0], "_")[0],
+		File:       filename,
+		LineStart:  block.DefRange.Start.Line,
+		LineEnd:    block.DefRange.End.Line,
 		Attributes: make(map[string]interface{}),
 	}
 

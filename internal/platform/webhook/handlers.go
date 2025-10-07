@@ -1,6 +1,7 @@
 package webhook
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
@@ -25,10 +26,11 @@ type WebhookHandler struct {
 
 // NewWebhookHandler cria um novo handler de webhooks
 func NewWebhookHandler(cfg *config.Config, log *logger.Logger) *WebhookHandler {
+	analysisService := services.NewAnalysisService(log, 70) // minPassScore = 70
 	return &WebhookHandler{
 		config:        cfg,
 		logger:        log,
-		reviewService: services.NewReviewService(cfg, log),
+		reviewService: services.NewReviewService(analysisService, log),
 		secret:        cfg.GitHub.WebhookSecret,
 	}
 }
@@ -159,7 +161,7 @@ func (wh *WebhookHandler) verifySignature(r *http.Request) bool {
 	}
 
 	// Restaura body para leitura posterior
-	r.Body = io.NopCloser(io.Reader(body))
+	r.Body = io.NopCloser(bytes.NewReader(body))
 
 	// Calcula HMAC
 	mac := hmac.New(sha256.New, []byte(wh.secret))

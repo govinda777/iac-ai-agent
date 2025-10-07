@@ -1,17 +1,42 @@
 # IaC AI Agent
 
-Um agente inteligente para análise, revisão e otimização de código Infrastructure as Code (IaC) com foco em Terraform.
+> **⚠️ STATUS:** Versão 1.0.0 - Fundação técnica completa, features AI em desenvolvimento  
+> **📊 Conformidade com Objetivo:** 24% (ver [Análise Completa](PROJECT_ANALYSIS.md))
 
-## 🚀 Features
+Um agente para análise, revisão e otimização de código Infrastructure as Code (IaC) com foco em Terraform.
+
+## 🎯 Objetivo
+
+Analisar resultados de **IAC Preview** (terraform plan) e **Checkov Policies** para propor sugestões de melhorias baseadas em knowledge base. Ver [OBJECTIVE.md](OBJECTIVE.md) para detalhes completos.
+
+## 📊 Status Atual
+
+### ✅ Features Implementadas (v1.0.0)
 
 - ✅ **Análise de Terraform**: Parse e validação de código HCL
-- 🔒 **Segurança**: Integração com Checkov para detecção de vulnerabilidades
-- 🔑 **IAM Analysis**: Análise especializada de políticas e permissões
-- 🤖 **AI-Powered**: Usa LLM para sugestões contextualizadas
-- 💰 **Otimização de Custo**: Recomendações para redução de gastos
-- 📊 **PR Scoring**: Atribuição de score de qualidade para pull requests
-- 🔗 **GitHub Integration**: Webhooks e comentários automáticos
-- 📚 **Knowledge Base**: Base de best practices e módulos recomendados
+- ✅ **Segurança (Checkov)**: Integração completa com Checkov
+- ✅ **IAM Analysis**: Análise básica de políticas e permissões
+- ✅ **PR Scoring**: Sistema de scoring multi-dimensional
+- ✅ **Cost Optimizer**: Estimativas básicas de custo
+- ✅ **GitHub Integration**: Webhooks prontos
+- ✅ **Validation Mode**: Análise de resultados pré-existentes
+
+### 🚧 Features Planejadas (v1.5.0 - Sprint 1)
+
+- 🚧 **AI-Powered com LLM**: Integração do LLM ao fluxo de análise
+- 🚧 **Knowledge Base Ativa**: Consulta automática durante análises
+- 🚧 **Preview Analyzer**: Parse de terraform plan output
+- 🚧 **Secrets Scanner**: Detecção de dados sensíveis expostos
+
+### 📋 Roadmap Completo (v2.0.0)
+
+- 📋 Drift Detection
+- 📋 Module Suggester (community modules)
+- 📋 Architecture Advisor
+- 📋 Timeout/Stuck Resources Detection
+- 📋 Best Practices Validator completo
+
+**Ver:** [Roadmap Completo](IMPLEMENTATION_ROADMAP.md) | [Análise do Projeto](PROJECT_ANALYSIS.md)
 
 ## 🏗️ Arquitetura
 

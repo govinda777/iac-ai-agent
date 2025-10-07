@@ -1,0 +1,801 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "description": "Retorna informações gerais sobre a API e seus endpoints disponíveis",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "info"
+                ],
+                "summary": "Informações da API",
+                "responses": {
+                    "200": {
+                        "description": "Informações da API",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/analyze": {
+            "post": {
+                "description": "Analisa código Terraform para identificar problemas de segurança, custos e best practices",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "analysis"
+                ],
+                "summary": "Analisar código IaC",
+                "parameters": [
+                    {
+                        "description": "Requisição de análise",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.AnalysisRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resultado da análise",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.AnalysisResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Requisição inválida",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Verifica o status de saúde do serviço",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "Status do serviço",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/review": {
+            "post": {
+                "description": "Executa uma análise completa de um Pull Request do GitHub",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "review"
+                ],
+                "summary": "Review de Pull Request",
+                "parameters": [
+                    {
+                        "description": "Requisição de review",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ReviewRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resultado do review",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ReviewResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Requisição inválida",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "github_com_gosouza_iac-ai-agent_internal_models.AnalysisDetails": {
+            "type": "object",
+            "properties": {
+                "cost": {
+                    "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.CostAnalysis"
+                },
+                "iam": {
+                    "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.IAMAnalysis"
+                },
+                "security": {
+                    "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.SecurityAnalysis"
+                },
+                "terraform": {
+                    "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.TerraformAnalysis"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.AnalysisRequest": {
+            "type": "object",
+            "properties": {
+                "branch": {
+                    "type": "string"
+                },
+                "commit_sha": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "repository": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.AnalysisResponse": {
+            "type": "object",
+            "properties": {
+                "analysis": {
+                    "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.AnalysisDetails"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "suggestions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.Suggestion"
+                    }
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.Comment": {
+            "type": "object",
+            "properties": {
+                "body": {
+                    "type": "string"
+                },
+                "line": {
+                    "type": "integer"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "position": {
+                    "type": "integer"
+                },
+                "side": {
+                    "description": "LEFT, RIGHT",
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.CostAnalysis": {
+            "type": "object",
+            "properties": {
+                "currency": {
+                    "type": "string"
+                },
+                "estimated_monthly_cost": {
+                    "type": "number"
+                },
+                "optimization_potential": {
+                    "type": "number"
+                },
+                "recommendations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.CostRecommendation"
+                    }
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.CostRecommendation": {
+            "type": "object",
+            "properties": {
+                "current_cost": {
+                    "type": "number"
+                },
+                "implementation_difficulty": {
+                    "description": "easy, medium, hard",
+                    "type": "string"
+                },
+                "potential_savings": {
+                    "type": "number"
+                },
+                "recommendation": {
+                    "type": "string"
+                },
+                "resource": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "details": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.FileReview": {
+            "type": "object",
+            "properties": {
+                "additions": {
+                    "type": "integer"
+                },
+                "changes": {
+                    "type": "integer"
+                },
+                "comments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.Comment"
+                    }
+                },
+                "deletions": {
+                    "type": "integer"
+                },
+                "filename": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "added, modified, deleted",
+                    "type": "string"
+                },
+                "suggestions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.Suggestion"
+                    }
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.GraphEdge": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                },
+                "type": {
+                    "description": "explicit, implicit",
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.GraphNode": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "resource": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.IAMAnalysis": {
+            "type": "object",
+            "properties": {
+                "admin_access_detected": {
+                    "type": "boolean"
+                },
+                "overly_permissive": {
+                    "type": "boolean"
+                },
+                "principal_risks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.PrincipalRisk"
+                    }
+                },
+                "public_access": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "recommendations": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "total_policies": {
+                    "type": "integer"
+                },
+                "total_roles": {
+                    "type": "integer"
+                },
+                "wildcard_actions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.PrincipalRisk": {
+            "type": "object",
+            "properties": {
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "principal": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "risk_level": {
+                    "type": "string"
+                },
+                "type": {
+                    "description": "user, role, service",
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.ResourceGraph": {
+            "type": "object",
+            "properties": {
+                "edges": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.GraphEdge"
+                    }
+                },
+                "nodes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.GraphNode"
+                    }
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.ReviewRequest": {
+            "type": "object",
+            "properties": {
+                "installation_id": {
+                    "type": "integer"
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "pr_number": {
+                    "type": "integer"
+                },
+                "repository": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.ReviewResponse": {
+            "type": "object",
+            "properties": {
+                "analysis": {
+                    "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.AnalysisDetails"
+                },
+                "file_reviews": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.FileReview"
+                    }
+                },
+                "files_analyzed": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "pr_number": {
+                    "type": "integer"
+                },
+                "repository": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "approved, changes_requested, commented",
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "total_suggestions": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.SecurityAnalysis": {
+            "type": "object",
+            "properties": {
+                "checks_failed": {
+                    "type": "integer"
+                },
+                "checks_passed": {
+                    "type": "integer"
+                },
+                "critical": {
+                    "type": "integer"
+                },
+                "findings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.SecurityFinding"
+                    }
+                },
+                "high": {
+                    "type": "integer"
+                },
+                "info": {
+                    "type": "integer"
+                },
+                "low": {
+                    "type": "integer"
+                },
+                "medium": {
+                    "type": "integer"
+                },
+                "total_issues": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.SecurityFinding": {
+            "type": "object",
+            "properties": {
+                "check_id": {
+                    "type": "string"
+                },
+                "check_name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "file": {
+                    "type": "string"
+                },
+                "guideline": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "line": {
+                    "type": "integer"
+                },
+                "references": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "resource": {
+                    "type": "string"
+                },
+                "severity": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.Suggestion": {
+            "type": "object",
+            "properties": {
+                "auto_fix_available": {
+                    "type": "boolean"
+                },
+                "estimated_savings": {
+                    "type": "string"
+                },
+                "file": {
+                    "type": "string"
+                },
+                "line": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "recommendation": {
+                    "type": "string"
+                },
+                "reference_link": {
+                    "type": "string"
+                },
+                "severity": {
+                    "description": "critical, high, medium, low, info",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "security, cost, best_practice, performance",
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.SyntaxError": {
+            "type": "object",
+            "properties": {
+                "column": {
+                    "type": "integer"
+                },
+                "file": {
+                    "type": "string"
+                },
+                "line": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "snippet": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.TerraformAnalysis": {
+            "type": "object",
+            "properties": {
+                "best_practice_warnings": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "modules": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.TerraformModule"
+                    }
+                },
+                "outputs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.TerraformOutput"
+                    }
+                },
+                "providers": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "resource_graph": {
+                    "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ResourceGraph"
+                },
+                "resources": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.TerraformResource"
+                    }
+                },
+                "syntax_errors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.SyntaxError"
+                    }
+                },
+                "total_data_sources": {
+                    "type": "integer"
+                },
+                "total_modules": {
+                    "type": "integer"
+                },
+                "total_outputs": {
+                    "type": "integer"
+                },
+                "total_resources": {
+                    "type": "integer"
+                },
+                "total_variables": {
+                    "type": "integer"
+                },
+                "valid": {
+                    "type": "boolean"
+                },
+                "variables": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.TerraformVariable"
+                    }
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.TerraformModule": {
+            "type": "object",
+            "properties": {
+                "file": {
+                    "type": "string"
+                },
+                "inputs": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "line_start": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "verified": {
+                    "type": "boolean"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.TerraformOutput": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "file": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sensitive": {
+                    "type": "boolean"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.TerraformResource": {
+            "type": "object",
+            "properties": {
+                "attributes": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "dependencies": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "file": {
+                    "type": "string"
+                },
+                "line_end": {
+                    "type": "integer"
+                },
+                "line_start": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_gosouza_iac-ai-agent_internal_models.TerraformVariable": {
+            "type": "object",
+            "properties": {
+                "default": {},
+                "description": {
+                    "type": "string"
+                },
+                "file": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "sensitive": {
+                    "type": "boolean"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

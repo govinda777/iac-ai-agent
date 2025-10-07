@@ -16,7 +16,7 @@ var _ = Describe("IAMAnalyzer", func() {
 	)
 
 	BeforeEach(func() {
-		log = logger.NewLogger("info")
+		log = logger.New("info", "json")
 		iamAnalyzer = analyzer.NewIAMAnalyzer(log)
 	})
 

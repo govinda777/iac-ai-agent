@@ -1,0 +1,48 @@
+# IaC AI Agent - Configuration File
+# Copy this file to app.yaml and update with your values
+
+server:
+  port: 8080
+  host: "0.0.0.0"
+
+llm:
+  provider: "openai"  # openai or anthropic
+  api_key: "${LLM_API_KEY}"  # Set via environment variable
+  model: "gpt-4"
+  temperature: 0.2
+  max_tokens: 4000
+
+analysis:
+  checkov_enabled: true
+  iam_analysis_enabled: true
+  cost_optimization_enabled: true
+
+scoring:
+  min_pass_score: 70
+
+web3:
+  # Privy.io Configuration
+  privy_app_id: "${PRIVY_APP_ID}"
+  privy_app_secret: "${PRIVY_APP_SECRET}"
+  privy_verification_key_url: "https://auth.privy.io/api/v1/verification_keys"
+  
+  # Base Network Configuration
+  base_rpc_url: "https://mainnet.base.org"  # Or https://goerli.base.org for testnet
+  base_chain_id: 8453  # Base Mainnet (84531 for Goerli testnet)
+  
+  # Smart Contract Addresses (update after deployment)
+  nft_access_contract_address: "0x0000000000000000000000000000000000000000"
+  bot_token_contract_address: "0x0000000000000000000000000000000000000000"
+  
+  # Token Configuration
+  token_symbol: "IACAI"
+  token_decimals: 18
+  
+  # Features
+  enable_nft_access: true
+  enable_token_payments: true
+  
+  # Rate Limiting by Tier (requests per hour)
+  basic_tier_rate_limit: 10
+  pro_tier_rate_limit: 100
+  enterprise_tier_rate_limit: 1000

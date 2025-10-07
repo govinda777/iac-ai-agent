@@ -15,6 +15,7 @@ type Config struct {
 	Analysis AnalysisConfig `yaml:"analysis"`
 	Scoring  ScoringConfig  `yaml:"scoring"`
 	Logging  LoggingConfig  `yaml:"logging"`
+	Web3     Web3Config     `yaml:"web3"`
 }
 
 // ServerConfig configurações do servidor HTTP
@@ -55,6 +56,35 @@ type ScoringConfig struct {
 type LoggingConfig struct {
 	Level  string `yaml:"level"`  // debug, info, warn, error
 	Format string `yaml:"format"` // json, text
+}
+
+// Web3Config configurações Web3 (Privy, Base Network, etc)
+type Web3Config struct {
+	// Privy Configuration
+	PrivyAppID              string `yaml:"privy_app_id"`
+	PrivyAppSecret          string `yaml:"privy_app_secret"`
+	PrivyVerificationKeyURL string `yaml:"privy_verification_key_url"`
+
+	// Base Network Configuration
+	BaseRPCURL  string `yaml:"base_rpc_url"`
+	BaseChainID int    `yaml:"base_chain_id"`
+
+	// Smart Contract Addresses
+	NFTAccessContractAddress string `yaml:"nft_access_contract_address"`
+	BotTokenContractAddress  string `yaml:"bot_token_contract_address"`
+
+	// Token Configuration
+	TokenSymbol   string `yaml:"token_symbol"`
+	TokenDecimals int    `yaml:"token_decimals"`
+
+	// Features
+	EnableNFTAccess     bool `yaml:"enable_nft_access"`
+	EnableTokenPayments bool `yaml:"enable_token_payments"`
+
+	// Rate Limiting by Tier (requests per hour)
+	BasicTierRateLimit      int `yaml:"basic_tier_rate_limit"`
+	ProTierRateLimit        int `yaml:"pro_tier_rate_limit"`
+	EnterpriseTierRateLimit int `yaml:"enterprise_tier_rate_limit"`
 }
 
 // Load carrega configuração de um arquivo YAML
@@ -163,6 +193,23 @@ func (c *Config) loadFromEnv() {
 	}
 	if format := os.Getenv("LOG_FORMAT"); format != "" {
 		c.Logging.Format = format
+	}
+
+	// Web3
+	if privyAppID := os.Getenv("PRIVY_APP_ID"); privyAppID != "" {
+		c.Web3.PrivyAppID = privyAppID
+	}
+	if privySecret := os.Getenv("PRIVY_APP_SECRET"); privySecret != "" {
+		c.Web3.PrivyAppSecret = privySecret
+	}
+	if baseRPC := os.Getenv("BASE_RPC_URL"); baseRPC != "" {
+		c.Web3.BaseRPCURL = baseRPC
+	}
+	if nftAddr := os.Getenv("NFT_CONTRACT_ADDRESS"); nftAddr != "" {
+		c.Web3.NFTAccessContractAddress = nftAddr
+	}
+	if tokenAddr := os.Getenv("TOKEN_CONTRACT_ADDRESS"); tokenAddr != "" {
+		c.Web3.BotTokenContractAddress = tokenAddr
 	}
 }
 

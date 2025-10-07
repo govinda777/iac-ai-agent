@@ -225,3 +225,63 @@ func (ca *CheckovAnalyzer) getBridgecrewLink(checkID string) string {
 func (ca *CheckovAnalyzer) GetSecurityAnalysis(result *models.CheckovResult) *models.SecurityAnalysis {
 	return ca.convertToSecurityAnalysis(result)
 }
+
+// ValidateAndParseResult valida e faz parse de um resultado Checkov já executado
+func (ca *CheckovAnalyzer) ValidateAndParseResult(jsonResult []byte) (*models.SecurityAnalysis, error) {
+	ca.logger.Info("Validando resultado Checkov pré-existente")
+
+	// Parse do JSON
+	var result models.CheckovResult
+	if err := json.Unmarshal(jsonResult, &result); err != nil {
+		return nil, fmt.Errorf("erro ao fazer parse do resultado checkov: %w", err)
+	}
+
+	// Valida estrutura básica
+	if err := ca.validateCheckovResult(&result); err != nil {
+		return nil, fmt.Errorf("resultado checkov inválido: %w", err)
+	}
+
+	// Converte para SecurityAnalysis
+	analysis := ca.convertToSecurityAnalysis(&result)
+
+	ca.logger.Info("Resultado Checkov validado com sucesso",
+		"passed", analysis.ChecksPassed,
+		"failed", analysis.ChecksFailed,
+		"total_issues", analysis.TotalIssues)
+
+	return analysis, nil
+}
+
+// validateCheckovResult valida a estrutura de um resultado Checkov
+func (ca *CheckovAnalyzer) validateCheckovResult(result *models.CheckovResult) error {
+	if result == nil {
+		return fmt.Errorf("resultado checkov é nulo")
+	}
+
+	// Valida summary
+	if result.Summary.Passed < 0 {
+		return fmt.Errorf("número de checks passados é negativo: %d", result.Summary.Passed)
+	}
+	if result.Summary.Failed < 0 {
+		return fmt.Errorf("número de checks falhados é negativo: %d", result.Summary.Failed)
+	}
+
+	// Valida consistência
+	if len(result.Results.FailedChecks) != result.Summary.Failed {
+		ca.logger.Warn("Inconsistência entre summary.failed e número de failed_checks",
+			"summary_failed", result.Summary.Failed,
+			"actual_failed", len(result.Results.FailedChecks))
+	}
+
+	// Valida cada check falhado
+	for i, check := range result.Results.FailedChecks {
+		if check.CheckID == "" {
+			return fmt.Errorf("check %d sem ID", i)
+		}
+		if check.CheckName == "" {
+			ca.logger.Warn("Check sem nome", "check_id", check.CheckID)
+		}
+	}
+
+	return nil
+}

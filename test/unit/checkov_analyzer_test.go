@@ -16,7 +16,7 @@ var _ = Describe("CheckovAnalyzer", func() {
 	)
 
 	BeforeEach(func() {
-		log = logger.NewLogger("info")
+		log = logger.New("info", "json")
 		checkovAnalyzer = analyzer.NewCheckovAnalyzer(log)
 	})
 
