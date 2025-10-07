@@ -38,7 +38,6 @@ logging:
 web3:
   # Privy Configuration
   # privy_app_id: ""        # Definir via env var PRIVY_APP_ID
-  # privy_app_secret: ""    # Definir via env var PRIVY_APP_SECRET
   privy_verification_key_url: "https://api.privy.io/v1/siwe/keys"
 
   # Base Network Configuration

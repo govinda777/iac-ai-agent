@@ -18,7 +18,6 @@ type PrivyClient struct {
 	logger     *logger.Logger
 	httpClient *http.Client
 	appID      string
-	appSecret  string
 	baseURL    string
 }
 
@@ -29,7 +28,6 @@ func NewPrivyClient(cfg *config.Config, log *logger.Logger) *PrivyClient {
 		logger:     log,
 		httpClient: &http.Client{Timeout: 30 * time.Second},
 		appID:      cfg.Web3.PrivyAppID,
-		appSecret:  cfg.Web3.PrivyAppSecret,
 		baseURL:    "https://auth.privy.io",
 	}
 }
@@ -76,8 +74,7 @@ func (pc *PrivyClient) VerifyToken(token string) (*PrivyUser, error) {
 		return nil, fmt.Errorf("erro ao criar requisição: %w", err)
 	}
 
-	// Privy usa Basic Auth com App ID e Secret
-	req.SetBasicAuth(pc.appID, pc.appSecret)
+	// Privy usa apenas App ID para autenticação
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	req.Header.Set("privy-app-id", pc.appID)
 
@@ -125,7 +122,6 @@ func (pc *PrivyClient) GetUser(userID string) (*PrivyUser, error) {
 		return nil, fmt.Errorf("erro ao criar requisição: %w", err)
 	}
 
-	req.SetBasicAuth(pc.appID, pc.appSecret)
 	req.Header.Set("privy-app-id", pc.appID)
 
 	resp, err := pc.httpClient.Do(req)
@@ -181,7 +177,6 @@ func (pc *PrivyClient) LinkWallet(userID, walletAddress, signature string) error
 		return fmt.Errorf("erro ao criar requisição: %w", err)
 	}
 
-	req.SetBasicAuth(pc.appID, pc.appSecret)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("privy-app-id", pc.appID)
 
@@ -256,7 +251,6 @@ func (pc *PrivyClient) CreateEmbeddedWallet(userID string) (*LinkedAccount, erro
 		return nil, fmt.Errorf("erro ao criar requisição: %w", err)
 	}
 
-	req.SetBasicAuth(pc.appID, pc.appSecret)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("privy-app-id", pc.appID)
 

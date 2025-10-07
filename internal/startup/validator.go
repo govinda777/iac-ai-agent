@@ -130,7 +130,6 @@ func (v *Validator) validateBasicConfig(result *ValidationResult) error {
 	required := map[string]string{
 		"LLM_API_KEY":      v.config.LLM.APIKey,
 		"PRIVY_APP_ID":     v.config.Web3.PrivyAppID,
-		"PRIVY_APP_SECRET": v.config.Web3.PrivyAppSecret,
 		"WALLET_ADDRESS":   os.Getenv("WALLET_ADDRESS"),
 	}
 
@@ -190,10 +189,6 @@ func (v *Validator) validateLLM(ctx context.Context, result *ValidationResult) e
 func (v *Validator) validatePrivy(result *ValidationResult) error {
 	if v.config.Web3.PrivyAppID == "" {
 		return fmt.Errorf("PRIVY_APP_ID não configurado")
-	}
-
-	if v.config.Web3.PrivyAppSecret == "" {
-		return fmt.Errorf("PRIVY_APP_SECRET não configurado")
 	}
 
 	// TODO: Fazer chamada de teste à API do Privy quando implementado

@@ -26,7 +26,7 @@ type ServerConfig struct {
 
 // LLMConfig configurações do LLM
 type LLMConfig struct {
-	Provider    string  `yaml:"provider"`    // openai, anthropic
+	Provider    string  `yaml:"provider"` // openai, anthropic
 	APIKey      string  `yaml:"api_key"`
 	Model       string  `yaml:"model"`
 	Temperature float64 `yaml:"temperature"`
@@ -42,9 +42,9 @@ type GitHubConfig struct {
 
 // AnalysisConfig configurações de análise
 type AnalysisConfig struct {
-	CheckovEnabled           bool `yaml:"checkov_enabled"`
-	IAMAnalysisEnabled       bool `yaml:"iam_analysis_enabled"`
-	CostOptimizationEnabled  bool `yaml:"cost_optimization_enabled"`
+	CheckovEnabled          bool `yaml:"checkov_enabled"`
+	IAMAnalysisEnabled      bool `yaml:"iam_analysis_enabled"`
+	CostOptimizationEnabled bool `yaml:"cost_optimization_enabled"`
 }
 
 // ScoringConfig configurações de scoring
@@ -62,7 +62,6 @@ type LoggingConfig struct {
 type Web3Config struct {
 	// Privy Configuration
 	PrivyAppID              string `yaml:"privy_app_id"`
-	PrivyAppSecret          string `yaml:"privy_app_secret"`
 	PrivyVerificationKeyURL string `yaml:"privy_verification_key_url"`
 
 	// Base Network Configuration
@@ -85,9 +84,9 @@ type Web3Config struct {
 	BasicTierRateLimit      int `yaml:"basic_tier_rate_limit"`
 	ProTierRateLimit        int `yaml:"pro_tier_rate_limit"`
 	EnterpriseTierRateLimit int `yaml:"enterprise_tier_rate_limit"`
-	
+
 	// Nation.fun Configuration
-	WalletToken  string `yaml:"wallet_token"`  // Token de autenticação da wallet
+	WalletToken   string `yaml:"wallet_token"`   // Token de autenticação da wallet
 	WalletAddress string `yaml:"wallet_address"` // Endereço da wallet
 }
 
@@ -206,9 +205,6 @@ func (c *Config) loadFromEnv() {
 	if privyAppID := os.Getenv("PRIVY_APP_ID"); privyAppID != "" {
 		c.Web3.PrivyAppID = privyAppID
 	}
-	if privySecret := os.Getenv("PRIVY_APP_SECRET"); privySecret != "" {
-		c.Web3.PrivyAppSecret = privySecret
-	}
 	if baseRPC := os.Getenv("BASE_RPC_URL"); baseRPC != "" {
 		c.Web3.BaseRPCURL = baseRPC
 	}
@@ -218,7 +214,7 @@ func (c *Config) loadFromEnv() {
 	if tokenAddr := os.Getenv("TOKEN_CONTRACT_ADDRESS"); tokenAddr != "" {
 		c.Web3.BotTokenContractAddress = tokenAddr
 	}
-	
+
 	// Nation.fun
 	if walletToken := os.Getenv("WALLET_TOKEN"); walletToken != "" {
 		c.Web3.WalletToken = walletToken
@@ -237,7 +233,7 @@ func (c *Config) Validate() error {
 		"openai":     true, // Mantido para compatibilidade, mas será redirecionado para Nation.fun
 		"anthropic":  true, // Mantido para compatibilidade, mas será redirecionado para Nation.fun
 	}
-	
+
 	if c.LLM.Provider != "" && !validProviders[c.LLM.Provider] {
 		return fmt.Errorf("LLM provider inválido: %s (use 'nation.fun')", c.LLM.Provider)
 	}
@@ -247,13 +243,13 @@ func (c *Config) Validate() error {
 	if !validLevels[c.Logging.Level] {
 		return fmt.Errorf("log level inválido: %s", c.Logging.Level)
 	}
-	
+
 	// Valida Nation.fun config quando provider é nation.fun
 	if c.LLM.Provider == "nation.fun" || c.LLM.Provider == "nation" {
 		if c.Web3.NFTAccessContractAddress == "" {
 			return fmt.Errorf("NFT_CONTRACT_ADDRESS é obrigatório para Nation.fun")
 		}
-		
+
 		if c.Web3.WalletToken == "" {
 			return fmt.Errorf("WALLET_TOKEN é obrigatório para Nation.fun")
 		}
