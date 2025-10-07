@@ -92,8 +92,7 @@ func (wh *WebhookHandler) HandleGitHub(w http.ResponseWriter, r *http.Request) {
 		wh.handlePush(&payload, w)
 	default:
 		wh.logger.Info("Evento ignorado", "event", event)
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]string{"message": "Event ignored"})
+		wh.respondJSON(w, http.StatusOK, map[string]string{"message": "Event ignored"})
 	}
 }
 
@@ -102,8 +101,7 @@ func (wh *WebhookHandler) handlePullRequest(payload *models.GitHubWebhookPayload
 	// Verifica ações relevantes
 	if payload.Action != "opened" && payload.Action != "synchronize" && payload.Action != "reopened" {
 		wh.logger.Info("Ação ignorada", "action", payload.Action)
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]string{"message": "Action ignored"})
+		wh.respondJSON(w, http.StatusOK, map[string]string{"message": "Action ignored"})
 		return
 	}
 
@@ -142,8 +140,7 @@ func (wh *WebhookHandler) handlePullRequest(payload *models.GitHubWebhookPayload
 	}()
 
 	// Responde imediatamente
-	w.WriteHeader(http.StatusAccepted)
-	json.NewEncoder(w).Encode(map[string]string{
+	wh.respondJSON(w, http.StatusAccepted, map[string]string{
 		"message": "Review started",
 		"pr":      fmt.Sprintf("%d", payload.PullRequest.Number),
 	})
@@ -158,8 +155,7 @@ func (wh *WebhookHandler) handlePush(payload *models.GitHubWebhookPayload, w htt
 	// Por enquanto, apenas loga
 	// Em uma implementação completa, poderia disparar análise de branch
 
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Push event received"})
+	wh.respondJSON(w, http.StatusOK, map[string]string{"message": "Push event received"})
 }
 
 // verifySignature verifica a assinatura HMAC do webhook
@@ -189,4 +185,13 @@ func (wh *WebhookHandler) verifySignature(r *http.Request) bool {
 	expectedMAC := "sha256=" + hex.EncodeToString(mac.Sum(nil))
 
 	return hmac.Equal([]byte(signature), []byte(expectedMAC))
+}
+
+// respondJSON é um helper para escrever respostas JSON
+func (wh *WebhookHandler) respondJSON(w http.ResponseWriter, statusCode int, payload interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	if err := json.NewEncoder(w).Encode(payload); err != nil {
+		wh.logger.Error("Erro ao escrever resposta JSON", "error", err)
+	}
 }

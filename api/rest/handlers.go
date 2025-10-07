@@ -93,9 +93,7 @@ func (h *Handler) SetupRoutes() *mux.Router {
 // @Success 200 {object} map[string]interface{} "Status do serviço"
 // @Router /health [get]
 func (h *Handler) HandleHealth(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	h.respondJSON(w, http.StatusOK, map[string]interface{}{
 		"status":  "healthy",
 		"service": "iac-ai-agent",
 		"version": "1.0.0",
@@ -110,9 +108,7 @@ func (h *Handler) HandleHealth(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} map[string]interface{} "Informações da API"
 // @Router / [get]
 func (h *Handler) HandleRoot(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	h.respondJSON(w, http.StatusOK, map[string]interface{}{
 		"service": "IaC AI Agent",
 		"version": "1.0.0",
 		"endpoints": map[string]string{
@@ -161,9 +157,7 @@ func (h *Handler) HandleAnalyze(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retorna resultado
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	h.respondJSON(w, http.StatusOK, response)
 
 	h.logger.Info("Análise concluída",
 		"id", response.ID,
@@ -217,9 +211,7 @@ func (h *Handler) HandleReview(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Retorna resultado
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	h.respondJSON(w, http.StatusOK, response)
 
 	h.logger.Info("Review concluído",
 		"id", response.ID,
@@ -227,11 +219,18 @@ func (h *Handler) HandleReview(w http.ResponseWriter, r *http.Request) {
 		"score", response.Score)
 }
 
-// respondError envia resposta de erro
-func (h *Handler) respondError(w http.ResponseWriter, message string, statusCode int) {
+// respondJSON envia uma resposta JSON bem-sucedida
+func (h *Handler) respondJSON(w http.ResponseWriter, statusCode int, payload interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	json.NewEncoder(w).Encode(models.ErrorResponse{
+	if err := json.NewEncoder(w).Encode(payload); err != nil {
+		h.logger.Error("Erro ao escrever resposta JSON", "error", err)
+	}
+}
+
+// respondError envia resposta de erro
+func (h *Handler) respondError(w http.ResponseWriter, message string, statusCode int) {
+	h.respondJSON(w, statusCode, models.ErrorResponse{
 		Error:   http.StatusText(statusCode),
 		Code:    string(rune(statusCode)),
 		Message: message,

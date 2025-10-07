@@ -242,6 +242,23 @@ func (c *NationClient) GenerateStructured(req *models.LLMRequest, responseStruct
 	return nil
 }
 
+// GetCompletion obtém uma resposta para o prompt fornecido
+func (c *NationClient) GetCompletion(ctx context.Context, prompt string) (string, error) {
+	req := &models.LLMRequest{
+		Prompt:      prompt,
+		MaxTokens:   4000, // Valor padrão
+		Temperature: 0.7,  // Valor padrão
+		SystemPrompt: "Você é um especialista em análise de infraestrutura e segurança em nuvem.",
+	}
+
+	resp, err := c.Generate(req)
+	if err != nil {
+		return "", err
+	}
+
+	return resp.Content, nil
+}
+
 // ValidateConnection testa a conexão com Nation.fun
 func (c *NationClient) ValidateConnection() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
