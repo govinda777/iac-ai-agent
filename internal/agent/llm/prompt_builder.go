@@ -240,7 +240,7 @@ Sua tarefa é realizar uma análise profunda de segurança em código Terraform,
 4. Exposição de dados sensíveis
 5. Issues de IAM e permissões
 
-Seja minucioso e detalhado. Priorize os problemas por severidade (Crítico, Alto, Médio, Baixo).
+Seja minucioso e detalhado. Priorize os issues por severidade (Crítico, Alto, Médio, Baixo).
 Forneça recomendações específicas para correção com exemplos de código.`
 
 const costSystemPrompt = `Você é um especialista em otimização de custos para infraestrutura cloud.

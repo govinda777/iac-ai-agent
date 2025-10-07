@@ -41,7 +41,7 @@ func (ca *CheckovAnalyzer) AnalyzeDirectory(dir string, config *models.CheckovCo
 		return nil, fmt.Errorf("checkov não está instalado ou não foi encontrado no PATH")
 	}
 
-	// Prepara comando
+	// Prepara command
 	args := []string{
 		"-d", dir,
 		"-o", "json",
