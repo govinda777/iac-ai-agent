@@ -5,34 +5,40 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/gosouza/iac-ai-agent/internal/agent/analyzer"
-	"github.com/gosouza/iac-ai-agent/internal/agent/scorer"
-	"github.com/gosouza/iac-ai-agent/internal/agent/suggester"
 	"github.com/gosouza/iac-ai-agent/internal/models"
 	"github.com/gosouza/iac-ai-agent/pkg/logger"
 )
 
 // AnalysisService orquestra análise completa de código IaC
 type AnalysisService struct {
-	tfAnalyzer      *analyzer.TerraformAnalyzer
-	checkovAnalyzer *analyzer.CheckovAnalyzer
-	iamAnalyzer     *analyzer.IAMAnalyzer
-	prScorer        *scorer.PRScorer
-	costOptimizer   *suggester.CostOptimizer
-	securityAdvisor *suggester.SecurityAdvisor
+	tfAnalyzer      TerraformAnalyzerInterface
+	checkovAnalyzer CheckovAnalyzerInterface
+	iamAnalyzer     IAMAnalyzerInterface
+	prScorer        PRScorerInterface
+	costOptimizer   CostOptimizerInterface
+	securityAdvisor SecurityAdvisorInterface
 	logger          *logger.Logger
 	minPassScore    int
 }
 
-// NewAnalysisService cria uma nova instância do serviço de análise
-func NewAnalysisService(log *logger.Logger, minPassScore int) *AnalysisService {
+// NewAnalysisService cria uma nova instância do serviço de análise com injeção de dependência
+func NewAnalysisService(
+	log *logger.Logger,
+	minPassScore int,
+	tfAnalyzer TerraformAnalyzerInterface,
+	checkovAnalyzer CheckovAnalyzerInterface,
+	iamAnalyzer IAMAnalyzerInterface,
+	prScorer PRScorerInterface,
+	costOptimizer CostOptimizerInterface,
+	securityAdvisor SecurityAdvisorInterface,
+) *AnalysisService {
 	return &AnalysisService{
-		tfAnalyzer:      analyzer.NewTerraformAnalyzer(),
-		checkovAnalyzer: analyzer.NewCheckovAnalyzer(log),
-		iamAnalyzer:     analyzer.NewIAMAnalyzer(log),
-		prScorer:        scorer.NewPRScorer(),
-		costOptimizer:   suggester.NewCostOptimizer(log),
-		securityAdvisor: suggester.NewSecurityAdvisor(log),
+		tfAnalyzer:      tfAnalyzer,
+		checkovAnalyzer: checkovAnalyzer,
+		iamAnalyzer:     iamAnalyzer,
+		prScorer:        prScorer,
+		costOptimizer:   costOptimizer,
+		securityAdvisor: securityAdvisor,
 		logger:          log,
 		minPassScore:    minPassScore,
 	}
@@ -100,10 +106,11 @@ func (as *AnalysisService) AnalyzeContent(content string, filename string) (*mod
 		Analysis:    analysisDetails,
 		Suggestions: suggestions,
 		Metadata: map[string]interface{}{
-			"pr_score":      score,
-			"is_approved":   as.prScorer.ShouldApprove(score, as.minPassScore),
-			"score_level":   as.prScorer.GetScoreLevel(score.Total),
-			"score_summary": as.prScorer.GenerateScoreSummary(score),
+			"pr_score":       score,
+			"is_approved":    as.prScorer.ShouldApprove(score, as.minPassScore),
+			"score_level":    as.prScorer.GetScoreLevel(score.Total),
+			"score_summary":  as.prScorer.GenerateScoreSummary(score),
+			"recommendation": as.prScorer.GenerateScoreSummary(score),
 		},
 		Timestamp: time.Now(),
 	}
@@ -176,10 +183,11 @@ func (as *AnalysisService) AnalyzeDirectory(dir string) (*models.AnalysisRespons
 		Analysis:    analysisDetails,
 		Suggestions: suggestions,
 		Metadata: map[string]interface{}{
-			"pr_score":      score,
-			"is_approved":   as.prScorer.ShouldApprove(score, as.minPassScore),
-			"score_level":   as.prScorer.GetScoreLevel(score.Total),
-			"score_summary": as.prScorer.GenerateScoreSummary(score),
+			"pr_score":       score,
+			"is_approved":    as.prScorer.ShouldApprove(score, as.minPassScore),
+			"score_level":    as.prScorer.GetScoreLevel(score.Total),
+			"score_summary":  as.prScorer.GenerateScoreSummary(score),
+			"recommendation": as.prScorer.GenerateScoreSummary(score),
 		},
 		Timestamp: time.Now(),
 	}

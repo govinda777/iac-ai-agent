@@ -5,6 +5,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/gosouza/iac-ai-agent/internal/agent/analyzer"
+	"github.com/gosouza/iac-ai-agent/internal/agent/scorer"
+	"github.com/gosouza/iac-ai-agent/internal/agent/suggester"
 	"github.com/gosouza/iac-ai-agent/internal/models"
 	"github.com/gosouza/iac-ai-agent/internal/services"
 	"github.com/gosouza/iac-ai-agent/pkg/config"
@@ -37,7 +40,24 @@ type Handler struct {
 
 // NewHandler cria um novo handler
 func NewHandler(cfg *config.Config, log *logger.Logger) *Handler {
-	analysisService := services.NewAnalysisService(log, 70) // minPassScore = 70
+	// Instantiate concrete types
+	tfAnalyzer := analyzer.NewTerraformAnalyzer()
+	checkovAnalyzer := analyzer.NewCheckovAnalyzer(log)
+	iamAnalyzer := analyzer.NewIAMAnalyzer(log)
+	prScorer := scorer.NewPRScorer()
+	costOptimizer := suggester.NewCostOptimizer(log)
+	securityAdvisor := suggester.NewSecurityAdvisor(log)
+
+	analysisService := services.NewAnalysisService(
+		log,
+		70, // minPassScore
+		tfAnalyzer,
+		checkovAnalyzer,
+		iamAnalyzer,
+		prScorer,
+		costOptimizer,
+		securityAdvisor,
+	)
 	return &Handler{
 		config:          cfg,
 		logger:          log,

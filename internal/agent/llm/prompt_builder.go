@@ -25,7 +25,7 @@ func NewPromptBuilder(log *logger.Logger) *PromptBuilder {
 // PromptData contém os dados para construir um prompt
 type PromptData struct {
 	TerraformCode  string
-	CheckovResults *models.CheckovResults
+	CheckovResults *models.CheckovResult
 	IAMPolicies    []string
 	KnowledgeBase  map[string]interface{}
 	Context        map[string]interface{}
@@ -146,7 +146,7 @@ func (b *PromptBuilder) BuildArchitecturePrompt(data *PromptData) (*models.LLMRe
 }
 
 // FormatCheckovResults formata os resultados do Checkov para o prompt
-func (b *PromptBuilder) FormatCheckovResults(results *models.CheckovResults) string {
+func (b *PromptBuilder) FormatCheckovResults(results *models.CheckovResult) string {
 	if results == nil || len(results.Results.FailedChecks) == 0 {
 		return "Nenhum resultado Checkov disponível."
 	}
@@ -167,7 +167,7 @@ func (b *PromptBuilder) FormatCheckovResults(results *models.CheckovResults) str
 		sb.WriteString(fmt.Sprintf("- **%s**\n", check.CheckID))
 		sb.WriteString(fmt.Sprintf("  - **Severidade**: %s\n", check.Severity))
 		sb.WriteString(fmt.Sprintf("  - **Arquivo**: %s\n", check.File))
-		sb.WriteString(fmt.Sprintf("  - **Recurso**: %s\n", check.ResourceID))
+		sb.WriteString(fmt.Sprintf("  - **Recurso**: %s\n", check.Resource))
 		sb.WriteString(fmt.Sprintf("  - **Descrição**: %s\n", check.CheckName))
 		if check.Guideline != "" {
 			sb.WriteString(fmt.Sprintf("  - **Recomendação**: %s\n", check.Guideline))
