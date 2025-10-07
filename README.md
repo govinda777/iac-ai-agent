@@ -1,42 +1,99 @@
-# 🤖 IaC AI Agent
+# <div align="center">🤖 IaC AI Agent</div>
 
-> Agente de IA para análise, revisão e otimização de código Infrastructure as Code (Terraform) com autenticação Web3 e pagamentos on-chain.
+<div align="center">
+
+![IaC AI Agent Banner](img/logo.svg)
+
+<h3>Agente de IA para análise, revisão e otimização de código Infrastructure as Code</h3>
+<h4>Com autenticação Web3 e pagamentos on-chain</h4>
 
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go)](https://go.dev/)
-[![Privy](https://img.shields.io/badge/Auth-Privy.io-6366F1)](https://privy.io)
-[![Base Network](https://img.shields.io/badge/L2-Base-0052FF)](https://base.org)
+[![Privy](https://img.shields.io/badge/Auth-Privy.io-6366F1?style=flat&logo=ethereum)](https://privy.io)
+[![Base Network](https://img.shields.io/badge/L2-Base-0052FF?style=flat&logo=coinbase)](https://base.org)
 [![Nation.fun](https://img.shields.io/badge/Community-Nation.fun-FF6B6B)](https://nation.fun)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
----
+</div>
 
-## 🚨 ANTES DE COMEÇAR - LEIA ISTO!
+<br>
 
-> **A aplicação NÃO VAI INICIAR sem estas 3 coisas configuradas:**
+<div align="center">
+  <img src="https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white" alt="Terraform">
+  <img src="https://img.shields.io/badge/AWS-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white" alt="AWS">
+  <img src="https://img.shields.io/badge/Azure-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white" alt="Azure">
+  <img src="https://img.shields.io/badge/GCP-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="GCP">
+  <img src="https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI">
+</div>
 
-| Requisito | O que é | Onde obter |
-|-----------|---------|------------|
-| 🎨 **Nation.fun NFT** | NFT de membership da Nation.fun | https://nation.fun/ |
-| 🔐 **Privy.io Account** | Credenciais de autenticação Web3 | https://privy.io |
-| 🤖 **OpenAI API Key** | Chave de API do LLM | https://platform.openai.com/api-keys |
+<br>
 
-📖 **Setup Completo**: Leia [`SETUP.md`](SETUP.md) ou [`docs/ENVIRONMENT_VARIABLES.md`](docs/ENVIRONMENT_VARIABLES.md)
+## 📊 Visão Geral
 
----
+<div align="center">
+  <img src="img/hero-illustration.svg" width="80%" alt="IaC AI Agent Illustration">
+</div>
 
-## 🎯 O Que é?
+<br>
+
+<div class="gradient-box">
+  <h3>🚀 O que o IaC AI Agent faz?</h3>
+</div>
 
 O **IaC AI Agent** é um bot inteligente que analisa código Terraform e fornece:
 
-- ✅ **Análise de Segurança** (Checkov)
-- ✅ **Análise com LLM** (GPT-4/Claude) - Sugestões contextualizadas
-- ✅ **Detecção de Drift** e Preview Analysis
-- ✅ **Otimização de Custos** com estimativas
-- ✅ **Recomendações de Arquitetura**
-- ✅ **Best Practices** e IAM Analysis
-- ✅ **Scoring Automático** de qualidade
+<div class="feature-grid">
+  <div class="feature-card">
+    <h4>✅ Análise de Segurança</h4>
+    <p>Integração com Checkov para detecção de vulnerabilidades</p>
+  </div>
+  <div class="feature-card">
+    <h4>✅ Análise com LLM</h4>
+    <p>Sugestões contextualizadas usando GPT-4/Claude</p>
+  </div>
+  <div class="feature-card">
+    <h4>✅ Detecção de Drift</h4>
+    <p>Identifica diferenças entre código e infraestrutura</p>
+  </div>
+  <div class="feature-card">
+    <h4>✅ Otimização de Custos</h4>
+    <p>Recomendações para redução de gastos com estimativas</p>
+  </div>
+  <div class="feature-card">
+    <h4>✅ Best Practices</h4>
+    <p>Validação de padrões e práticas recomendadas</p>
+  </div>
+  <div class="feature-card">
+    <h4>✅ IAM Analysis</h4>
+    <p>Análise especializada de permissões e políticas</p>
+  </div>
+</div>
 
-### 🤖 Sistema de Agentes (NOVO!)
+## 🧠 Sistema de Agentes Inteligentes
+
+```mermaid
+graph TD
+    A[GitHub PR] -->|Webhook| B[API Handler]
+    B --> C[Analysis Service]
+    C --> D{Analyzers}
+    D --> E[Terraform Analyzer]
+    D --> F[Checkov Analyzer]
+    D --> G[IAM Analyzer]
+    E --> H[Results]
+    F --> H
+    G --> H
+    H --> I[LLM Processing]
+    I --> J[Suggestions]
+    J --> K[Cost Optimizer]
+    J --> L[Security Advisor]
+    K --> M[Final Report]
+    L --> M
+    M --> N[PR Scorer]
+    N --> O[GitHub Comment]
+    
+    style A fill:#ff9900,stroke:#333,stroke-width:2px
+    style I fill:#412991,stroke:#333,stroke-width:2px
+    style O fill:#2da44e,stroke:#333,stroke-width:2px
+```
 
 O IaC AI Agent possui um **sistema de agentes inteligentes** que:
 
@@ -45,110 +102,101 @@ O IaC AI Agent possui um **sistema de agentes inteligentes** que:
 - 🧠 **Personalidade customizável**: Ajuste tom, verbosidade, estilo
 - 📊 **Conhecimento especializado**: Expertise em AWS, Azure, GCP, Terraform
 - 🔧 **Limites configuráveis**: Rate limits, custos, timeouts
-- 📈 **Métricas de uso**: Performance, custos, qualidade
 
-```
-🤖 Verificando agente padrão...
+<div class="terminal">
+<pre>
+$ iac-ai-agent init
+🤖 <span class="highlight">Verificando agente padrão...</span>
 ℹ️  Nenhum agente encontrado
-✨ Criando novo agente automaticamente...
-✅ Novo agente criado: IaC Agent - 0x742d35
-```
+✨ <span class="highlight">Criando novo agente automaticamente...</span>
+✅ <span class="success">Novo agente criado: IaC Agent - 0x742d35</span>
+</pre>
+</div>
 
-📖 **Documentação completa**: [`docs/AGENT_SYSTEM.md`](docs/AGENT_SYSTEM.md)
+## 🔐 Web3 Native
 
-### 🔐 Web3 Native
+<div align="center">
+  <img src="img/web3-integration.svg" width="70%" alt="Web3 Integration">
+</div>
+
+### Autenticação e Pagamentos Descentralizados
 
 - **Autenticação via Privy.io**: Login com wallet (MetaMask, Coinbase) ou email
 - **NFTs de Acesso** (Base Network): 3 tiers de acesso permanente
 - **Token IACAI** (ERC-20): Pague por análises com tokens on-chain
 - **Privy Onramp**: Compre crypto com cartão/PIX sem ter wallet
 
----
-
 ## 🏗️ Arquitetura
 
+```mermaid
+flowchart TB
+    subgraph Frontend
+    A[Privy SDK] --- B[Wagmi]
+    B --- C[Next.js]
+    end
+    
+    subgraph "Backend (Go)"
+    D[API REST] --- E[Web3 Platform]
+    E --- F[LLM]
+    D --- G[Analyzers]
+    G --- H[Knowledge Base]
+    end
+    
+    subgraph "Base Network (L2)"
+    I[NFT Access] --- J[IACAI Token]
+    end
+    
+    Frontend --> Backend
+    Backend --> "Base Network (L2)"
+    
+    class Frontend,Backend,"Base Network (L2)" node
+    
+    classDef node fill:#f9f9f9,stroke:#333,stroke-width:1px,rx:5px,ry:5px
 ```
-┌─────────────────────────────────────────────────────┐
-│                    Frontend                          │
-│  Privy SDK + Wagmi + Next.js                        │
-└─────────────────────────────────────────────────────┘
-                       ↓
-┌─────────────────────────────────────────────────────┐
-│              Backend (Go)                            │
-│                                                      │
-│  ┌──────────────┐  ┌──────────────┐  ┌───────────┐│
-│  │ API REST     │  │ Web3 Platform│  │ LLM       ││
-│  │ • Handlers   │  │ • Privy      │  │ • OpenAI  ││
-│  │ • Auth       │  │ • Base       │  │ • Claude  ││
-│  └──────────────┘  │ • NFT/Token  │  └───────────┘│
-│                     │ • Onramp     │                │
-│  ┌──────────────┐  └──────────────┘  ┌───────────┐│
-│  │ Analyzers    │                     │ Knowledge ││
-│  │ • Terraform  │                     │ Base      ││
-│  │ • Checkov    │                     │ • Rules   ││
-│  │ • IAM        │                     │ • Modules ││
-│  │ • Preview    │                     │ • Patterns││
-│  └──────────────┘                     └───────────┘│
-└─────────────────────────────────────────────────────┘
-                       ↓
-┌─────────────────────────────────────────────────────┐
-│           Base Network (L2 Ethereum)                 │
-│                                                      │
-│  ┌────────────────────┐    ┌────────────────────┐  │
-│  │ NFT Access (ERC-721)│    │ IACAI Token (ERC-20)│  │
-│  │ • Basic: 0.01 ETH  │    │ • Packages          │  │
-│  │ • Pro: 0.05 ETH    │    │ • Payments          │  │
-│  │ • Enterprise: 0.2  │    │ • Transfers         │  │
-│  └────────────────────┘    └────────────────────┘  │
-└─────────────────────────────────────────────────────┘
-```
-
----
 
 ## ⚡ Quick Start
 
-### 🔴 REQUISITOS OBRIGATÓRIOS
+<div class="warning-box">
+  <h3>🚨 ANTES DE COMEÇAR - LEIA ISTO!</h3>
+  <p>A aplicação <strong>NÃO VAI INICIAR</strong> sem estas 3 coisas configuradas:</p>
+</div>
 
-Antes de iniciar, você PRECISA ter:
+| Requisito | O que é | Onde obter |
+|-----------|---------|------------|
+| 🎨 **Nation.fun NFT** | NFT de membership da Nation.fun | [nation.fun](https://nation.fun/) |
+| 🔐 **Privy.io Account** | Credenciais de autenticação Web3 | [privy.io](https://privy.io) |
+| 🤖 **OpenAI API Key** | Chave de API do LLM | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) |
 
-1. **Nation.fun NFT** - Compre em https://nation.fun/
-2. **Privy.io Account** - Crie em https://privy.io
-3. **OpenAI API Key** - Obtenha em https://platform.openai.com/api-keys
-
-```bash
-# 1. Clone
+<div class="terminal">
+<pre>
+<span class="comment"># 1. Clone</span>
 git clone https://github.com/gosouza/iac-ai-agent
 cd iac-ai-agent
 
-# 2. Configure variáveis OBRIGATÓRIAS
+<span class="comment"># 2. Configure variáveis OBRIGATÓRIAS</span>
 cp .env.example .env
 
-# Edite .env e adicione:
-# - PRIVY_APP_ID=app_xxx
-# - PRIVY_APP_SECRET=xxx
-# - WALLET_ADDRESS=0x... (com Nation.fun NFT)
-# - WALLET_PRIVATE_KEY=0x...
-# - NATION_NFT_CONTRACT=0x...
-# - LLM_API_KEY=sk-...
+<span class="comment"># Edite .env e adicione:</span>
+<span class="highlight"># - PRIVY_APP_ID=app_xxx</span>
+<span class="highlight"># - PRIVY_APP_SECRET=xxx</span>
+<span class="highlight"># - WALLET_ADDRESS=0x... (com Nation.fun NFT)</span>
+<span class="highlight"># - WALLET_PRIVATE_KEY=0x...</span>
+<span class="highlight"># - NATION_NFT_CONTRACT=0x...</span>
+<span class="highlight"># - LLM_API_KEY=sk-...</span>
 
-# 3. Execute
+<span class="comment"># 3. Execute</span>
 go run cmd/agent/main.go
 
-# A aplicação vai validar TUDO antes de iniciar!
-# ✅ LLM Connection
-# ✅ Privy.io Credentials
-# ✅ Base Network
-# ✅ Nation.fun NFT Ownership
+<span class="comment"># A aplicação vai validar TUDO antes de iniciar!</span>
+<span class="success"># ✅ LLM Connection</span>
+<span class="success"># ✅ Privy.io Credentials</span>
+<span class="success"># ✅ Base Network</span>
+<span class="success"># ✅ Nation.fun NFT Ownership</span>
 
-# 4. Teste
+<span class="comment"># 4. Teste</span>
 curl http://localhost:8080/health
-```
-
-📖 **Documentação de Variáveis**: [ENVIRONMENT_VARIABLES.md](docs/ENVIRONMENT_VARIABLES.md)  
-📖 **Guia completo**: [QUICKSTART.md](docs/QUICKSTART.md)  
-📖 **Integração Nation.fun**: [NATION_FUN_INTEGRATION.md](docs/NATION_FUN_INTEGRATION.md)
-
----
+</pre>
+</div>
 
 ## 🎫 Sistema de Acesso (NFTs)
 
@@ -162,86 +210,146 @@ curl http://localhost:8080/health
 
 ### Como Funciona?
 
-1. **Compra NFT** → Acesso permanente
-2. **Compra Tokens (IACAI)** → Pague por análises
-3. **Use o Bot** → Tokens são debitados automaticamente
-
-### Métodos de Pagamento
-
-- ✅ **Cartão de Crédito/Débito** (via Privy Onramp)
-- ✅ **PIX** (Brasil)
-- ✅ **ETH na wallet**
-- ✅ **Apple Pay / Google Pay**
-
----
+```mermaid
+sequenceDiagram
+    participant User as Usuário
+    participant Privy as Privy.io
+    participant Base as Base Network
+    participant Agent as IaC AI Agent
+    
+    User->>Privy: Login (wallet/email)
+    Privy->>User: Autenticado
+    User->>Base: Compra NFT de acesso
+    Base->>User: NFT transferido
+    User->>Base: Compra tokens IACAI
+    Base->>User: Tokens transferidos
+    User->>Agent: Envia código Terraform
+    Agent->>Base: Verifica NFT + debita tokens
+    Base->>Agent: Confirmação
+    Agent->>User: Análise completa
+```
 
 ## 💎 Tokens IACAI
 
-### Pacotes Disponíveis
-
-| Pacote | Tokens | Preço | Desconto |
-|--------|--------|-------|----------|
-| Starter | 100 | 0.005 ETH ($10) | - |
-| Power | 500 | 0.0225 ETH ($45) | 10% |
-| Pro | 1000 | 0.0425 ETH ($85) | 15% |
-| Enterprise | 5000 | 0.1875 ETH ($375) | 25% |
-
-### Tabela de Custos
-
-| Operação | Custo (IACAI) |
-|----------|---------------|
-| Terraform Analysis | 1 |
-| Checkov Scan | 2 |
-| LLM Analysis | 5 |
-| Preview Analysis | 3 |
-| Security Audit | 10 |
-| Cost Optimization | 5 |
-| Full Review | 15 |
-
----
+<div class="pricing-table">
+  <div class="pricing-column">
+    <h3>Pacotes Disponíveis</h3>
+    <table>
+      <tr>
+        <th>Pacote</th>
+        <th>Tokens</th>
+        <th>Preço</th>
+        <th>Desconto</th>
+      </tr>
+      <tr>
+        <td>Starter</td>
+        <td>100</td>
+        <td>0.005 ETH ($10)</td>
+        <td>-</td>
+      </tr>
+      <tr>
+        <td>Power</td>
+        <td>500</td>
+        <td>0.0225 ETH ($45)</td>
+        <td>10%</td>
+      </tr>
+      <tr>
+        <td>Pro</td>
+        <td>1000</td>
+        <td>0.0425 ETH ($85)</td>
+        <td>15%</td>
+      </tr>
+      <tr>
+        <td>Enterprise</td>
+        <td>5000</td>
+        <td>0.1875 ETH ($375)</td>
+        <td>25%</td>
+      </tr>
+    </table>
+  </div>
+  
+  <div class="pricing-column">
+    <h3>Tabela de Custos</h3>
+    <table>
+      <tr>
+        <th>Operação</th>
+        <th>Custo (IACAI)</th>
+      </tr>
+      <tr>
+        <td>Terraform Analysis</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>Checkov Scan</td>
+        <td>2</td>
+      </tr>
+      <tr>
+        <td>LLM Analysis</td>
+        <td>5</td>
+      </tr>
+      <tr>
+        <td>Preview Analysis</td>
+        <td>3</td>
+      </tr>
+      <tr>
+        <td>Security Audit</td>
+        <td>10</td>
+      </tr>
+      <tr>
+        <td>Cost Optimization</td>
+        <td>5</td>
+      </tr>
+      <tr>
+        <td>Full Review</td>
+        <td>15</td>
+      </tr>
+    </table>
+  </div>
+</div>
 
 ## 📚 Documentação
 
-### Para Começar
-
-- 📖 [Quick Start](docs/QUICKSTART.md) - Setup em 5 minutos
-- 🎯 [Objetivo do Projeto](docs/OBJECTIVE.md) - Visão completa
-- 🏗️ [Arquitetura](docs/ARCHITECTURE.md) - Design técnico
-
-### Para Desenvolvedores
-
-- 🔌 [Guia de Integração Web3](docs/WEB3_INTEGRATION_GUIDE.md) - Privy + Base
-- 📝 [Resumo de Implementação](docs/IMPLEMENTATION_SUMMARY.md) - O que foi feito
-- 🗺️ [Roadmap](docs/IMPLEMENTATION_ROADMAP.md) - Próximos passos
-
-### Para Executivos
-
-- 📊 [Executive Summary](docs/EXECUTIVE_SUMMARY.md) - Visão executiva
-- 📈 [Análise do Projeto](docs/PROJECT_ANALYSIS.md) - Status atual
-
-### Índice Completo
-
-- 📚 [INDEX.md](docs/INDEX.md) - Todos os documentos
-
----
+<div class="doc-grid">
+  <div class="doc-card">
+    <h3>Para Começar</h3>
+    <ul>
+      <li>📖 <a href="docs/QUICKSTART.md">Quick Start</a> - Setup em 5 minutos</li>
+      <li>🎯 <a href="docs/OBJECTIVE.md">Objetivo do Projeto</a> - Visão completa</li>
+      <li>🏗️ <a href="docs/ARCHITECTURE.md">Arquitetura</a> - Design técnico</li>
+      <li>🤖 <a href="docs/AGENT_SYSTEM.md">Sistema de Agentes</a> - Documentação completa</li>
+    </ul>
+  </div>
+  
+  <div class="doc-card">
+    <h3>Para Desenvolvedores</h3>
+    <ul>
+      <li>🔌 <a href="docs/WEB3_INTEGRATION_GUIDE.md">Guia de Integração Web3</a> - Privy + Base</li>
+      <li>📝 <a href="docs/IMPLEMENTATION_SUMMARY.md">Resumo de Implementação</a> - O que foi feito</li>
+      <li>🗺️ <a href="docs/IMPLEMENTATION_ROADMAP.md">Roadmap</a> - Próximos passos</li>
+      <li>🧪 <a href="docs/TESTING.md">Testes</a> - Estratégia e execução</li>
+    </ul>
+  </div>
+</div>
 
 ## 🧪 Testes BDD
 
 Testes completos em Gherkin (português) cobrindo todos os fluxos:
 
-```bash
-# Instalar Godog
+<div class="terminal">
+<pre>
+<span class="comment"># Instalar Godog</span>
 go install github.com/cucumber/godog/cmd/godog@latest
 
-# Executar todos os testes
+<span class="comment"># Executar todos os testes</span>
 godog test/bdd/features/
 
-# Testes disponíveis:
-# ✓ user_onboarding.feature     - Autenticação Privy
-# ✓ nft_purchase.feature         - Compra de NFT
-# ✓ token_purchase.feature       - Compra de tokens
-# ✓ bot_analysis.feature         - Uso do bot
-```
+<span class="comment"># Testes disponíveis:</span>
+<span class="success"># ✓ user_onboarding.feature     - Autenticação Privy</span>
+<span class="success"># ✓ nft_purchase.feature         - Compra de NFT</span>
+<span class="success"># ✓ token_purchase.feature       - Compra de tokens</span>
+<span class="success"># ✓ bot_analysis.feature         - Uso do bot</span>
+</pre>
+</div>
 
 ### Exemplo de Cenário BDD
 
@@ -261,13 +369,12 @@ Cenário: Comprar NFT Pro Access usando Privy Onramp
   E devo receber notificação "NFT Pro Access adquirido!"
 ```
 
----
-
 ## 🚀 Deployment
 
-### Backend (Docker)
-
-```bash
+<div class="deployment-options">
+  <div class="deployment-card">
+    <h3>Backend (Docker)</h3>
+    <pre>
 # Build
 docker build -t iacai-agent .
 
@@ -278,100 +385,93 @@ docker run -p 8080:8080 \
   -e LLM_API_KEY=xxx \
   -e BASE_RPC_URL=https://mainnet.base.org \
   iacai-agent
-```
-
-### Smart Contracts
-
-```bash
+</pre>
+  </div>
+  
+  <div class="deployment-card">
+    <h3>Smart Contracts</h3>
+    <pre>
 cd contracts
 npm install
 npx hardhat run scripts/deploy.ts --network base
-```
-
-Contratos deployados na **Base Mainnet** (Chain ID 8453):
-- NFT Access: `0x...` (a ser deployado)
-- IACAI Token: `0x...` (a ser deployado)
-
----
+</pre>
+    <p>Contratos deployados na <strong>Base Mainnet</strong> (Chain ID 8453):</p>
+    <ul>
+      <li>NFT Access: <code>0x...</code> (a ser deployado)</li>
+      <li>IACAI Token: <code>0x...</code> (a ser deployado)</li>
+    </ul>
+  </div>
+</div>
 
 ## 🛠️ Stack Tecnológica
 
-### Backend
-- **Linguagem**: Go 1.21+
-- **Frameworks**: Standard library, Gorilla Mux
-- **LLM**: OpenAI GPT-4, Anthropic Claude
-- **Security**: Checkov integration
+<div class="tech-stack">
+  <div class="tech-column">
+    <h3>Backend</h3>
+    <ul>
+      <li><strong>Linguagem</strong>: Go 1.21+</li>
+      <li><strong>Frameworks</strong>: Standard library, Gorilla Mux</li>
+      <li><strong>LLM</strong>: OpenAI GPT-4, Anthropic Claude</li>
+      <li><strong>Security</strong>: Checkov integration</li>
+    </ul>
+  </div>
+  
+  <div class="tech-column">
+    <h3>Web3</h3>
+    <ul>
+      <li><strong>Auth</strong>: Privy.io SDK</li>
+      <li><strong>Blockchain</strong>: Base Network (L2 Ethereum)</li>
+      <li><strong>Wallets</strong>: MetaMask, Coinbase Wallet, Embedded Wallets</li>
+      <li><strong>Onramp</strong>: MoonPay, Transak (via Privy)</li>
+      <li><strong>Contracts</strong>: Solidity 0.8.20, OpenZeppelin</li>
+    </ul>
+  </div>
+</div>
 
-### Web3
-- **Auth**: Privy.io SDK
-- **Blockchain**: Base Network (L2 Ethereum)
-- **Wallets**: MetaMask, Coinbase Wallet, Embedded Wallets
-- **Onramp**: MoonPay, Transak (via Privy)
-- **Contracts**: Solidity 0.8.20, OpenZeppelin
+## 🎯 Roadmap
 
-### Frontend (Sugerido)
-- **Framework**: Next.js 14
-- **Auth**: `@privy-io/react-auth`
-- **Web3**: Wagmi, Viem
-- **UI**: Tailwind CSS, shadcn/ui
-
----
-
-## 📊 Métricas e Monitoramento
-
-```yaml
-Business:
-  - NFT mints por dia/tier
-  - Token purchases
-  - Revenue (ETH/USD)
-  - Active users por tier
-  - Análises executadas
-
-Technical:
-  - API response time
-  - LLM latency
-  - Blockchain tx success rate
-  - Onramp conversion rate
-  - Error rate
-```
-
----
-
-## 🤝 Contribuindo
-
-Contribuições são bem-vindas! Por favor:
-
-1. Fork o repositório
-2. Crie uma branch (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -am 'Add nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
-5. Abra um Pull Request
-
-### Guidelines
-
-- Escreva testes BDD para novas features
-- Mantenha cobertura de testes > 80%
-- Siga Go best practices
-- Documente APIs públicas
-- Atualize README se necessário
-
----
-
-## 📝 License
-
-MIT License - veja [LICENSE](LICENSE) para detalhes.
-
----
-
-## 🔗 Links Úteis
-
-- **Privy Docs**: https://docs.privy.io
-- **Base Network**: https://docs.base.org
-- **OpenAI API**: https://platform.openai.com/docs
-- **Checkov**: https://www.checkov.io
-- **Terraform**: https://www.terraform.io
-
----
+<div class="roadmap">
+  <div class="roadmap-item completed">
+    <span class="roadmap-status">✅</span>
+    <span class="roadmap-text">Análise básica de Terraform</span>
+  </div>
+  <div class="roadmap-item completed">
+    <span class="roadmap-status">✅</span>
+    <span class="roadmap-text">Integração Checkov</span>
+  </div>
+  <div class="roadmap-item completed">
+    <span class="roadmap-status">✅</span>
+    <span class="roadmap-text">LLM Analysis (GPT-4/Claude)</span>
+  </div>
+  <div class="roadmap-item completed">
+    <span class="roadmap-status">✅</span>
+    <span class="roadmap-text">Autenticação Web3 (Privy)</span>
+  </div>
+  <div class="roadmap-item completed">
+    <span class="roadmap-status">✅</span>
+    <span class="roadmap-text">NFTs de acesso (Base Network)</span>
+  </div>
+  <div class="roadmap-item completed">
+    <span class="roadmap-status">✅</span>
+    <span class="roadmap-text">Token IACAI (ERC-20)</span>
+  </div>
+  <div class="roadmap-item pending">
+    <span class="roadmap-status">⏳</span>
+    <span class="roadmap-text">Preview Analysis</span>
+  </div>
+  <div class="roadmap-item pending">
+    <span class="roadmap-status">⏳</span>
+    <span class="roadmap-text">Drift Detection</span>
+  </div>
+  <div class="roadmap-item pending">
+    <span class="roadmap-status">⏳</span>
+    <span class="roadmap-text">Dashboard Web</span>
+  </div>
+  <div class="roadmap-item pending">
+    <span class="roadmap-status">⏳</span>
+    <span class="roadmap-text">Integração CI/CD</span>
+  </div>
+</div>
 
 ## 📞 Suporte
 
@@ -382,35 +482,181 @@ MIT License - veja [LICENSE](LICENSE) para detalhes.
 
 ---
 
-## 🎯 Roadmap
+<div align="center">
+  <p>Made with ❤️ by the IaC AI Agent Team</p>
+  <p>
+    <strong>Status</strong>: 🚀 Pronto para produção<br>
+    <strong>Versão</strong>: 1.0.0<br>
+    <strong>Última Atualização</strong>: 2025-10-07
+  </p>
+</div>
 
-- [x] Análise básica de Terraform
-- [x] Integração Checkov
-- [x] LLM Analysis (GPT-4/Claude)
-- [x] Autenticação Web3 (Privy)
-- [x] NFTs de acesso (Base Network)
-- [x] Token IACAI (ERC-20)
-- [x] Privy Onramp
-- [x] Testes BDD completos
-- [ ] Preview Analysis
-- [ ] Drift Detection
-- [ ] Dashboard Web
-- [ ] Integração CI/CD
-- [ ] Mobile App
-- [ ] Governance DAO
+<style>
+/* Estilos para o README */
+.gradient-box {
+  background: linear-gradient(90deg, #7B42BC 0%, #412991 100%);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
 
----
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
 
-## 🌟 Star History
+.feature-card {
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #f6f8fa;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
 
-Se você gostou do projeto, dê uma ⭐ no GitHub!
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
 
----
+.terminal {
+  background-color: #0d1117;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 20px 0;
+  overflow-x: auto;
+}
 
-**Status**: 🚀 Pronto para produção  
-**Versão**: 1.0.0  
-**Última Atualização**: 2025-01-15
+.terminal pre {
+  color: #c9d1d9;
+  margin: 0;
+}
 
----
+.highlight {
+  color: #ff7b72;
+}
 
-Made with ❤️ by the IaC AI Agent Team
+.success {
+  color: #7ee787;
+}
+
+.comment {
+  color: #8b949e;
+}
+
+.warning-box {
+  background-color: #ffebe9;
+  border: 1px solid #ff7b72;
+  border-left: 5px solid #ff7b72;
+  padding: 16px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.doc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.doc-card {
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #f6f8fa;
+}
+
+.pricing-table {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.pricing-column table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pricing-column th, .pricing-column td {
+  padding: 8px;
+  border: 1px solid #e1e4e8;
+  text-align: left;
+}
+
+.pricing-column th {
+  background-color: #f6f8fa;
+}
+
+.deployment-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.deployment-card {
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #f6f8fa;
+}
+
+.deployment-card pre {
+  background-color: #0d1117;
+  color: #c9d1d9;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.tech-stack {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.tech-column {
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #f6f8fa;
+}
+
+.roadmap {
+  margin: 20px 0;
+}
+
+.roadmap-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.roadmap-status {
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.roadmap-item.completed .roadmap-text {
+  text-decoration: none;
+}
+
+.roadmap-item.pending .roadmap-text {
+  color: #6e7781;
+}
+
+@media (max-width: 768px) {
+  .feature-grid,
+  .doc-grid,
+  .pricing-table,
+  .deployment-options,
+  .tech-stack {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
