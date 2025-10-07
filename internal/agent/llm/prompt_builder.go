@@ -1,283 +1,358 @@
 package llm
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
+	"text/template"
 
 	"github.com/gosouza/iac-ai-agent/internal/models"
+	"github.com/gosouza/iac-ai-agent/pkg/logger"
 )
 
-// PromptBuilder constrói prompts contextualizados para o LLM
-type PromptBuilder struct{}
-
-// NewPromptBuilder cria um novo construtor de prompts
-func NewPromptBuilder() *PromptBuilder {
-	return &PromptBuilder{}
+// PromptBuilder é responsável por construir prompts estruturados para o LLM
+type PromptBuilder struct {
+	logger *logger.Logger
 }
 
-// BuildAnalysisPrompt constrói prompt para análise de código
-func (pb *PromptBuilder) BuildAnalysisPrompt(analysis *models.AnalysisDetails, code string) string {
-	var prompt strings.Builder
-
-	prompt.WriteString("# Análise de Infrastructure as Code\n\n")
-	prompt.WriteString("## Código Terraform\n")
-	prompt.WriteString("```hcl\n")
-	prompt.WriteString(code)
-	prompt.WriteString("\n```\n\n")
-
-	// Adiciona contexto da análise
-	prompt.WriteString("## Contexto da Análise\n\n")
-
-	// Terraform Analysis
-	prompt.WriteString("### Análise Terraform\n")
-	prompt.WriteString(fmt.Sprintf("- Total de recursos: %d\n", analysis.Terraform.TotalResources))
-	prompt.WriteString(fmt.Sprintf("- Total de módulos: %d\n", analysis.Terraform.TotalModules))
-	prompt.WriteString(fmt.Sprintf("- Providers: %s\n", strings.Join(analysis.Terraform.Providers, ", ")))
-	
-	if len(analysis.Terraform.SyntaxErrors) > 0 {
-		prompt.WriteString(fmt.Sprintf("- ⚠️ Erros de sintaxe: %d\n", len(analysis.Terraform.SyntaxErrors)))
+// NewPromptBuilder cria um novo builder de prompts
+func NewPromptBuilder(log *logger.Logger) *PromptBuilder {
+	return &PromptBuilder{
+		logger: log,
 	}
-
-	// Security Analysis
-	if analysis.Security.TotalIssues > 0 {
-		prompt.WriteString("\n### Análise de Segurança (Checkov)\n")
-		prompt.WriteString(fmt.Sprintf("- 🔴 Crítico: %d\n", analysis.Security.Critical))
-		prompt.WriteString(fmt.Sprintf("- 🟠 Alto: %d\n", analysis.Security.High))
-		prompt.WriteString(fmt.Sprintf("- 🟡 Médio: %d\n", analysis.Security.Medium))
-		prompt.WriteString(fmt.Sprintf("- 🔵 Baixo: %d\n", analysis.Security.Low))
-		
-		// Top findings
-		if len(analysis.Security.Findings) > 0 {
-			prompt.WriteString("\nPrincipais problemas:\n")
-			for i, finding := range analysis.Security.Findings {
-				if i >= 5 {
-					break // Limita a 5 findings
-				}
-				prompt.WriteString(fmt.Sprintf("- [%s] %s (arquivo: %s)\n",
-					finding.Severity, finding.CheckName, finding.File))
-			}
-		}
-	}
-
-	// IAM Analysis
-	if analysis.IAM.TotalPolicies > 0 || analysis.IAM.TotalRoles > 0 {
-		prompt.WriteString("\n### Análise IAM\n")
-		prompt.WriteString(fmt.Sprintf("- Políticas: %d\n", analysis.IAM.TotalPolicies))
-		prompt.WriteString(fmt.Sprintf("- Roles: %d\n", analysis.IAM.TotalRoles))
-		
-		if analysis.IAM.AdminAccessDetected {
-			prompt.WriteString("- ⚠️ Acesso administrativo detectado\n")
-		}
-		if analysis.IAM.OverlyPermissive {
-			prompt.WriteString("- ⚠️ Políticas excessivamente permissivas\n")
-		}
-		if len(analysis.IAM.PublicAccess) > 0 {
-			prompt.WriteString(fmt.Sprintf("- ⚠️ Recursos com acesso público: %d\n", len(analysis.IAM.PublicAccess)))
-		}
-	}
-
-	// Tarefa
-	prompt.WriteString("\n## Tarefa\n\n")
-	prompt.WriteString("Com base na análise acima, forneça:\n\n")
-	prompt.WriteString("1. **Resumo Executivo**: Um parágrafo resumindo a qualidade geral do código\n")
-	prompt.WriteString("2. **Principais Problemas**: Lista dos 3-5 problemas mais críticos\n")
-	prompt.WriteString("3. **Recomendações Prioritárias**: Ações concretas para melhorar a infraestrutura\n")
-	prompt.WriteString("4. **Otimizações de Custo**: Sugestões para reduzir gastos (se aplicável)\n")
-	prompt.WriteString("5. **Best Practices**: Recomendações de melhores práticas não implementadas\n\n")
-	prompt.WriteString("Seja específico, prático e focado em ações que podem ser tomadas imediatamente.\n")
-
-	return prompt.String()
 }
 
-// BuildReviewPrompt constrói prompt para review de PR
-func (pb *PromptBuilder) BuildReviewPrompt(review *models.ReviewResponse, filesChanged []string) string {
-	var prompt strings.Builder
-
-	prompt.WriteString("# Review de Pull Request - Infrastructure as Code\n\n")
-	prompt.WriteString(fmt.Sprintf("**Repositório**: %s\n", review.Repository))
-	prompt.WriteString(fmt.Sprintf("**PR**: #%d\n", review.PRNumber))
-	prompt.WriteString(fmt.Sprintf("**Arquivos modificados**: %d\n\n", review.FilesAnalyzed))
-
-	// Lista arquivos modificados
-	if len(filesChanged) > 0 {
-		prompt.WriteString("## Arquivos Modificados\n")
-		for _, file := range filesChanged {
-			prompt.WriteString(fmt.Sprintf("- %s\n", file))
-		}
-		prompt.WriteString("\n")
-	}
-
-	// Análise agregada
-	prompt.WriteString("## Resultado da Análise\n\n")
-	
-	if review.Analysis.Security.TotalIssues > 0 {
-		prompt.WriteString(fmt.Sprintf("**Segurança**: %d issues (%d críticos, %d altos)\n",
-			review.Analysis.Security.TotalIssues,
-			review.Analysis.Security.Critical,
-			review.Analysis.Security.High))
-	}
-
-	if review.TotalSuggestions > 0 {
-		prompt.WriteString(fmt.Sprintf("**Sugestões**: %d recomendações\n", review.TotalSuggestions))
-	}
-
-	// File reviews
-	if len(review.FileReviews) > 0 {
-		prompt.WriteString("\n## Análise por Arquivo\n\n")
-		for _, fr := range review.FileReviews {
-			prompt.WriteString(fmt.Sprintf("### %s\n", fr.Filename))
-			prompt.WriteString(fmt.Sprintf("- Status: %s (+%d -%d)\n", fr.Status, fr.Additions, fr.Deletions))
-			
-			if len(fr.Suggestions) > 0 {
-				prompt.WriteString(fmt.Sprintf("- Sugestões: %d\n", len(fr.Suggestions)))
-				for _, sug := range fr.Suggestions {
-					if sug.Severity == "critical" || sug.Severity == "high" {
-						prompt.WriteString(fmt.Sprintf("  - [%s] %s\n", sug.Severity, sug.Message))
-					}
-				}
-			}
-			prompt.WriteString("\n")
-		}
-	}
-
-	// Tarefa
-	prompt.WriteString("\n## Tarefa\n\n")
-	prompt.WriteString("Gere um comentário de review para o PR com:\n\n")
-	prompt.WriteString("1. **Resumo**: Avaliação geral das mudanças (2-3 frases)\n")
-	prompt.WriteString("2. **Pontos Positivos**: O que está bem implementado\n")
-	prompt.WriteString("3. **Problemas Críticos**: Issues que DEVEM ser corrigidos antes do merge\n")
-	prompt.WriteString("4. **Melhorias Sugeridas**: Recomendações não-bloqueantes\n")
-	prompt.WriteString("5. **Veredicto**: APPROVED, CHANGES_REQUESTED, ou COMMENTED\n\n")
-	prompt.WriteString("Use tom profissional e construtivo. Seja específico e cite linhas/arquivos quando relevante.\n")
-
-	return prompt.String()
+// PromptData contém os dados para construir um prompt
+type PromptData struct {
+	TerraformCode  string
+	CheckovResults *models.CheckovResults
+	IAMPolicies    []string
+	KnowledgeBase  map[string]interface{}
+	Context        map[string]interface{}
 }
 
-// BuildSuggestionPrompt constrói prompt para gerar sugestões específicas
-func (pb *PromptBuilder) BuildSuggestionPrompt(finding *models.SecurityFinding, context string) string {
-	var prompt strings.Builder
-
-	prompt.WriteString("# Geração de Sugestão de Correção\n\n")
-	prompt.WriteString("## Problema Detectado\n\n")
-	prompt.WriteString(fmt.Sprintf("**Check**: %s\n", finding.CheckName))
-	prompt.WriteString(fmt.Sprintf("**Severidade**: %s\n", finding.Severity))
-	prompt.WriteString(fmt.Sprintf("**Recurso**: %s\n", finding.Resource))
-	prompt.WriteString(fmt.Sprintf("**Arquivo**: %s (linha %d)\n\n", finding.File, finding.Line))
-	
-	if finding.Description != "" {
-		prompt.WriteString(fmt.Sprintf("**Descrição**: %s\n\n", finding.Description))
+// BuildAnalysisPrompt constrói um prompt para análise de código
+func (b *PromptBuilder) BuildAnalysisPrompt(data *PromptData) (*models.LLMRequest, error) {
+	// Inicializa template
+	tmpl, err := template.New("analysis").Parse(analysisPromptTemplate)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao parsear template: %w", err)
 	}
 
-	// Contexto do código
-	if context != "" {
-		prompt.WriteString("## Código Atual\n")
-		prompt.WriteString("```hcl\n")
-		prompt.WriteString(context)
-		prompt.WriteString("\n```\n\n")
+	// Executa template
+	var buf bytes.Buffer
+	err = tmpl.Execute(&buf, data)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao executar template: %w", err)
 	}
 
-	// Tarefa
-	prompt.WriteString("## Tarefa\n\n")
-	prompt.WriteString("Forneça:\n\n")
-	prompt.WriteString("1. **Explicação**: Por que isso é um problema (1-2 frases)\n")
-	prompt.WriteString("2. **Código Corrigido**: Exemplo concreto de como corrigir\n")
-	prompt.WriteString("3. **Impacto**: O que muda ao implementar a correção\n")
-	prompt.WriteString("4. **Referências**: Links úteis (se houver)\n\n")
-	prompt.WriteString("Seja prático e direto ao ponto.\n")
+	// Constrói request
+	req := &models.LLMRequest{
+		SystemPrompt: systemPrompt,
+		Prompt:       buf.String(),
+		Temperature:  0.2,
+		MaxTokens:    4000,
+		ResponseFormat: "json",
+	}
 
-	return prompt.String()
+	b.logger.Debug("Prompt construído", 
+		"prompt_length", len(req.Prompt),
+		"has_terraform", len(data.TerraformCode) > 0,
+		"has_checkov", data.CheckovResults != nil,
+		"has_iam", len(data.IAMPolicies) > 0)
+
+	return req, nil
 }
 
-// BuildCostOptimizationPrompt constrói prompt para análise de custos
-func (pb *PromptBuilder) BuildCostOptimizationPrompt(resources []models.TerraformResource) string {
-	var prompt strings.Builder
-
-	prompt.WriteString("# Análise de Otimização de Custos\n\n")
-	prompt.WriteString("## Recursos Analisados\n\n")
-
-	// Lista recursos por tipo
-	resourcesByType := make(map[string][]models.TerraformResource)
-	for _, r := range resources {
-		resourcesByType[r.Type] = append(resourcesByType[r.Type], r)
+// BuildSecurityPrompt constrói um prompt focado em segurança
+func (b *PromptBuilder) BuildSecurityPrompt(data *PromptData) (*models.LLMRequest, error) {
+	// Inicializa template
+	tmpl, err := template.New("security").Parse(securityPromptTemplate)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao parsear template: %w", err)
 	}
 
-	for rType, rList := range resourcesByType {
-		prompt.WriteString(fmt.Sprintf("### %s (%d)\n", rType, len(rList)))
-		for _, r := range rList {
-			prompt.WriteString(fmt.Sprintf("- %s\n", r.Name))
-		}
-		prompt.WriteString("\n")
+	// Executa template
+	var buf bytes.Buffer
+	err = tmpl.Execute(&buf, data)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao executar template: %w", err)
 	}
 
-	// Tarefa
-	prompt.WriteString("## Tarefa\n\n")
-	prompt.WriteString("Analise os recursos acima e forneça:\n\n")
-	prompt.WriteString("1. **Oportunidades de Economia**: Recursos que podem ser otimizados\n")
-	prompt.WriteString("2. **Estimativa de Custo**: Custo mensal aproximado da infraestrutura atual\n")
-	prompt.WriteString("3. **Recomendações Específicas**: Para cada recurso otimizável:\n")
-	prompt.WriteString("   - Mudança sugerida\n")
-	prompt.WriteString("   - Economia estimada\n")
-	prompt.WriteString("   - Impacto na operação\n")
-	prompt.WriteString("4. **Quick Wins**: Otimizações fáceis de implementar\n\n")
-	prompt.WriteString("Use valores realistas baseados em pricing típico de cloud providers.\n")
+	// Constrói request
+	req := &models.LLMRequest{
+		SystemPrompt: securitySystemPrompt,
+		Prompt:       buf.String(),
+		Temperature:  0.1, // Menor temperatura para análise de segurança
+		MaxTokens:    4000,
+		ResponseFormat: "json",
+	}
 
-	return prompt.String()
+	return req, nil
 }
 
-// BuildSecurityAdvisoryPrompt constrói prompt para consultoria de segurança
-func (pb *PromptBuilder) BuildSecurityAdvisoryPrompt(analysis *models.SecurityAnalysis, iamAnalysis *models.IAMAnalysis) string {
-	var prompt strings.Builder
-
-	prompt.WriteString("# Consultoria de Segurança - Infrastructure as Code\n\n")
-	
-	// Security findings
-	prompt.WriteString("## Findings de Segurança\n\n")
-	prompt.WriteString(fmt.Sprintf("- Total de issues: %d\n", analysis.TotalIssues))
-	prompt.WriteString(fmt.Sprintf("- Críticos: %d\n", analysis.Critical))
-	prompt.WriteString(fmt.Sprintf("- Altos: %d\n", analysis.High))
-	prompt.WriteString(fmt.Sprintf("- Médios: %d\n", analysis.Medium))
-	prompt.WriteString(fmt.Sprintf("- Baixos: %d\n\n", analysis.Low))
-
-	// Top findings
-	if len(analysis.Findings) > 0 {
-		prompt.WriteString("### Principais Problemas\n\n")
-		for i, finding := range analysis.Findings {
-			if i >= 10 {
-				break
-			}
-			prompt.WriteString(fmt.Sprintf("%d. [%s] %s\n", i+1, finding.Severity, finding.CheckName))
-			prompt.WriteString(fmt.Sprintf("   - Recurso: %s\n", finding.Resource))
-			if finding.Description != "" {
-				prompt.WriteString(fmt.Sprintf("   - Descrição: %s\n", finding.Description))
-			}
-			prompt.WriteString("\n")
-		}
+// BuildCostPrompt constrói um prompt focado em otimização de custos
+func (b *PromptBuilder) BuildCostPrompt(data *PromptData) (*models.LLMRequest, error) {
+	// Inicializa template
+	tmpl, err := template.New("cost").Parse(costPromptTemplate)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao parsear template: %w", err)
 	}
 
-	// IAM concerns
-	if iamAnalysis != nil {
-		prompt.WriteString("## Análise IAM\n\n")
-		if iamAnalysis.AdminAccessDetected {
-			prompt.WriteString("⚠️ **CRÍTICO**: Acesso administrativo detectado\n\n")
-		}
-		if len(iamAnalysis.PublicAccess) > 0 {
-			prompt.WriteString("⚠️ **Acesso Público Detectado**:\n")
-			for _, pa := range iamAnalysis.PublicAccess {
-				prompt.WriteString(fmt.Sprintf("- %s\n", pa))
-			}
-			prompt.WriteString("\n")
-		}
+	// Executa template
+	var buf bytes.Buffer
+	err = tmpl.Execute(&buf, data)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao executar template: %w", err)
 	}
 
-	// Tarefa
-	prompt.WriteString("## Tarefa\n\n")
-	prompt.WriteString("Como especialista em segurança cloud, forneça:\n\n")
-	prompt.WriteString("1. **Avaliação de Risco**: Classificação geral (Crítico/Alto/Médio/Baixo)\n")
-	prompt.WriteString("2. **Top 5 Prioridades**: Issues que devem ser corrigidos IMEDIATAMENTE\n")
-	prompt.WriteString("3. **Roadmap de Segurança**: Plano em 3 fases (Urgente/Curto Prazo/Médio Prazo)\n")
-	prompt.WriteString("4. **Compliance**: Frameworks que podem ser impactados (GDPR, SOC2, PCI-DSS, etc)\n")
-	prompt.WriteString("5. **Automação**: Como prevenir esses problemas no futuro\n\n")
-	prompt.WriteString("Seja direto e focado em ação. Use linguagem clara para não-especialistas.\n")
+	// Constrói request
+	req := &models.LLMRequest{
+		SystemPrompt: costSystemPrompt,
+		Prompt:       buf.String(),
+		Temperature:  0.2,
+		MaxTokens:    4000,
+		ResponseFormat: "json",
+	}
 
-	return prompt.String()
+	return req, nil
 }
+
+// BuildArchitecturePrompt constrói um prompt focado em arquitetura
+func (b *PromptBuilder) BuildArchitecturePrompt(data *PromptData) (*models.LLMRequest, error) {
+	// Inicializa template
+	tmpl, err := template.New("architecture").Parse(architecturePromptTemplate)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao parsear template: %w", err)
+	}
+
+	// Executa template
+	var buf bytes.Buffer
+	err = tmpl.Execute(&buf, data)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao executar template: %w", err)
+	}
+
+	// Constrói request
+	req := &models.LLMRequest{
+		SystemPrompt: architectureSystemPrompt,
+		Prompt:       buf.String(),
+		Temperature:  0.3, // Maior temperatura para sugestões de arquitetura
+		MaxTokens:    4000,
+		ResponseFormat: "json",
+	}
+
+	return req, nil
+}
+
+// FormatCheckovResults formata os resultados do Checkov para o prompt
+func (b *PromptBuilder) FormatCheckovResults(results *models.CheckovResults) string {
+	if results == nil || len(results.Results.FailedChecks) == 0 {
+		return "Nenhum resultado Checkov disponível."
+	}
+
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("## Resultados Checkov\n\n"))
+	sb.WriteString(fmt.Sprintf("- Total de verificações: %d\n", results.Summary.Passed+results.Summary.Failed))
+	sb.WriteString(fmt.Sprintf("- Verificações passaram: %d\n", results.Summary.Passed))
+	sb.WriteString(fmt.Sprintf("- Verificações falharam: %d\n\n", results.Summary.Failed))
+
+	sb.WriteString("### Falhas de Segurança\n\n")
+	for i, check := range results.Results.FailedChecks {
+		if i >= 20 { // Limita para não exceder tokens
+			sb.WriteString(fmt.Sprintf("\n... mais %d falhas omitidas ...\n", len(results.Results.FailedChecks)-20))
+			break
+		}
+
+		sb.WriteString(fmt.Sprintf("- **%s**\n", check.CheckID))
+		sb.WriteString(fmt.Sprintf("  - **Severidade**: %s\n", check.Severity))
+		sb.WriteString(fmt.Sprintf("  - **Arquivo**: %s\n", check.File))
+		sb.WriteString(fmt.Sprintf("  - **Recurso**: %s\n", check.ResourceID))
+		sb.WriteString(fmt.Sprintf("  - **Descrição**: %s\n", check.CheckName))
+		if check.Guideline != "" {
+			sb.WriteString(fmt.Sprintf("  - **Recomendação**: %s\n", check.Guideline))
+		}
+		sb.WriteString("\n")
+	}
+
+	return sb.String()
+}
+
+// Templates de prompts
+
+const systemPrompt = `Você é um especialista em Infrastructure as Code (IaC), segurança e otimização de cloud.
+
+Sua tarefa é analisar código Terraform e fornecer insights detalhados sobre:
+1. Segurança e compliance
+2. Otimização de custos
+3. Boas práticas
+4. Arquitetura e design
+
+Forneça análises detalhadas e recomendações práticas, sempre incluindo exemplos de código quando relevante.
+Suas respostas devem ser estruturadas, claras e acionáveis.`
+
+const securitySystemPrompt = `Você é um especialista em segurança de cloud e Infrastructure as Code.
+
+Sua tarefa é realizar uma análise profunda de segurança em código Terraform, identificando:
+1. Vulnerabilidades críticas
+2. Problemas de compliance
+3. Configurações inseguras
+4. Exposição de dados sensíveis
+5. Problemas de IAM e permissões
+
+Seja minucioso e detalhado. Priorize os problemas por severidade (Crítico, Alto, Médio, Baixo).
+Forneça recomendações específicas para correção com exemplos de código.`
+
+const costSystemPrompt = `Você é um especialista em otimização de custos para infraestrutura cloud.
+
+Sua tarefa é analisar código Terraform e identificar oportunidades de economia:
+1. Recursos superdimensionados
+2. Recursos subutilizados
+3. Opções de compra mais econômicas (Reserved Instances, Savings Plans)
+4. Arquiteturas mais eficientes em custo
+5. Recursos desnecessários ou redundantes
+
+Quantifique as economias potenciais quando possível. Forneça recomendações específicas com exemplos de código.`
+
+const architectureSystemPrompt = `Você é um arquiteto de soluções cloud especializado em Infrastructure as Code.
+
+Sua tarefa é analisar código Terraform e fornecer insights arquiteturais:
+1. Padrões de arquitetura identificados
+2. Sugestões de melhoria arquitetural
+3. Escalabilidade e resiliência
+4. Modularização e reutilização
+5. Integração com serviços gerenciados
+
+Forneça recomendações específicas com exemplos de código e diagramas quando relevante.`
+
+const analysisPromptTemplate = `# Análise de Infrastructure as Code
+
+## Código Terraform
+
+` + "```hcl" + `
+{{.TerraformCode}}
+` + "```" + `
+
+{{if .CheckovResults}}
+{{.CheckovResults}}
+{{end}}
+
+{{if .IAMPolicies}}
+## Políticas IAM
+
+{{range .IAMPolicies}}
+` + "```json" + `
+{{.}}
+` + "```" + `
+{{end}}
+{{end}}
+
+## Instruções
+
+Analise o código Terraform fornecido e forneça:
+
+1. **Resumo Executivo**: Visão geral da infraestrutura e principais pontos de atenção.
+
+2. **Problemas Críticos**: Identifique vulnerabilidades de segurança, configurações incorretas ou riscos significativos.
+
+3. **Recomendações Prioritárias**: Sugestões de melhorias mais importantes, com exemplos de código.
+
+4. **Otimizações de Custo**: Oportunidades para reduzir custos sem comprometer funcionalidade.
+
+5. **Boas Práticas**: Recomendações para melhorar o código seguindo as melhores práticas de IaC.
+
+6. **Insights Arquiteturais**: Observações sobre a arquitetura e sugestões de design.
+
+Forneça sua resposta como um JSON estruturado seguindo o formato LLMStructuredResponse.`
+
+const securityPromptTemplate = `# Análise de Segurança - Infrastructure as Code
+
+## Código Terraform
+
+` + "```hcl" + `
+{{.TerraformCode}}
+` + "```" + `
+
+{{if .CheckovResults}}
+{{.CheckovResults}}
+{{end}}
+
+{{if .IAMPolicies}}
+## Políticas IAM
+
+{{range .IAMPolicies}}
+` + "```json" + `
+{{.}}
+` + "```" + `
+{{end}}
+{{end}}
+
+## Instruções
+
+Realize uma análise profunda de segurança do código Terraform fornecido. Concentre-se em:
+
+1. **Vulnerabilidades Críticas**: Identifique problemas de segurança de alta severidade.
+
+2. **Configurações Inseguras**: Detecte configurações que violam princípios de segurança.
+
+3. **Problemas de Compliance**: Identifique violações de compliance (GDPR, HIPAA, PCI-DSS, etc).
+
+4. **Exposição de Dados**: Detecte potencial exposição de dados sensíveis.
+
+5. **Problemas de IAM**: Analise permissões excessivas ou inseguras.
+
+6. **Recomendações de Correção**: Forneça exemplos de código para corrigir cada problema.
+
+Forneça sua resposta como um JSON estruturado seguindo o formato SecurityAuditResponse.`
+
+const costPromptTemplate = `# Análise de Custos - Infrastructure as Code
+
+## Código Terraform
+
+` + "```hcl" + `
+{{.TerraformCode}}
+` + "```" + `
+
+## Instruções
+
+Realize uma análise de otimização de custos do código Terraform fornecido. Concentre-se em:
+
+1. **Dimensionamento de Recursos**: Identifique recursos superdimensionados.
+
+2. **Opções de Compra**: Sugira Reserved Instances, Savings Plans ou outras opções de desconto.
+
+3. **Recursos Desnecessários**: Identifique recursos que podem ser eliminados ou consolidados.
+
+4. **Arquitetura Econômica**: Sugira alternativas arquiteturais mais econômicas.
+
+5. **Estimativas de Economia**: Quando possível, forneça estimativas de economia potencial.
+
+6. **Recomendações de Implementação**: Forneça exemplos de código para cada otimização.
+
+Forneça sua resposta como um JSON estruturado seguindo o formato CostOptimizationResponse.`
+
+const architecturePromptTemplate = `# Análise Arquitetural - Infrastructure as Code
+
+## Código Terraform
+
+` + "```hcl" + `
+{{.TerraformCode}}
+` + "```" + `
+
+## Instruções
+
+Realize uma análise arquitetural do código Terraform fornecido. Concentre-se em:
+
+1. **Padrões de Arquitetura**: Identifique os padrões arquiteturais utilizados.
+
+2. **Escalabilidade**: Avalie a capacidade de escalar da infraestrutura.
+
+3. **Resiliência**: Analise a resiliência a falhas e disaster recovery.
+
+4. **Modularização**: Sugira oportunidades para melhorar a modularização e reutilização.
+
+5. **Serviços Gerenciados**: Recomende substituição por serviços gerenciados quando apropriado.
+
+6. **Recomendações de Implementação**: Forneça exemplos de código para cada melhoria.
+
+Forneça sua resposta como um JSON estruturado seguindo o formato ArchitecturalInsight.`

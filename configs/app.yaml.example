@@ -1,48 +1,67 @@
-# IaC AI Agent - Configuration File
-# Copy this file to app.yaml and update with your values
+# IaC AI Agent Configuration
 
+# Server Configuration
 server:
-  port: 8080
+  port: "8080"
   host: "0.0.0.0"
 
+# LLM Configuration
 llm:
-  provider: "openai"  # openai or anthropic
-  api_key: "${LLM_API_KEY}"  # Set via environment variable
-  model: "gpt-4"
-  temperature: 0.2
-  max_tokens: 4000
+  provider: "nation.fun"    # Provedor LLM (nation.fun)
+  model: "nation-1"         # Modelo a ser usado
+  temperature: 0.2          # Temperatura (0.0-1.0)
+  max_tokens: 4000          # Máximo de tokens por resposta
+  # api_key: ""             # Definir via env var LLM_API_KEY
 
+# GitHub Configuration
+github:
+  # token: ""               # Definir via env var GITHUB_TOKEN
+  # webhook_secret: ""      # Definir via env var GITHUB_WEBHOOK_SECRET
+  auto_comment: true        # Comentar automaticamente em PRs
+
+# Analysis Configuration
 analysis:
-  checkov_enabled: true
-  iam_analysis_enabled: true
-  cost_optimization_enabled: true
+  checkov_enabled: true           # Habilitar análise Checkov
+  iam_analysis_enabled: true      # Habilitar análise IAM
+  cost_optimization_enabled: true # Habilitar otimização de custos
 
+# Scoring Configuration
 scoring:
-  min_pass_score: 70
+  min_pass_score: 70        # Score mínimo para aprovação (0-100)
 
+# Logging Configuration
+logging:
+  level: "info"             # debug, info, warn, error
+  format: "json"            # json, text
+
+# Web3 Configuration
 web3:
-  # Privy.io Configuration
-  privy_app_id: "${PRIVY_APP_ID}"
-  privy_app_secret: "${PRIVY_APP_SECRET}"
-  privy_verification_key_url: "https://auth.privy.io/api/v1/verification_keys"
-  
+  # Privy Configuration
+  # privy_app_id: ""        # Definir via env var PRIVY_APP_ID
+  # privy_app_secret: ""    # Definir via env var PRIVY_APP_SECRET
+  privy_verification_key_url: "https://api.privy.io/v1/siwe/keys"
+
   # Base Network Configuration
-  base_rpc_url: "https://mainnet.base.org"  # Or https://goerli.base.org for testnet
-  base_chain_id: 8453  # Base Mainnet (84531 for Goerli testnet)
-  
-  # Smart Contract Addresses (update after deployment)
-  nft_access_contract_address: "0x0000000000000000000000000000000000000000"
-  bot_token_contract_address: "0x0000000000000000000000000000000000000000"
-  
+  base_rpc_url: "https://goerli.base.org"  # Base Goerli Testnet
+  base_chain_id: 84531                     # Base Goerli Chain ID
+
+  # Smart Contract Addresses
+  # nft_access_contract_address: ""  # Definir via env var NFT_CONTRACT_ADDRESS
+  # bot_token_contract_address: ""   # Definir via env var TOKEN_CONTRACT_ADDRESS
+
   # Token Configuration
   token_symbol: "IACAI"
   token_decimals: 18
-  
+
   # Features
   enable_nft_access: true
   enable_token_payments: true
-  
+
   # Rate Limiting by Tier (requests per hour)
-  basic_tier_rate_limit: 10
-  pro_tier_rate_limit: 100
-  enterprise_tier_rate_limit: 1000
+  basic_tier_rate_limit: 100
+  pro_tier_rate_limit: 1000
+  enterprise_tier_rate_limit: 10000
+  
+  # Nation.fun Configuration
+  # wallet_token: ""        # Definir via env var WALLET_TOKEN
+  # wallet_address: ""      # Definir via env var WALLET_ADDRESS

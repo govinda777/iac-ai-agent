@@ -85,6 +85,10 @@ type Web3Config struct {
 	BasicTierRateLimit      int `yaml:"basic_tier_rate_limit"`
 	ProTierRateLimit        int `yaml:"pro_tier_rate_limit"`
 	EnterpriseTierRateLimit int `yaml:"enterprise_tier_rate_limit"`
+	
+	// Nation.fun Configuration
+	WalletToken  string `yaml:"wallet_token"`  // Token de autenticação da wallet
+	WalletAddress string `yaml:"wallet_address"` // Endereço da wallet
 }
 
 // Load carrega configuração de um arquivo YAML
@@ -96,8 +100,8 @@ func Load(path string) (*Config, error) {
 			Host: "0.0.0.0",
 		},
 		LLM: LLMConfig{
-			Provider:    "openai",
-			Model:       "gpt-4",
+			Provider:    "nation.fun",
+			Model:       "nation-1",
 			Temperature: 0.2,
 			MaxTokens:   2000,
 		},
@@ -160,6 +164,9 @@ func (c *Config) loadFromEnv() {
 	// LLM
 	if provider := os.Getenv("LLM_PROVIDER"); provider != "" {
 		c.LLM.Provider = provider
+	} else {
+		// Default para Nation.fun
+		c.LLM.Provider = "nation.fun"
 	}
 	if apiKey := os.Getenv("LLM_API_KEY"); apiKey != "" {
 		c.LLM.APIKey = apiKey
@@ -211,19 +218,45 @@ func (c *Config) loadFromEnv() {
 	if tokenAddr := os.Getenv("TOKEN_CONTRACT_ADDRESS"); tokenAddr != "" {
 		c.Web3.BotTokenContractAddress = tokenAddr
 	}
+	
+	// Nation.fun
+	if walletToken := os.Getenv("WALLET_TOKEN"); walletToken != "" {
+		c.Web3.WalletToken = walletToken
+	}
+	if walletAddr := os.Getenv("WALLET_ADDRESS"); walletAddr != "" {
+		c.Web3.WalletAddress = walletAddr
+	}
 }
 
 // Validate valida a configuração
 func (c *Config) Validate() error {
 	// Valida provider LLM
-	if c.LLM.Provider != "" && c.LLM.Provider != "openai" && c.LLM.Provider != "anthropic" {
-		return fmt.Errorf("LLM provider inválido: %s (use 'openai' ou 'anthropic')", c.LLM.Provider)
+	validProviders := map[string]bool{
+		"nation.fun": true,
+		"nation":     true,
+		"openai":     true, // Mantido para compatibilidade, mas será redirecionado para Nation.fun
+		"anthropic":  true, // Mantido para compatibilidade, mas será redirecionado para Nation.fun
+	}
+	
+	if c.LLM.Provider != "" && !validProviders[c.LLM.Provider] {
+		return fmt.Errorf("LLM provider inválido: %s (use 'nation.fun')", c.LLM.Provider)
 	}
 
 	// Valida log level
 	validLevels := map[string]bool{"debug": true, "info": true, "warn": true, "error": true}
 	if !validLevels[c.Logging.Level] {
 		return fmt.Errorf("log level inválido: %s", c.Logging.Level)
+	}
+	
+	// Valida Nation.fun config quando provider é nation.fun
+	if c.LLM.Provider == "nation.fun" || c.LLM.Provider == "nation" {
+		if c.Web3.NFTAccessContractAddress == "" {
+			return fmt.Errorf("NFT_CONTRACT_ADDRESS é obrigatório para Nation.fun")
+		}
+		
+		if c.Web3.WalletToken == "" {
+			return fmt.Errorf("WALLET_TOKEN é obrigatório para Nation.fun")
+		}
 	}
 
 	return nil
