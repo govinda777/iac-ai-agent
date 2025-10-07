@@ -1,0 +1,77 @@
+<svg width="500" height="400" viewBox="0 0 500 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="500" height="400" rx="20" fill="#1F2937"/>
+  
+  <!-- Background Elements -->
+  <circle cx="400" cy="100" r="50" fill="#4F46E5" fill-opacity="0.1"/>
+  <circle cx="100" cy="300" r="70" fill="#4F46E5" fill-opacity="0.1"/>
+  
+  <!-- Blockchain -->
+  <rect x="100" y="150" width="300" height="60" rx="10" fill="#4F46E5" fill-opacity="0.2" stroke="#6366F1" stroke-width="2"/>
+  <rect x="130" y="150" width="60" height="60" rx="10" fill="#1F2937" stroke="#6366F1" stroke-width="2"/>
+  <rect x="220" y="150" width="60" height="60" rx="10" fill="#1F2937" stroke="#6366F1" stroke-width="2"/>
+  <rect x="310" y="150" width="60" height="60" rx="10" fill="#1F2937" stroke="#6366F1" stroke-width="2"/>
+  
+  <!-- Blockchain Hash Text -->
+  <rect x="135" y="170" width="50" height="5" rx="2.5" fill="#6366F1"/>
+  <rect x="135" y="180" width="40" height="5" rx="2.5" fill="#6366F1"/>
+  <rect x="225" y="170" width="50" height="5" rx="2.5" fill="#6366F1"/>
+  <rect x="225" y="180" width="40" height="5" rx="2.5" fill="#6366F1"/>
+  <rect x="315" y="170" width="50" height="5" rx="2.5" fill="#6366F1"/>
+  <rect x="315" y="180" width="40" height="5" rx="2.5" fill="#6366F1"/>
+  
+  <!-- Connection Lines -->
+  <path d="M190 180L220 180" stroke="#6366F1" stroke-width="2"/>
+  <path d="M280 180L310 180" stroke="#6366F1" stroke-width="2"/>
+  <path d="M370 180L400 180" stroke="#6366F1" stroke-width="2" stroke-dasharray="4 4"/>
+  <path d="M70 180L100 180" stroke="#6366F1" stroke-width="2" stroke-dasharray="4 4"/>
+  
+  <!-- Wallet -->
+  <rect x="175" y="70" width="150" height="40" rx="10" fill="#4F46E5" fill-opacity="0.2" stroke="#6366F1" stroke-width="2"/>
+  <path d="M200 90C200 85.5817 203.582 82 208 82H292C296.418 82 300 85.5817 300 90C300 94.4183 296.418 98 292 98H208C203.582 98 200 94.4183 200 90Z" fill="#1F2937" stroke="#6366F1" stroke-width="2"/>
+  <circle cx="290" cy="90" r="5" fill="#6366F1"/>
+  
+  <!-- NFT -->
+  <rect x="100" y="250" width="80" height="100" rx="10" fill="#4F46E5" fill-opacity="0.2" stroke="#6366F1" stroke-width="2"/>
+  <path d="M120 280L140 260L160 280L140 300L120 280Z" fill="#6366F1" fill-opacity="0.5" stroke="#6366F1" stroke-width="2"/>
+  <rect x="120" y="310" width="40" height="10" rx="5" fill="#6366F1" fill-opacity="0.5"/>
+  <rect x="120" y="325" width="30" height="5" rx="2.5" fill="#6366F1" fill-opacity="0.5"/>
+  
+  <!-- Token -->
+  <circle cx="250" cy="300" r="40" fill="#4F46E5" fill-opacity="0.2" stroke="#6366F1" stroke-width="2"/>
+  <path d="M250 270V330" stroke="#6366F1" stroke-width="2"/>
+  <path d="M220 300H280" stroke="#6366F1" stroke-width="2"/>
+  <path d="M228.787 278.787L271.213 321.213" stroke="#6366F1" stroke-width="2"/>
+  <path d="M271.213 278.787L228.787 321.213" stroke="#6366F1" stroke-width="2"/>
+  <circle cx="250" cy="300" r="20" fill="#1F2937" stroke="#6366F1" stroke-width="2"/>
+  <path d="M240 300H260" stroke="#6366F1" stroke-width="2"/>
+  <path d="M250 290V310" stroke="#6366F1" stroke-width="2"/>
+  
+  <!-- Onramp -->
+  <rect x="320" y="250" width="80" height="100" rx="10" fill="#4F46E5" fill-opacity="0.2" stroke="#6366F1" stroke-width="2"/>
+  <rect x="335" y="270" width="50" height="30" rx="5" fill="#1F2937" stroke="#6366F1" stroke-width="2"/>
+  <path d="M340 285H380" stroke="#6366F1" stroke-width="2"/>
+  <path d="M345 275H355" stroke="#6366F1" stroke-width="2"/>
+  <rect x="335" y="310" width="50" height="10" rx="5" fill="#6366F1" fill-opacity="0.5"/>
+  <rect x="335" y="325" width="50" height="10" rx="5" fill="#6366F1" fill-opacity="0.5"/>
+  
+  <!-- Connection Lines -->
+  <path d="M250 110L250 150" stroke="#6366F1" stroke-width="2" stroke-dasharray="4 4"/>
+  <path d="M140 250L140 210" stroke="#6366F1" stroke-width="2" stroke-dasharray="4 4"/>
+  <path d="M250 260L250 210" stroke="#6366F1" stroke-width="2" stroke-dasharray="4 4"/>
+  <path d="M360 250L360 210" stroke="#6366F1" stroke-width="2" stroke-dasharray="4 4"/>
+  
+  <!-- Privy Logo Simplified -->
+  <circle cx="70" cy="90" r="20" fill="#4F46E5" fill-opacity="0.2" stroke="#6366F1" stroke-width="2"/>
+  <path d="M60 90L70 80L80 90L70 100L60 90Z" fill="#6366F1"/>
+  
+  <!-- Base Logo Simplified -->
+  <circle cx="430" cy="300" r="20" fill="#4F46E5" fill-opacity="0.2" stroke="#6366F1" stroke-width="2"/>
+  <path d="M420 300C420 294.477 424.477 290 430 290C435.523 290 440 294.477 440 300C440 305.523 435.523 310 430 310C424.477 310 420 305.523 420 300Z" stroke="#6366F1" stroke-width="2"/>
+  <path d="M430 290V310" stroke="#6366F1" stroke-width="2"/>
+  
+  <!-- Connection Lines -->
+  <path d="M90 90L175 90" stroke="#6366F1" stroke-width="2" stroke-dasharray="4 4"/>
+  <path d="M410 300L360 300" stroke="#6366F1" stroke-width="2" stroke-dasharray="4 4"/>
+  <path d="M290 300L320 300" stroke="#6366F1" stroke-width="2" stroke-dasharray="4 4"/>
+  <path d="M180 300L210 300" stroke="#6366F1" stroke-width="2" stroke-dasharray="4 4"/>
+</svg>
