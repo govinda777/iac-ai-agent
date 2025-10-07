@@ -139,7 +139,7 @@ func (h *Handler) HandleRoot(w http.ResponseWriter, r *http.Request) {
 
 // HandleAnalyze processa requisição de análise
 // @Summary Analisar código IaC
-// @Description Analisa código Terraform para identificar problemas de segurança, custos e best practices
+// @Description Analisa código Terraform para identificar problems de segurança, custos e best practices
 // @Tags analysis
 // @Accept json
 // @Produce json

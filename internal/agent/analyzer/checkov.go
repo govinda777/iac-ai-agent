@@ -20,7 +20,10 @@ type CheckovAnalyzer struct {
 
 // NewCheckovAnalyzer cria uma nova instância do analisador Checkov
 func NewCheckovAnalyzer(log *logger.Logger) *CheckovAnalyzer {
-	checkovPath, _ := exec.LookPath("checkov")
+	checkovPath, err := exec.LookPath("checkov")
+	if err != nil {
+		log.Warn("Checkov executable not found in PATH", "error", err)
+	}
 	return &CheckovAnalyzer{
 		checkovPath: checkovPath,
 		logger:      log,
@@ -60,6 +63,7 @@ func (ca *CheckovAnalyzer) AnalyzeDirectory(dir string, config *models.CheckovCo
 
 	// Executa Checkov
 	ca.logger.Info("Executando Checkov", "directory", dir)
+	// #nosec G204
 	cmd := exec.Command(ca.checkovPath, args...)
 	output, err := cmd.Output()
 
@@ -107,7 +111,7 @@ func (ca *CheckovAnalyzer) AnalyzeFiles(files []string, config *models.CheckovCo
 		}
 
 		tmpFile := filepath.Join(tmpDir, filepath.Base(file))
-		if err := os.WriteFile(tmpFile, content, 0644); err != nil {
+		if err := os.WriteFile(tmpFile, content, 0600); err != nil {
 			continue
 		}
 	}

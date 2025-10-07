@@ -219,7 +219,10 @@ func (c *NationClient) GenerateStructured(req *models.LLMRequest, responseStruct
 
 	// Adiciona estrutura esperada ao prompt
 	structType := fmt.Sprintf("%T", responseStruct)
-	structExample, _ := json.MarshalIndent(responseStruct, "", "  ")
+	structExample, err := json.MarshalIndent(responseStruct, "", "  ")
+	if err != nil {
+		c.logger.Warn("Failed to marshal struct for prompt example", "error", err)
+	}
 
 	reqCopy.Prompt += fmt.Sprintf("\n\nResponda com um JSON válido no formato: %s\n\nExemplo de estrutura:\n```json\n%s\n```",
 		structType, string(structExample))

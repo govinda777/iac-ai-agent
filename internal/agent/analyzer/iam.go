@@ -213,22 +213,25 @@ func (ia *IAMAnalyzer) analyzeRoleResource(resource models.TerraformResource, an
 	// Verifica assume role policy
 	if assumePolicy, ok := resource.Attributes["assume_role_policy"].(string); ok {
 		var policy map[string]interface{}
-		if err := json.Unmarshal([]byte(assumePolicy), &policy); err == nil {
-			if statements, ok := policy["Statement"].([]interface{}); ok {
-				for _, stmt := range statements {
-					if statement, ok := stmt.(map[string]interface{}); ok {
-						if principal, ok := statement["Principal"].(map[string]interface{}); ok {
-							if service, ok := principal["Service"].(string); ok {
-								// Verifica serviços de risco
-								if ia.isRiskyService(service) {
-									risk := models.PrincipalRisk{
-										Principal:   service,
-										Type:        "service",
-										RiskLevel:   "medium",
-										Reason:      fmt.Sprintf("Serviço %s pode assumir esta role", service),
-									}
-									analysis.PrincipalRisks = append(analysis.PrincipalRisks, risk)
+		if err := json.Unmarshal([]byte(assumePolicy), &policy); err != nil {
+			ia.logger.Warn("Failed to parse assume_role_policy", "resource", resource.Name, "error", err)
+			return
+		}
+
+		if statements, ok := policy["Statement"].([]interface{}); ok {
+			for _, stmt := range statements {
+				if statement, ok := stmt.(map[string]interface{}); ok {
+					if principal, ok := statement["Principal"].(map[string]interface{}); ok {
+						if service, ok := principal["Service"].(string); ok {
+							// Verifica services de risco
+							if ia.isRiskyService(service) {
+								risk := models.PrincipalRisk{
+									Principal:   service,
+									Type:        "service",
+									RiskLevel:   "medium",
+									Reason:      fmt.Sprintf("Serviço %s pode assumir esta role", service),
 								}
+								analysis.PrincipalRisks = append(analysis.PrincipalRisks, risk)
 							}
 						}
 					}

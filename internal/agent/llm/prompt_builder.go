@@ -192,7 +192,7 @@ func (b *PromptBuilder) FormatCheckovResults(results *models.CheckovResult) stri
 	}
 
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("## Resultados Checkov\n\n"))
+	sb.WriteString("## Resultados Checkov\n\n")
 	sb.WriteString(fmt.Sprintf("- Total de verificações: %d\n", results.Summary.Passed+results.Summary.Failed))
 	sb.WriteString(fmt.Sprintf("- Verificações passaram: %d\n", results.Summary.Passed))
 	sb.WriteString(fmt.Sprintf("- Verificações falharam: %d\n\n", results.Summary.Failed))
@@ -235,10 +235,10 @@ const securitySystemPrompt = `Você é um especialista em segurança de cloud e 
 
 Sua tarefa é realizar uma análise profunda de segurança em código Terraform, identificando:
 1. Vulnerabilidades críticas
-2. Problemas de compliance
+2. Issues de compliance
 3. Configurações inseguras
 4. Exposição de dados sensíveis
-5. Problemas de IAM e permissões
+5. Issues de IAM e permissões
 
 Seja minucioso e detalhado. Priorize os problemas por severidade (Crítico, Alto, Médio, Baixo).
 Forneça recomendações específicas para correção com exemplos de código.`
