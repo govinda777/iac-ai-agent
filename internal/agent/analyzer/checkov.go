@@ -1,8 +1,5 @@
 package analyzer
 
-// NOTE: This file contains comments in Portuguese, which may be flagged by spell checkers.
-// This is intentional and not a bug.
-
 import (
 	"encoding/json"
 	"fmt"

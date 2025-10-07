@@ -1,8 +1,5 @@
 package llm
 
-// NOTE: This file contains comments and strings in Portuguese, which may be flagged by spell checkers.
-// This is intentional and not a bug.
-
 import (
 	"bytes"
 	"fmt"
@@ -155,7 +152,7 @@ func (b *PromptBuilder) FormatCheckovResults(results *models.CheckovResult) stri
 	}
 
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("## Resultados Checkov\n\n"))
+	sb.WriteString("## Resultados Checkov\n\n")
 	sb.WriteString(fmt.Sprintf("- Total de verificações: %d\n", results.Summary.Passed+results.Summary.Failed))
 	sb.WriteString(fmt.Sprintf("- Verificações passaram: %d\n", results.Summary.Passed))
 	sb.WriteString(fmt.Sprintf("- Verificações falharam: %d\n\n", results.Summary.Failed))

@@ -514,10 +514,14 @@ output "instance_id" {
   value       = aws_instance.web.id
 }
 `
-				os.WriteFile(filepath.Join(tempDir, "main.tf"), []byte(mainTf), 0644)
-				os.WriteFile(filepath.Join(tempDir, "iam.tf"), []byte(iamTf), 0644)
-				os.WriteFile(filepath.Join(tempDir, "variables.tf"), []byte(variablesTf), 0644)
-				os.WriteFile(filepath.Join(tempDir, "outputs.tf"), []byte(outputsTf), 0644)
+				err := os.WriteFile(filepath.Join(tempDir, "main.tf"), []byte(mainTf), 0644)
+				Expect(err).NotTo(HaveOccurred())
+				err = os.WriteFile(filepath.Join(tempDir, "iam.tf"), []byte(iamTf), 0644)
+				Expect(err).NotTo(HaveOccurred())
+				err = os.WriteFile(filepath.Join(tempDir, "variables.tf"), []byte(variablesTf), 0644)
+				Expect(err).NotTo(HaveOccurred())
+				err = os.WriteFile(filepath.Join(tempDir, "outputs.tf"), []byte(outputsTf), 0644)
+				Expect(err).NotTo(HaveOccurred())
 			})
 
 			It("deve realizar análise completa e gerar relatório abrangente", func() {

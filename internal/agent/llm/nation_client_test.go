@@ -127,7 +127,8 @@ func TestNationClient_Generate(t *testing.T) {
 				"nft_used":    "0x123",
 			}
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(respPayload)
+			err = json.NewEncoder(w).Encode(respPayload)
+			g.Expect(err).ToNot(HaveOccurred())
 		}))
 		defer server.Close()
 
@@ -177,7 +178,8 @@ func TestNationClient_GenerateStructured(t *testing.T) {
 				"content": string(responseBytes),
 			}
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(respPayload)
+			err = json.NewEncoder(w).Encode(respPayload)
+			g.Expect(err).ToNot(HaveOccurred())
 		}))
 		defer server.Close()
 
