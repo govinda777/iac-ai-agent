@@ -120,8 +120,8 @@ func (ia *IAMAnalyzer) analyzePolicyResource(resource models.TerraformResource, 
 // analyzeStatement analisa um statement de política IAM
 func (ia *IAMAnalyzer) analyzeStatement(statement map[string]interface{}, resource models.TerraformResource, analysis *models.IAMAnalysis) {
 	// Verifica Effect
-	effect, _ := statement["Effect"].(string)
-	if effect != "Allow" {
+	effect, ok := statement["Effect"].(string)
+	if !ok || effect != "Allow" {
 		return // Só analisa permissões
 	}
 
