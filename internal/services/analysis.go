@@ -206,6 +206,16 @@ func (as *AnalysisService) generateSuggestions(
 	securityAnalysis *models.SecurityAnalysis,
 	iamAnalysis *models.IAMAnalysis,
 ) []models.Suggestion {
+	// Apenas sugestões baseadas em regras (sem LLM por enquanto)
+	return as.generateRuleBasedSuggestions(tfAnalysis, securityAnalysis, iamAnalysis)
+}
+
+// generateRuleBasedSuggestions gera sugestões baseadas apenas em regras
+func (as *AnalysisService) generateRuleBasedSuggestions(
+	tfAnalysis *models.TerraformAnalysis,
+	securityAnalysis *models.SecurityAnalysis,
+	iamAnalysis *models.IAMAnalysis,
+) []models.Suggestion {
 	suggestions := []models.Suggestion{}
 
 	// Sugestões de best practices
