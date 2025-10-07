@@ -86,8 +86,8 @@ type Web3Config struct {
 	EnterpriseTierRateLimit int `yaml:"enterprise_tier_rate_limit"`
 
 	// Nation.fun Configuration
-	WalletToken   string `yaml:"wallet_token"`   // Token de autenticação da wallet
-	WalletAddress string `yaml:"wallet_address"` // Endereço da wallet
+	WalletToken         string `yaml:"wallet_token"`          // Token de autenticação da wallet
+	WalletAddress       string `yaml:"wallet_address"`        // Endereço da wallet
 	DefaultAgentAddress string `yaml:"default_agent_address"` // Endereço do agente padrão
 }
 

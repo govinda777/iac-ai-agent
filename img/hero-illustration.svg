@@ -1,0 +1,62 @@
+<svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="400" rx="20" fill="#F9FAFB"/>
+  
+  <!-- Background Elements -->
+  <circle cx="500" cy="100" r="50" fill="#EEF2FF"/>
+  <circle cx="100" cy="300" r="70" fill="#EEF2FF"/>
+  <path d="M550 350C550 377.614 527.614 400 500 400C472.386 400 450 377.614 450 350C450 322.386 472.386 300 500 300C527.614 300 550 322.386 550 350Z" fill="#E0E7FF"/>
+  
+  <!-- Cloud Server -->
+  <rect x="150" y="100" width="300" height="200" rx="10" fill="#4F46E5" fill-opacity="0.1" stroke="#4F46E5" stroke-width="2"/>
+  
+  <!-- Server Racks -->
+  <rect x="180" y="130" width="240" height="30" rx="5" fill="white" stroke="#4F46E5" stroke-width="2"/>
+  <rect x="180" y="170" width="240" height="30" rx="5" fill="white" stroke="#4F46E5" stroke-width="2"/>
+  <rect x="180" y="210" width="240" height="30" rx="5" fill="white" stroke="#4F46E5" stroke-width="2"/>
+  <rect x="180" y="250" width="240" height="30" rx="5" fill="white" stroke="#4F46E5" stroke-width="2"/>
+  
+  <!-- Server Lights -->
+  <circle cx="200" cy="145" r="5" fill="#10B981"/>
+  <circle cx="220" cy="145" r="5" fill="#10B981"/>
+  <circle cx="200" cy="185" r="5" fill="#10B981"/>
+  <circle cx="220" cy="185" r="5" fill="#FF6B6B"/>
+  <circle cx="200" cy="225" r="5" fill="#10B981"/>
+  <circle cx="220" cy="225" r="5" fill="#10B981"/>
+  <circle cx="200" cy="265" r="5" fill="#FF6B6B"/>
+  <circle cx="220" cy="265" r="5" fill="#10B981"/>
+  
+  <!-- Code Blocks -->
+  <rect x="250" y="135" width="150" height="20" rx="3" fill="#4F46E5" fill-opacity="0.2"/>
+  <rect x="250" y="175" width="150" height="20" rx="3" fill="#4F46E5" fill-opacity="0.2"/>
+  <rect x="250" y="215" width="150" height="20" rx="3" fill="#4F46E5" fill-opacity="0.2"/>
+  <rect x="250" y="255" width="150" height="20" rx="3" fill="#4F46E5" fill-opacity="0.2"/>
+  
+  <!-- AI Brain -->
+  <circle cx="450" cy="70" r="30" fill="#6366F1" fill-opacity="0.2" stroke="#6366F1" stroke-width="2"/>
+  <path d="M435 70C435 61.7157 441.716 55 450 55C458.284 55 465 61.7157 465 70C465 78.2843 458.284 85 450 85" stroke="#6366F1" stroke-width="2" stroke-linecap="round"/>
+  <path d="M450 85C441.716 85 435 78.2843 435 70" stroke="#6366F1" stroke-width="2" stroke-linecap="round"/>
+  <path d="M450 55V85" stroke="#6366F1" stroke-width="2" stroke-linecap="round"/>
+  <path d="M435 70H465" stroke="#6366F1" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- Connection Lines -->
+  <path d="M450 100L450 130" stroke="#6366F1" stroke-width="2" stroke-dasharray="4 4"/>
+  <path d="M150 70L150 100" stroke="#6366F1" stroke-width="2" stroke-dasharray="4 4"/>
+  <path d="M150 300L150 270" stroke="#6366F1" stroke-width="2" stroke-dasharray="4 4"/>
+  <path d="M450 300L450 270" stroke="#6366F1" stroke-width="2" stroke-dasharray="4 4"/>
+  
+  <!-- ETH Symbol -->
+  <path d="M150 70L140 60L150 45L160 60L150 70Z" fill="#6366F1"/>
+  <path d="M150 70L140 60L150 45L160 60L150 70Z" stroke="#6366F1" stroke-width="1"/>
+  <path d="M150 65L140 55L150 40" stroke="#6366F1" stroke-width="1"/>
+  
+  <!-- Terraform Logo Simplified -->
+  <rect x="130" y="300" width="15" height="15" fill="#6366F1"/>
+  <rect x="150" y="300" width="15" height="15" fill="#6366F1"/>
+  <rect x="130" y="320" width="15" height="15" fill="#6366F1"/>
+  <rect x="150" y="320" width="15" height="15" fill="#6366F1"/>
+  
+  <!-- AI Analysis -->
+  <path d="M450 300C460 310 470 290 480 300" stroke="#6366F1" stroke-width="2"/>
+  <path d="M450 310C460 320 470 300 480 310" stroke="#6366F1" stroke-width="2"/>
+  <path d="M450 320C460 330 470 310 480 320" stroke="#6366F1" stroke-width="2"/>
+</svg>

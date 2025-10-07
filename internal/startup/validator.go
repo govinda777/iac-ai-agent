@@ -128,9 +128,9 @@ func (v *Validator) ValidateAll(ctx context.Context) (*ValidationResult, error) 
 func (v *Validator) validateBasicConfig(result *ValidationResult) error {
 	// Verifica variáveis obrigatórias
 	required := map[string]string{
-		"LLM_API_KEY":      v.config.LLM.APIKey,
-		"PRIVY_APP_ID":     v.config.Web3.PrivyAppID,
-		"WALLET_ADDRESS":   os.Getenv("WALLET_ADDRESS"),
+		"LLM_API_KEY":    v.config.LLM.APIKey,
+		"PRIVY_APP_ID":   v.config.Web3.PrivyAppID,
+		"WALLET_ADDRESS": os.Getenv("WALLET_ADDRESS"),
 	}
 
 	for key, value := range required {

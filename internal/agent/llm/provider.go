@@ -1,9 +1,6 @@
 package llm
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/gosouza/iac-ai-agent/internal/models"
 	"github.com/gosouza/iac-ai-agent/pkg/config"
 	"github.com/gosouza/iac-ai-agent/pkg/logger"
@@ -13,10 +10,10 @@ import (
 type LLMProvider interface {
 	// Generate gera uma resposta de texto para o prompt fornecido
 	Generate(req *models.LLMRequest) (*models.LLMResponse, error)
-	
+
 	// GenerateStructured gera uma resposta estruturada usando o LLM
 	GenerateStructured(req *models.LLMRequest, responseStruct interface{}) error
-	
+
 	// ValidateConnection testa a conexão com o provedor
 	ValidateConnection() error
 }

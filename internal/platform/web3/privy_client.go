@@ -34,23 +34,23 @@ func NewPrivyClient(cfg *config.Config, log *logger.Logger) *PrivyClient {
 
 // PrivyUser representa um usuário autenticado via Privy
 type PrivyUser struct {
-	ID              string          `json:"id"`
-	CreatedAt       time.Time       `json:"created_at"`
-	LinkedAccounts  []LinkedAccount `json:"linked_accounts"`
-	WalletAddress   string          `json:"-"` // Extracted from linked_accounts
-	Email           string          `json:"-"` // Extracted if available
-	MFAEnabled      bool            `json:"mfa_enabled"`
-	HasAcceptedTerms bool           `json:"has_accepted_terms"`
+	ID               string          `json:"id"`
+	CreatedAt        time.Time       `json:"created_at"`
+	LinkedAccounts   []LinkedAccount `json:"linked_accounts"`
+	WalletAddress    string          `json:"-"` // Extracted from linked_accounts
+	Email            string          `json:"-"` // Extracted if available
+	MFAEnabled       bool            `json:"mfa_enabled"`
+	HasAcceptedTerms bool            `json:"has_accepted_terms"`
 }
 
 // LinkedAccount representa uma conta vinculada ao usuário
 type LinkedAccount struct {
-	Type          string    `json:"type"` // wallet, email, discord, twitter, etc
-	Address       string    `json:"address,omitempty"` // For wallet
-	Email         string    `json:"email,omitempty"` // For email
-	ChainType     string    `json:"chain_type,omitempty"` // ethereum, base, polygon
-	WalletClient  string    `json:"wallet_client,omitempty"` // metamask, coinbase_wallet, etc
-	VerifiedAt    time.Time `json:"verified_at"`
+	Type            string    `json:"type"`                    // wallet, email, discord, twitter, etc
+	Address         string    `json:"address,omitempty"`       // For wallet
+	Email           string    `json:"email,omitempty"`         // For email
+	ChainType       string    `json:"chain_type,omitempty"`    // ethereum, base, polygon
+	WalletClient    string    `json:"wallet_client,omitempty"` // metamask, coinbase_wallet, etc
+	VerifiedAt      time.Time `json:"verified_at"`
 	FirstVerifiedAt time.Time `json:"first_verified_at"`
 }
 
@@ -162,8 +162,8 @@ func (pc *PrivyClient) LinkWallet(userID, walletAddress, signature string) error
 	url := fmt.Sprintf("%s/api/v1/users/%s/wallets", pc.baseURL, userID)
 
 	payload := map[string]string{
-		"address":   walletAddress,
-		"signature": signature,
+		"address":    walletAddress,
+		"signature":  signature,
 		"chain_type": "base", // Base Network
 	}
 
