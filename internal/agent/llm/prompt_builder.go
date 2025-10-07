@@ -79,8 +79,19 @@ func (pb *PromptBuilder) BuildEnrichmentPrompt(
 	}
 
 	// Prepara dados para o template
+	resourcesWithLine := []map[string]interface{}{}
+
+	for _, res := range analysis.Terraform.Resources {
+		resourcesWithLine = append(resourcesWithLine, map[string]interface{}{
+			"Type": res.Type,
+			"Name": res.Name,
+			"File": res.File,
+			"Line": res.LineStart,
+		})
+	}
+
 	data := map[string]interface{}{
-		"Resources":       analysis.Terraform.Resources,
+		"Resources":       resourcesWithLine,
 		"BaseSuggestions": baseSuggestions,
 		"BestPractices":   relevantPractices,
 		"Modules":         relevantModules,
@@ -130,9 +141,33 @@ func (pb *PromptBuilder) BuildSecurityAnalysisPrompt(
 	}
 
 	// Prepara dados para o template
+	resourcesWithLine := []map[string]interface{}{}
+
+	for _, res := range analysis.Terraform.Resources {
+		resourcesWithLine = append(resourcesWithLine, map[string]interface{}{
+			"Type": res.Type,
+			"Name": res.Name,
+			"File": res.File,
+			"Line": res.LineStart,
+		})
+	}
+
+	securityFindingsWithType := []map[string]interface{}{}
+
+	for _, finding := range securityFindings {
+		securityFindingsWithType = append(securityFindingsWithType, map[string]interface{}{
+			"Type":        finding.CheckName,
+			"Severity":    finding.Severity,
+			"Description": finding.Description,
+			"Resource":    finding.Resource,
+			"File":        finding.File,
+			"Line":        finding.Line,
+		})
+	}
+
 	data := map[string]interface{}{
-		"Resources":        analysis.Terraform.Resources,
-		"SecurityFindings": securityFindings,
+		"Resources":        resourcesWithLine,
+		"SecurityFindings": securityFindingsWithType,
 	}
 
 	// Executa o template
@@ -180,7 +215,7 @@ func buildFallbackEnrichmentPrompt(
 	// Resources
 	sb.WriteString("### Resources\n")
 	for _, res := range analysis.Terraform.Resources {
-		sb.WriteString(fmt.Sprintf("- %s.%s (%s:%d)\n", res.Type, res.Name, res.File, res.Line))
+		sb.WriteString(fmt.Sprintf("- %s.%s (%s:%d)\n", res.Type, res.Name, res.File, res.LineStart))
 	}
 	sb.WriteString("\n")
 
@@ -259,7 +294,7 @@ func buildFallbackSecurityPrompt(
 	// Security findings
 	sb.WriteString("## Security Findings\n")
 	for _, finding := range securityFindings {
-		sb.WriteString(fmt.Sprintf("- [%s] %s: %s\n", finding.Severity, finding.Type, finding.Description))
+		sb.WriteString(fmt.Sprintf("- [%s] %s: %s\n", finding.Severity, finding.CheckName, finding.Description))
 	}
 	sb.WriteString("\n")
 
