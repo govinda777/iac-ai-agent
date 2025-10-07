@@ -55,6 +55,13 @@ func NewNationClient(cfg *config.Config, log *logger.Logger) (*NationClient, err
 		log.Warn("Modelo Nation.fun não especificado, usando padrão", "model", modelName)
 	}
 
+	// Define agente padrão caso não seja especificado
+	defaultAgentAddress := "0x147e832418Cc06A501047019E956714271098b89"
+	if cfg.Web3.DefaultAgentAddress == "" {
+		cfg.Web3.DefaultAgentAddress = defaultAgentAddress
+		log.Info("Usando agente Nation.fun padrão", "agent", defaultAgentAddress)
+	}
+
 	client := &NationClient{
 		config:      cfg,
 		logger:      log,
@@ -72,7 +79,7 @@ func NewNationClient(cfg *config.Config, log *logger.Logger) (*NationClient, err
 		return nil, fmt.Errorf("falha ao conectar com Nation.fun API: %w", err)
 	}
 
-	log.Info("Cliente Nation.fun inicializado com sucesso", 
+	log.Info("Cliente Nation.fun inicializado com sucesso",
 		"model", modelName,
 		"nft_contract", cfg.Web3.NFTAccessContractAddress)
 
@@ -82,7 +89,7 @@ func NewNationClient(cfg *config.Config, log *logger.Logger) (*NationClient, err
 // Generate implementa a interface LLMProvider.Generate para Nation.fun
 func (c *NationClient) Generate(req *models.LLMRequest) (*models.LLMResponse, error) {
 	startTime := time.Now()
-	c.logger.Debug("Gerando resposta com Nation.fun", 
+	c.logger.Debug("Gerando resposta com Nation.fun",
 		"model", c.modelName,
 		"prompt_length", len(req.Prompt),
 		"max_tokens", req.MaxTokens,
@@ -93,29 +100,30 @@ func (c *NationClient) Generate(req *models.LLMRequest) (*models.LLMResponse, er
 
 	// Prepara request para Nation.fun
 	url := fmt.Sprintf("%s/completions", c.baseURL)
-	
+
 	// Estrutura da requisição
 	payload := map[string]interface{}{
-		"model":       c.modelName,
-		"prompt":      req.Prompt,
-		"temperature": req.Temperature,
-		"max_tokens":  req.MaxTokens,
-		"system":      req.SystemPrompt,
-		"nft_address": c.nftAddress,
-		"wallet_token": c.walletToken,
+		"model":         c.modelName,
+		"prompt":        req.Prompt,
+		"temperature":   req.Temperature,
+		"max_tokens":    req.MaxTokens,
+		"system":        req.SystemPrompt,
+		"nft_address":   c.nftAddress,
+		"wallet_token":  c.walletToken,
+		"agent_address": c.config.Web3.DefaultAgentAddress,
 	}
 
 	// Adiciona mensagens de contexto se existirem
 	if len(req.ContextMessages) > 0 {
 		messages := []map[string]string{}
-		
+
 		for _, msg := range req.ContextMessages {
 			messages = append(messages, map[string]string{
 				"role":    msg.Role,
 				"content": msg.Content,
 			})
 		}
-		
+
 		payload["context"] = messages
 	}
 
@@ -175,7 +183,7 @@ func (c *NationClient) Generate(req *models.LLMRequest) (*models.LLMResponse, er
 
 	// Calcula métricas
 	duration := time.Since(startTime)
-	
+
 	// Constrói resposta
 	result := &models.LLMResponse{
 		Content:    nationResp.Content,
@@ -212,8 +220,8 @@ func (c *NationClient) GenerateStructured(req *models.LLMRequest, responseStruct
 	// Adiciona estrutura esperada ao prompt
 	structType := fmt.Sprintf("%T", responseStruct)
 	structExample, _ := json.MarshalIndent(responseStruct, "", "  ")
-	
-	reqCopy.Prompt += fmt.Sprintf("\n\nResponda com um JSON válido no formato: %s\n\nExemplo de estrutura:\n```json\n%s\n```", 
+
+	reqCopy.Prompt += fmt.Sprintf("\n\nResponda com um JSON válido no formato: %s\n\nExemplo de estrutura:\n```json\n%s\n```",
 		structType, string(structExample))
 
 	// Gera resposta

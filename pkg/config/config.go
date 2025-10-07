@@ -88,6 +88,7 @@ type Web3Config struct {
 	// Nation.fun Configuration
 	WalletToken   string `yaml:"wallet_token"`   // Token de autenticação da wallet
 	WalletAddress string `yaml:"wallet_address"` // Endereço da wallet
+	DefaultAgentAddress string `yaml:"default_agent_address"` // Endereço do agente padrão
 }
 
 // Load carrega configuração de um arquivo YAML
@@ -221,6 +222,12 @@ func (c *Config) loadFromEnv() {
 	}
 	if walletAddr := os.Getenv("WALLET_ADDRESS"); walletAddr != "" {
 		c.Web3.WalletAddress = walletAddr
+	}
+	if agentAddr := os.Getenv("DEFAULT_AGENT_ADDRESS"); agentAddr != "" {
+		c.Web3.DefaultAgentAddress = agentAddr
+	} else {
+		// Agente padrão caso não seja especificado
+		c.Web3.DefaultAgentAddress = "0x147e832418Cc06A501047019E956714271098b89"
 	}
 }
 

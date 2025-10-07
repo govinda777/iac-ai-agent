@@ -64,3 +64,4 @@ web3:
   # Nation.fun Configuration
   # wallet_token: ""        # Definir via env var WALLET_TOKEN
   # wallet_address: ""      # Definir via env var WALLET_ADDRESS
+  default_agent_address: "0x147e832418Cc06A501047019E956714271098b89"  # Agente padrão Nation.fun
