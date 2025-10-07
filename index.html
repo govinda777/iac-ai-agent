@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IaC AI Agent - Agente de IA para Terraform</title>
+    <meta name="description" content="Agente de IA para análise, revisão e otimização de código Infrastructure as Code (Terraform) com autenticação Web3 e pagamentos on-chain.">
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="#" class="logo">
+                    <img src="img/logo.svg" alt="IaC AI Agent Logo" class="logo-img">
+                    <span class="logo-text">IaC AI Agent</span>
+                </a>
+                <ul class="nav-menu">
+                    <li><a href="#features" class="nav-link">Recursos</a></li>
+                    <li><a href="#how-it-works" class="nav-link">Como Funciona</a></li>
+                    <li><a href="#pricing" class="nav-link">Preços</a></li>
+                    <li><a href="#roadmap" class="nav-link">Roadmap</a></li>
+                    <li><a href="https://github.com/gosouza/iac-ai-agent" class="nav-link" target="_blank">GitHub</a></li>
+                </ul>
+                <div class="nav-buttons">
+                    <a href="https://nation.fun/" class="btn btn-outline" target="_blank">Nation.fun</a>
+                    <a href="docs/QUICKSTART.md" class="btn btn-primary">Começar</a>
+                </div>
+                <button class="hamburger">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Agente de IA para Terraform com Web3</h1>
+                <p class="hero-subtitle">Análise, revisão e otimização de código Infrastructure as Code com autenticação Web3 e pagamentos on-chain</p>
+                <div class="hero-badges">
+                    <span class="badge"><i class="fa-solid fa-code"></i> Go 1.21+</span>
+                    <span class="badge"><i class="fa-solid fa-lock"></i> Privy.io</span>
+                    <span class="badge"><i class="fa-brands fa-ethereum"></i> Base Network</span>
+                    <span class="badge"><i class="fa-solid fa-users"></i> Nation.fun</span>
+                </div>
+                <div class="hero-buttons">
+                    <a href="docs/QUICKSTART.md" class="btn btn-primary btn-lg">Documentação</a>
+                    <a href="https://github.com/gosouza/iac-ai-agent" class="btn btn-outline btn-lg" target="_blank">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="img/hero-illustration.svg" alt="IaC AI Agent em ação">
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Recursos Principais</h2>
+            <p class="section-subtitle">Um agente inteligente para otimizar sua infraestrutura como código</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="feature-title">Análise de Segurança</h3>
+                    <p class="feature-text">Integração completa com Checkov para detectar vulnerabilidades em seu código Terraform</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <h3 class="feature-title">Análise com LLM</h3>
+                    <p class="feature-text">Sugestões contextualizadas usando GPT-4 ou Claude para melhorar seu código</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-money-bill-trend-up"></i>
+                    </div>
+                    <h3 class="feature-title">Otimização de Custos</h3>
+                    <p class="feature-text">Identifique oportunidades de economia e receba estimativas de custos</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-sitemap"></i>
+                    </div>
+                    <h3 class="feature-title">Recomendações de Arquitetura</h3>
+                    <p class="feature-text">Sugestões para melhorar a estrutura e organização do seu código IaC</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-check-double"></i>
+                    </div>
+                    <h3 class="feature-title">Best Practices</h3>
+                    <p class="feature-text">Validação automática de boas práticas e análise de políticas IAM</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-chart-simple"></i>
+                    </div>
+                    <h3 class="feature-title">Scoring Automático</h3>
+                    <p class="feature-text">Avaliação de qualidade com métricas detalhadas e recomendações</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="web3-features">
+        <div class="container">
+            <div class="web3-content">
+                <h2 class="section-title">Integração Web3 Nativa</h2>
+                <p class="section-text">O IaC AI Agent é construído com tecnologia blockchain para oferecer uma experiência descentralizada e segura</p>
+                
+                <ul class="web3-list">
+                    <li class="web3-item">
+                        <i class="fa-solid fa-wallet"></i>
+                        <div>
+                            <h3>Autenticação via Privy.io</h3>
+                            <p>Login com wallet (MetaMask, Coinbase) ou email</p>
+                        </div>
+                    </li>
+                    <li class="web3-item">
+                        <i class="fa-solid fa-ticket"></i>
+                        <div>
+                            <h3>NFTs de Acesso</h3>
+                            <p>3 tiers de acesso permanente na Base Network</p>
+                        </div>
+                    </li>
+                    <li class="web3-item">
+                        <i class="fa-solid fa-coins"></i>
+                        <div>
+                            <h3>Token IACAI (ERC-20)</h3>
+                            <p>Pague por análises com tokens on-chain</p>
+                        </div>
+                    </li>
+                    <li class="web3-item">
+                        <i class="fa-solid fa-credit-card"></i>
+                        <div>
+                            <h3>Privy Onramp</h3>
+                            <p>Compre crypto com cartão/PIX sem ter wallet</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="web3-image">
+                <img src="img/web3-integration.svg" alt="Integração Web3">
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">Como Funciona</h2>
+            <p class="section-subtitle">Um processo simples para analisar e melhorar seu código Terraform</p>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Adquira um NFT de Acesso</h3>
+                    <p class="step-text">Escolha entre os tiers Basic, Pro ou Enterprise para acesso permanente ao sistema</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Compre Tokens IACAI</h3>
+                    <p class="step-text">Adquira tokens para pagar por análises, com descontos em pacotes maiores</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Submeta seu Código</h3>
+                    <p class="step-text">Envie seu código Terraform ou resultados de Checkov para análise</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">Receba Análise Detalhada</h3>
+                    <p class="step-text">Obtenha sugestões, correções e melhorias baseadas em IA e best practices</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <h2 class="section-title">Planos e Preços</h2>
+            <p class="section-subtitle">Escolha o tier que melhor atende às suas necessidades</p>
+            
+            <div class="pricing-cards">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="pricing-title">Basic</h3>
+                        <div class="pricing-price">
+                            <span class="price">0.01 ETH</span>
+                            <span class="price-approx">~$25 USD</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fa-solid fa-check"></i> Análises ilimitadas</li>
+                        <li><i class="fa-solid fa-check"></i> Integração Checkov</li>
+                        <li><i class="fa-solid fa-check"></i> Suporte Discord</li>
+                        <li class="feature-disabled"><i class="fa-solid fa-xmark"></i> LLM Analysis</li>
+                        <li class="feature-disabled"><i class="fa-solid fa-xmark"></i> Preview Analysis</li>
+                        <li class="feature-disabled"><i class="fa-solid fa-xmark"></i> API dedicada</li>
+                    </ul>
+                    <a href="#" class="btn btn-outline btn-block">Comprar NFT</a>
+                </div>
+                
+                <div class="pricing-card pricing-card-featured">
+                    <div class="pricing-badge">Popular</div>
+                    <div class="pricing-header">
+                        <h3 class="pricing-title">Pro</h3>
+                        <div class="pricing-price">
+                            <span class="price">0.05 ETH</span>
+                            <span class="price-approx">~$125 USD</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fa-solid fa-check"></i> Análises ilimitadas</li>
+                        <li><i class="fa-solid fa-check"></i> Integração Checkov</li>
+                        <li><i class="fa-solid fa-check"></i> Suporte Discord</li>
+                        <li><i class="fa-solid fa-check"></i> LLM Analysis</li>
+                        <li><i class="fa-solid fa-check"></i> Preview Analysis</li>
+                        <li><i class="fa-solid fa-check"></i> Drift Detection</li>
+                        <li class="feature-disabled"><i class="fa-solid fa-xmark"></i> API dedicada</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary btn-block">Comprar NFT</a>
+                </div>
+                
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3 class="pricing-title">Enterprise</h3>
+                        <div class="pricing-price">
+                            <span class="price">0.2 ETH</span>
+                            <span class="price-approx">~$500 USD</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fa-solid fa-check"></i> Análises ilimitadas</li>
+                        <li><i class="fa-solid fa-check"></i> Integração Checkov</li>
+                        <li><i class="fa-solid fa-check"></i> Suporte Discord</li>
+                        <li><i class="fa-solid fa-check"></i> LLM Analysis</li>
+                        <li><i class="fa-solid fa-check"></i> Preview Analysis</li>
+                        <li><i class="fa-solid fa-check"></i> Drift Detection</li>
+                        <li><i class="fa-solid fa-check"></i> API dedicada</li>
+                        <li><i class="fa-solid fa-check"></i> Custom Knowledge Base</li>
+                        <li><i class="fa-solid fa-check"></i> SLA 24/7</li>
+                    </ul>
+                    <a href="#" class="btn btn-outline btn-block">Comprar NFT</a>
+                </div>
+            </div>
+            
+            <div class="token-packages">
+                <h3 class="token-title">Pacotes de Tokens IACAI</h3>
+                <div class="token-cards">
+                    <div class="token-card">
+                        <h4>Starter</h4>
+                        <p class="token-amount">100 tokens</p>
+                        <p class="token-price">0.005 ETH (~$10)</p>
+                        <p class="token-discount">Sem desconto</p>
+                    </div>
+                    
+                    <div class="token-card">
+                        <h4>Power</h4>
+                        <p class="token-amount">500 tokens</p>
+                        <p class="token-price">0.0225 ETH (~$45)</p>
+                        <p class="token-discount">10% de desconto</p>
+                    </div>
+                    
+                    <div class="token-card">
+                        <h4>Pro</h4>
+                        <p class="token-amount">1000 tokens</p>
+                        <p class="token-price">0.0425 ETH (~$85)</p>
+                        <p class="token-discount">15% de desconto</p>
+                    </div>
+                    
+                    <div class="token-card">
+                        <h4>Enterprise</h4>
+                        <p class="token-amount">5000 tokens</p>
+                        <p class="token-price">0.1875 ETH (~$375)</p>
+                        <p class="token-discount">25% de desconto</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="roadmap" class="roadmap">
+        <div class="container">
+            <h2 class="section-title">Roadmap</h2>
+            <p class="section-subtitle">Nossa visão para o futuro do IaC AI Agent</p>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3 class="timeline-title">Q4 2024</h3>
+                        <ul class="timeline-list">
+                            <li class="completed">Análise básica de Terraform</li>
+                            <li class="completed">Integração Checkov</li>
+                            <li class="completed">LLM Analysis (GPT-4/Claude)</li>
+                            <li class="completed">Autenticação Web3 (Privy)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3 class="timeline-title">Q1 2025</h3>
+                        <ul class="timeline-list">
+                            <li class="completed">NFTs de acesso (Base Network)</li>
+                            <li class="completed">Token IACAI (ERC-20)</li>
+                            <li class="completed">Privy Onramp</li>
+                            <li class="completed">Testes BDD completos</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3 class="timeline-title">Q2 2025</h3>
+                        <ul class="timeline-list">
+                            <li>Preview Analysis</li>
+                            <li>Drift Detection</li>
+                            <li>Dashboard Web</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3 class="timeline-title">Q3 2025</h3>
+                        <ul class="timeline-list">
+                            <li>Integração CI/CD</li>
+                            <li>Mobile App</li>
+                            <li>Governance DAO</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">Pronto para otimizar sua infraestrutura?</h2>
+                <p class="cta-text">Comece agora a usar o IaC AI Agent e leve seu código Terraform para o próximo nível</p>
+                <div class="cta-buttons">
+                    <a href="docs/QUICKSTART.md" class="btn btn-primary btn-lg">Começar Agora</a>
+                    <a href="https://github.com/gosouza/iac-ai-agent" class="btn btn-outline btn-lg" target="_blank">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="footer-logo">
+                        <img src="img/logo.svg" alt="IaC AI Agent Logo">
+                        <span>IaC AI Agent</span>
+                    </a>
+                    <p class="footer-tagline">Agente de IA para análise, revisão e otimização de código Infrastructure as Code</p>
+                    <div class="social-links">
+                        <a href="https://github.com/gosouza/iac-ai-agent" target="_blank" class="social-link"><i class="fab fa-github"></i></a>
+                        <a href="https://twitter.com/iacaiagent" target="_blank" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h3 class="footer-title">Produto</h3>
+                    <ul class="footer-menu">
+                        <li><a href="#features">Recursos</a></li>
+                        <li><a href="#how-it-works">Como Funciona</a></li>
+                        <li><a href="#pricing">Preços</a></li>
+                        <li><a href="#roadmap">Roadmap</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h3 class="footer-title">Documentação</h3>
+                    <ul class="footer-menu">
+                        <li><a href="docs/QUICKSTART.md">Quick Start</a></li>
+                        <li><a href="docs/OBJECTIVE.md">Objetivo do Projeto</a></li>
+                        <li><a href="docs/ARCHITECTURE.md">Arquitetura</a></li>
+                        <li><a href="docs/INDEX.md">Índice Completo</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h3 class="footer-title">Links</h3>
+                    <ul class="footer-menu">
+                        <li><a href="https://nation.fun/" target="_blank">Nation.fun</a></li>
+                        <li><a href="https://privy.io" target="_blank">Privy.io</a></li>
+                        <li><a href="https://base.org" target="_blank">Base Network</a></li>
+                        <li><a href="https://www.checkov.io" target="_blank">Checkov</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h3 class="footer-title">Suporte</h3>
+                    <ul class="footer-menu">
+                        <li><a href="https://github.com/gosouza/iac-ai-agent/issues" target="_blank">GitHub Issues</a></li>
+                        <li><a href="mailto:support@iacai.com">Email</a></li>
+                        <li><a href="#">Discord (em breve)</a></li>
+                        <li><a href="https://twitter.com/iacaiagent" target="_blank">Twitter</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="copyright">&copy; 2025 IaC AI Agent. Todos os direitos reservados.</p>
+                <p class="powered-by">Powered by <a href="https://nation.fun/" target="_blank">Nation.fun</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

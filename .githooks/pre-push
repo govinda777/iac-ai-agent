@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# Pre-push hook: Executa testes unitários e de integração
+# Para pular os testes temporariamente: git push --no-verify
+
+set -e
+
+echo ""
+echo "🔍 =================================="
+echo "🔍 PRE-PUSH: Executando Testes"
+echo "🔍 =================================="
+echo ""
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Get current branch
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+echo -e "${BLUE}Branch: ${BRANCH}${NC}"
+echo ""
+
+# ============================================
+# 1. LINTER
+# ============================================
+echo -e "${YELLOW}📋 [1/4] Executando Linter...${NC}"
+if which golangci-lint > /dev/null; then
+    if ! make lint; then
+        echo -e "${RED}❌ Linter falhou! Corrija os erros antes do push.${NC}"
+        echo ""
+        echo "💡 Dica: Execute 'make lint' para ver os erros"
+        exit 1
+    fi
+    echo -e "${GREEN}✅ Linter passou!${NC}"
+else
+    echo -e "${YELLOW}⚠️  golangci-lint não está instalado. Pulando verificação.${NC}"
+    echo -e "${YELLOW}💡 Para instalar: 'make lint-install' ou 'brew install golangci-lint'${NC}"
+fi
+echo ""
+
+# ============================================
+# 2. TESTES UNITÁRIOS
+# ============================================
+echo -e "${YELLOW}🧪 [2/4] Executando Testes Unitários...${NC}"
+if ! make test-unit; then
+    echo -e "${RED}❌ Testes unitários falharam!${NC}"
+    echo ""
+    echo "💡 Dica: Execute 'make test-unit' para ver detalhes"
+    exit 1
+fi
+echo -e "${GREEN}✅ Testes unitários passaram!${NC}"
+echo ""
+
+# ============================================
+# 3. TESTES DE INTEGRAÇÃO
+# ============================================
+echo -e "${YELLOW}🔗 [3/4] Executando Testes de Integração...${NC}"
+if ! make test-integration; then
+    echo -e "${RED}❌ Testes de integração falharam!${NC}"
+    echo ""
+    echo "💡 Dica: Execute 'make test-integration' para ver detalhes"
+    exit 1
+fi
+echo -e "${GREEN}✅ Testes de integração passaram!${NC}"
+echo ""
+
+# ============================================
+# 4. BUILD
+# ============================================
+echo -e "${YELLOW}🏗️  [4/4] Verificando Build...${NC}"
+if ! make build; then
+    echo -e "${RED}❌ Build falhou!${NC}"
+    echo ""
+    echo "💡 Dica: Execute 'make build' para ver detalhes"
+    exit 1
+fi
+echo -e "${GREEN}✅ Build passou!${NC}"
+echo ""
+
+# ============================================
+# SUCCESS
+# ============================================
+echo -e "${GREEN}🎉 =================================="
+echo -e "🎉 TODOS OS TESTES PASSARAM!"
+echo -e "🎉 ==================================${NC}"
+echo ""
+echo -e "${BLUE}📦 Prosseguindo com push...${NC}"
+echo ""
+
+exit 0
