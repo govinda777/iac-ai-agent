@@ -5,7 +5,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/gosouza/iac-ai-agent/internal/agent/llm"
 	"github.com/gosouza/iac-ai-agent/internal/models"
+	"github.com/gosouza/iac-ai-agent/internal/platform/cloudcontroller"
 	"github.com/gosouza/iac-ai-agent/pkg/logger"
 )
 
@@ -19,6 +21,10 @@ type AnalysisService struct {
 	securityAdvisor SecurityAdvisorInterface
 	logger          *logger.Logger
 	minPassScore    int
+	llmClient       llm.LLMProvider
+	knowledgeBase   *cloudcontroller.KnowledgeBase
+	moduleRegistry  *cloudcontroller.ModuleRegistry
+	promptBuilder   *llm.PromptBuilder
 }
 
 // NewAnalysisService cria uma nova instância do serviço de análise com injeção de dependência
@@ -31,6 +37,9 @@ func NewAnalysisService(
 	prScorer PRScorerInterface,
 	costOptimizer CostOptimizerInterface,
 	securityAdvisor SecurityAdvisorInterface,
+	llmClient llm.LLMProvider,
+	kb *cloudcontroller.KnowledgeBase,
+	mr *cloudcontroller.ModuleRegistry,
 ) *AnalysisService {
 	return &AnalysisService{
 		tfAnalyzer:      tfAnalyzer,
@@ -41,6 +50,10 @@ func NewAnalysisService(
 		securityAdvisor: securityAdvisor,
 		logger:          log,
 		minPassScore:    minPassScore,
+		llmClient:       llmClient,
+		knowledgeBase:   kb,
+		moduleRegistry:  mr,
+		promptBuilder:   llm.NewPromptBuilder(log),
 	}
 }
 
@@ -202,6 +215,38 @@ func (as *AnalysisService) AnalyzeDirectory(dir string) (*models.AnalysisRespons
 
 // generateSuggestions gera sugestões baseadas nas análises
 func (as *AnalysisService) generateSuggestions(
+	tfAnalysis *models.TerraformAnalysis,
+	securityAnalysis *models.SecurityAnalysis,
+	iamAnalysis *models.IAMAnalysis,
+) []models.Suggestion {
+	// 1. Sugestões baseadas em regras (rápido, determinístico)
+	ruleBased := as.generateRuleBasedSuggestions(tfAnalysis, securityAnalysis, iamAnalysis)
+
+	// Monta análise completa para enriquecimento
+	analysisDetails := &models.AnalysisDetails{
+		Terraform: *tfAnalysis,
+		Security:  *securityAnalysis,
+		IAM:       *iamAnalysis,
+	}
+
+	// 2. Enriquece com LLM (contexto, inteligência)
+	enriched, err := as.enrichSuggestionsWithLLM(
+		analysisDetails,
+		ruleBased,
+	)
+
+	// Se houve erro, usa apenas as sugestões baseadas em regras
+	if err != nil {
+		as.logger.Warn("Falha ao enriquecer sugestões com LLM", "error", err)
+		return ruleBased
+	}
+
+	// 3. Combina e remove duplicatas
+	return as.mergeSuggestions(ruleBased, enriched)
+}
+
+// generateRuleBasedSuggestions gera sugestões baseadas apenas em regras
+func (as *AnalysisService) generateRuleBasedSuggestions(
 	tfAnalysis *models.TerraformAnalysis,
 	securityAnalysis *models.SecurityAnalysis,
 	iamAnalysis *models.IAMAnalysis,

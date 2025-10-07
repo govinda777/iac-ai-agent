@@ -10,349 +10,602 @@ import (
 	"github.com/gosouza/iac-ai-agent/pkg/logger"
 )
 
-// PromptBuilder é responsável por construir prompts estruturados para o LLM
+// PromptBuilder constrói prompts para o LLM
 type PromptBuilder struct {
-	logger *logger.Logger
+	logger    *logger.Logger
+	templates map[string]*template.Template
 }
 
-// NewPromptBuilder cria um novo builder de prompts
+// NewPromptBuilder cria um novo construtor de prompts
 func NewPromptBuilder(log *logger.Logger) *PromptBuilder {
-	return &PromptBuilder{
-		logger: log,
+	pb := &PromptBuilder{
+		logger:    log,
+		templates: make(map[string]*template.Template),
 	}
+
+	// Carrega templates
+	pb.loadTemplates()
+
+	return pb
 }
 
-// PromptData contém os dados para construir um prompt
-type PromptData struct {
-	TerraformCode  string
-	CheckovResults *models.CheckovResult
-	IAMPolicies    []string
-	KnowledgeBase  map[string]interface{}
-	Context        map[string]interface{}
-}
-
-// BuildAnalysisPrompt constrói um prompt para análise de código
-func (b *PromptBuilder) BuildAnalysisPrompt(data *PromptData) (*models.LLMRequest, error) {
-	// Inicializa template
-	tmpl, err := template.New("analysis").Parse(analysisPromptTemplate)
+// loadTemplates carrega todos os templates de prompt
+func (pb *PromptBuilder) loadTemplates() {
+	// Template de enriquecimento
+	enrichmentTmpl, err := template.New("enrichment").Parse(EnrichmentPromptTemplate)
 	if err != nil {
-		return nil, fmt.Errorf("erro ao parsear template: %w", err)
+		pb.logger.Error("Erro ao carregar template de enriquecimento", "error", err)
+	} else {
+		pb.templates["enrichment"] = enrichmentTmpl
 	}
 
-	// Executa template
+	// Template de análise de preview
+	previewTmpl, err := template.New("preview").Parse(PreviewAnalysisPromptTemplate)
+	if err != nil {
+		pb.logger.Error("Erro ao carregar template de análise de preview", "error", err)
+	} else {
+		pb.templates["preview"] = previewTmpl
+	}
+
+	// Template de análise de segurança
+	securityTmpl, err := template.New("security").Parse(SecurityAnalysisPromptTemplate)
+	if err != nil {
+		pb.logger.Error("Erro ao carregar template de análise de segurança", "error", err)
+	} else {
+		pb.templates["security"] = securityTmpl
+	}
+
+	// Template de otimização de custo
+	costTmpl, err := template.New("cost").Parse(CostOptimizationPromptTemplate)
+	if err != nil {
+		pb.logger.Error("Erro ao carregar template de otimização de custo", "error", err)
+	} else {
+		pb.templates["cost"] = costTmpl
+	}
+}
+
+// BuildEnrichmentPrompt constrói prompt para enriquecimento de sugestões
+func (pb *PromptBuilder) BuildEnrichmentPrompt(
+	analysis *models.AnalysisDetails,
+	baseSuggestions []models.Suggestion,
+	relevantPractices []models.BestPractice,
+	relevantModules []models.Module,
+) string {
+	// Verifica se o template existe
+	tmpl, ok := pb.templates["enrichment"]
+	if !ok {
+		pb.logger.Error("Template de enriquecimento não encontrado")
+		return buildFallbackEnrichmentPrompt(analysis, baseSuggestions)
+	}
+
+	// Prepara dados para o template
+	data := map[string]interface{}{
+		"Resources":       analysis.Terraform.Resources,
+		"BaseSuggestions": baseSuggestions,
+		"BestPractices":   relevantPractices,
+		"Modules":         relevantModules,
+	}
+
+	// Executa o template
 	var buf bytes.Buffer
-	err = tmpl.Execute(&buf, data)
-	if err != nil {
-		return nil, fmt.Errorf("erro ao executar template: %w", err)
+	if err := tmpl.Execute(&buf, data); err != nil {
+		pb.logger.Error("Erro ao executar template de enriquecimento", "error", err)
+		return buildFallbackEnrichmentPrompt(analysis, baseSuggestions)
 	}
 
-	// Constrói request
-	req := &models.LLMRequest{
-		SystemPrompt: systemPrompt,
-		Prompt:       buf.String(),
-		Temperature:  0.2,
-		MaxTokens:    4000,
-		ResponseFormat: "json",
-	}
-
-	b.logger.Debug("Prompt construído", 
-		"prompt_length", len(req.Prompt),
-		"has_terraform", len(data.TerraformCode) > 0,
-		"has_checkov", data.CheckovResults != nil,
-		"has_iam", len(data.IAMPolicies) > 0)
-
-	return req, nil
+	return buf.String()
 }
 
-// BuildSecurityPrompt constrói um prompt focado em segurança
-func (b *PromptBuilder) BuildSecurityPrompt(data *PromptData) (*models.LLMRequest, error) {
-	// Inicializa template
-	tmpl, err := template.New("security").Parse(securityPromptTemplate)
-	if err != nil {
-		return nil, fmt.Errorf("erro ao parsear template: %w", err)
+// BuildPreviewAnalysisPrompt constrói prompt para análise de preview
+func (pb *PromptBuilder) BuildPreviewAnalysisPrompt(
+	previewAnalysis *models.PreviewAnalysis,
+) string {
+	// Verifica se o template existe
+	tmpl, ok := pb.templates["preview"]
+	if !ok {
+		pb.logger.Error("Template de análise de preview não encontrado")
+		return buildFallbackPreviewPrompt(previewAnalysis)
 	}
 
-	// Executa template
+	// Executa o template
 	var buf bytes.Buffer
-	err = tmpl.Execute(&buf, data)
-	if err != nil {
-		return nil, fmt.Errorf("erro ao executar template: %w", err)
+	if err := tmpl.Execute(&buf, previewAnalysis); err != nil {
+		pb.logger.Error("Erro ao executar template de análise de preview", "error", err)
+		return buildFallbackPreviewPrompt(previewAnalysis)
 	}
 
-	// Constrói request
-	req := &models.LLMRequest{
-		SystemPrompt: securitySystemPrompt,
-		Prompt:       buf.String(),
-		Temperature:  0.1, // Menor temperatura para análise de segurança
-		MaxTokens:    4000,
-		ResponseFormat: "json",
-	}
-
-	return req, nil
+	return buf.String()
 }
 
-// BuildCostPrompt constrói um prompt focado em otimização de custos
-func (b *PromptBuilder) BuildCostPrompt(data *PromptData) (*models.LLMRequest, error) {
-	// Inicializa template
-	tmpl, err := template.New("cost").Parse(costPromptTemplate)
-	if err != nil {
-		return nil, fmt.Errorf("erro ao parsear template: %w", err)
+// BuildSecurityAnalysisPrompt constrói prompt para análise de segurança
+func (pb *PromptBuilder) BuildSecurityAnalysisPrompt(
+	analysis *models.AnalysisDetails,
+	securityFindings []models.SecurityFinding,
+) string {
+	// Verifica se o template existe
+	tmpl, ok := pb.templates["security"]
+	if !ok {
+		pb.logger.Error("Template de análise de segurança não encontrado")
+		return buildFallbackSecurityPrompt(analysis, securityFindings)
 	}
 
-	// Executa template
+	// Prepara dados para o template
+	data := map[string]interface{}{
+		"Resources":        analysis.Terraform.Resources,
+		"SecurityFindings": securityFindings,
+	}
+
+	// Executa o template
 	var buf bytes.Buffer
-	err = tmpl.Execute(&buf, data)
-	if err != nil {
-		return nil, fmt.Errorf("erro ao executar template: %w", err)
+	if err := tmpl.Execute(&buf, data); err != nil {
+		pb.logger.Error("Erro ao executar template de análise de segurança", "error", err)
+		return buildFallbackSecurityPrompt(analysis, securityFindings)
 	}
 
-	// Constrói request
-	req := &models.LLMRequest{
-		SystemPrompt: costSystemPrompt,
-		Prompt:       buf.String(),
-		Temperature:  0.2,
-		MaxTokens:    4000,
-		ResponseFormat: "json",
-	}
-
-	return req, nil
+	return buf.String()
 }
 
-// BuildArchitecturePrompt constrói um prompt focado em arquitetura
-func (b *PromptBuilder) BuildArchitecturePrompt(data *PromptData) (*models.LLMRequest, error) {
-	// Inicializa template
-	tmpl, err := template.New("architecture").Parse(architecturePromptTemplate)
-	if err != nil {
-		return nil, fmt.Errorf("erro ao parsear template: %w", err)
+// BuildCostOptimizationPrompt constrói prompt para otimização de custo
+func (pb *PromptBuilder) BuildCostOptimizationPrompt(
+	analysis *models.AnalysisDetails,
+) string {
+	// Verifica se o template existe
+	tmpl, ok := pb.templates["cost"]
+	if !ok {
+		pb.logger.Error("Template de otimização de custo não encontrado")
+		return buildFallbackCostPrompt(analysis)
 	}
 
-	// Executa template
+	// Executa o template
 	var buf bytes.Buffer
-	err = tmpl.Execute(&buf, data)
-	if err != nil {
-		return nil, fmt.Errorf("erro ao executar template: %w", err)
+	if err := tmpl.Execute(&buf, analysis); err != nil {
+		pb.logger.Error("Erro ao executar template de otimização de custo", "error", err)
+		return buildFallbackCostPrompt(analysis)
 	}
 
-	// Constrói request
-	req := &models.LLMRequest{
-		SystemPrompt: architectureSystemPrompt,
-		Prompt:       buf.String(),
-		Temperature:  0.3, // Maior temperatura para sugestões de arquitetura
-		MaxTokens:    4000,
-		ResponseFormat: "json",
-	}
-
-	return req, nil
+	return buf.String()
 }
 
-// FormatCheckovResults formata os resultados do Checkov para o prompt
-func (b *PromptBuilder) FormatCheckovResults(results *models.CheckovResult) string {
-	if results == nil || len(results.Results.FailedChecks) == 0 {
-		return "Nenhum resultado Checkov disponível."
-	}
+// Fallback prompts para caso de erro nos templates
 
+func buildFallbackEnrichmentPrompt(
+	analysis *models.AnalysisDetails,
+	baseSuggestions []models.Suggestion,
+) string {
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("## Resultados Checkov\n\n"))
-	sb.WriteString(fmt.Sprintf("- Total de verificações: %d\n", results.Summary.Passed+results.Summary.Failed))
-	sb.WriteString(fmt.Sprintf("- Verificações passaram: %d\n", results.Summary.Passed))
-	sb.WriteString(fmt.Sprintf("- Verificações falharam: %d\n\n", results.Summary.Failed))
 
-	sb.WriteString("### Falhas de Segurança\n\n")
-	for i, check := range results.Results.FailedChecks {
-		if i >= 20 { // Limita para não exceder tokens
-			sb.WriteString(fmt.Sprintf("\n... mais %d falhas omitidas ...\n", len(results.Results.FailedChecks)-20))
-			break
-		}
+	sb.WriteString("# Infrastructure as Code Analysis Enhancement\n\n")
+	sb.WriteString("## Current Analysis\n\n")
 
-		sb.WriteString(fmt.Sprintf("- **%s**\n", check.CheckID))
-		sb.WriteString(fmt.Sprintf("  - **Severidade**: %s\n", check.Severity))
-		sb.WriteString(fmt.Sprintf("  - **Arquivo**: %s\n", check.File))
-		sb.WriteString(fmt.Sprintf("  - **Recurso**: %s\n", check.Resource))
-		sb.WriteString(fmt.Sprintf("  - **Descrição**: %s\n", check.CheckName))
-		if check.Guideline != "" {
-			sb.WriteString(fmt.Sprintf("  - **Recomendação**: %s\n", check.Guideline))
-		}
-		sb.WriteString("\n")
+	// Resources
+	sb.WriteString("### Resources\n")
+	for _, res := range analysis.Terraform.Resources {
+		sb.WriteString(fmt.Sprintf("- %s.%s (%s:%d)\n", res.Type, res.Name, res.File, res.Line))
 	}
+	sb.WriteString("\n")
+
+	// Base suggestions
+	sb.WriteString("### Existing Suggestions (Rule-Based)\n")
+	for _, sugg := range baseSuggestions {
+		sb.WriteString(fmt.Sprintf("- [%s] %s\n", sugg.Severity, sugg.Message))
+		sb.WriteString(fmt.Sprintf("  Recommendation: %s\n", sugg.Recommendation))
+	}
+	sb.WriteString("\n")
+
+	// Task
+	sb.WriteString("## Your Task\n\n")
+	sb.WriteString("As an Infrastructure as Code expert, analyze the above and provide:\n\n")
+	sb.WriteString("1. **Enhanced Explanations**: For each existing suggestion\n")
+	sb.WriteString("2. **New Insights**: Identify additional improvements\n")
+	sb.WriteString("3. **Prioritization**: Order suggestions by impact\n\n")
+
+	// Response format
+	sb.WriteString("## Response Format\n\n")
+	sb.WriteString("Respond ONLY with valid JSON containing enriched_suggestions array.\n")
 
 	return sb.String()
 }
 
-// Templates de prompts
+func buildFallbackPreviewPrompt(previewAnalysis *models.PreviewAnalysis) string {
+	var sb strings.Builder
 
-const systemPrompt = `Você é um especialista em Infrastructure as Code (IaC), segurança e otimização de cloud.
+	sb.WriteString("# Terraform Plan Analysis\n\n")
+	sb.WriteString(fmt.Sprintf("Analyze the following Terraform plan with %d resources affected.\n\n", previewAnalysis.ResourcesAffected))
 
-Sua tarefa é analisar código Terraform e fornecer insights detalhados sobre:
-1. Segurança e compliance
-2. Otimização de custos
-3. Boas práticas
-4. Arquitetura e design
+	// Changes summary
+	sb.WriteString("## Changes Summary\n")
+	sb.WriteString(fmt.Sprintf("- Create: %d\n", previewAnalysis.CreateCount))
+	sb.WriteString(fmt.Sprintf("- Update: %d\n", previewAnalysis.UpdateCount))
+	sb.WriteString(fmt.Sprintf("- Replace: %d\n", previewAnalysis.ReplaceCount))
+	sb.WriteString(fmt.Sprintf("- Destroy: %d\n", previewAnalysis.DestroyCount))
+	sb.WriteString("\n")
 
-Forneça análises detalhadas e recomendações práticas, sempre incluindo exemplos de código quando relevante.
-Suas respostas devem ser estruturadas, claras e acionáveis.`
+	// Planned changes
+	sb.WriteString("## Planned Changes\n")
+	for _, change := range previewAnalysis.PlannedChanges {
+		sb.WriteString(fmt.Sprintf("- %s: %s\n", change.Action, change.Resource))
+	}
+	sb.WriteString("\n")
 
-const securitySystemPrompt = `Você é um especialista em segurança de cloud e Infrastructure as Code.
+	// Task
+	sb.WriteString("## Your Task\n\n")
+	sb.WriteString("Analyze this plan and provide:\n\n")
+	sb.WriteString("1. Risk assessment\n")
+	sb.WriteString("2. Potential issues\n")
+	sb.WriteString("3. Recommendations\n\n")
 
-Sua tarefa é realizar uma análise profunda de segurança em código Terraform, identificando:
-1. Vulnerabilidades críticas
-2. Problemas de compliance
-3. Configurações inseguras
-4. Exposição de dados sensíveis
-5. Problemas de IAM e permissões
+	// Response format
+	sb.WriteString("## Response Format\n\n")
+	sb.WriteString("Respond ONLY with valid JSON.\n")
 
-Seja minucioso e detalhado. Priorize os problemas por severidade (Crítico, Alto, Médio, Baixo).
-Forneça recomendações específicas para correção com exemplos de código.`
+	return sb.String()
+}
 
-const costSystemPrompt = `Você é um especialista em otimização de custos para infraestrutura cloud.
+func buildFallbackSecurityPrompt(
+	analysis *models.AnalysisDetails,
+	securityFindings []models.SecurityFinding,
+) string {
+	var sb strings.Builder
 
-Sua tarefa é analisar código Terraform e identificar oportunidades de economia:
-1. Recursos superdimensionados
-2. Recursos subutilizados
-3. Opções de compra mais econômicas (Reserved Instances, Savings Plans)
-4. Arquiteturas mais eficientes em custo
-5. Recursos desnecessários ou redundantes
+	sb.WriteString("# Security Analysis for Terraform Code\n\n")
 
-Quantifique as economias potenciais quando possível. Forneça recomendações específicas com exemplos de código.`
+	// Resources
+	sb.WriteString("## Resources\n")
+	for _, res := range analysis.Terraform.Resources {
+		sb.WriteString(fmt.Sprintf("- %s.%s\n", res.Type, res.Name))
+	}
+	sb.WriteString("\n")
 
-const architectureSystemPrompt = `Você é um arquiteto de soluções cloud especializado em Infrastructure as Code.
+	// Security findings
+	sb.WriteString("## Security Findings\n")
+	for _, finding := range securityFindings {
+		sb.WriteString(fmt.Sprintf("- [%s] %s: %s\n", finding.Severity, finding.Type, finding.Description))
+	}
+	sb.WriteString("\n")
 
-Sua tarefa é analisar código Terraform e fornecer insights arquiteturais:
-1. Padrões de arquitetura identificados
-2. Sugestões de melhoria arquitetural
-3. Escalabilidade e resiliência
-4. Modularização e reutilização
-5. Integração com serviços gerenciados
+	// Task
+	sb.WriteString("## Your Task\n\n")
+	sb.WriteString("Analyze these security findings and provide:\n\n")
+	sb.WriteString("1. Detailed explanation of each issue\n")
+	sb.WriteString("2. Remediation steps with code examples\n")
+	sb.WriteString("3. Risk assessment\n\n")
 
-Forneça recomendações específicas com exemplos de código e diagramas quando relevante.`
+	// Response format
+	sb.WriteString("## Response Format\n\n")
+	sb.WriteString("Respond ONLY with valid JSON.\n")
 
-const analysisPromptTemplate = `# Análise de Infrastructure as Code
+	return sb.String()
+}
 
-## Código Terraform
+func buildFallbackCostPrompt(analysis *models.AnalysisDetails) string {
+	var sb strings.Builder
 
-` + "```hcl" + `
-{{.TerraformCode}}
-` + "```" + `
+	sb.WriteString("# Cost Optimization Analysis for Terraform Code\n\n")
 
-{{if .CheckovResults}}
-{{.CheckovResults}}
+	// Resources
+	sb.WriteString("## Resources\n")
+	for _, res := range analysis.Terraform.Resources {
+		sb.WriteString(fmt.Sprintf("- %s.%s\n", res.Type, res.Name))
+	}
+	sb.WriteString("\n")
+
+	// Task
+	sb.WriteString("## Your Task\n\n")
+	sb.WriteString("Analyze these resources for cost optimization and provide:\n\n")
+	sb.WriteString("1. Cost optimization opportunities\n")
+	sb.WriteString("2. Estimated savings\n")
+	sb.WriteString("3. Implementation recommendations\n\n")
+
+	// Response format
+	sb.WriteString("## Response Format\n\n")
+	sb.WriteString("Respond ONLY with valid JSON.\n")
+
+	return sb.String()
+}
+
+// Templates de prompt
+
+const EnrichmentPromptTemplate = `
+# Infrastructure as Code Analysis Enhancement
+
+## Current Analysis
+
+### Resources
+{{range .Resources}}
+- {{.Type}}.{{.Name}} ({{.File}}:{{.Line}})
 {{end}}
 
-{{if .IAMPolicies}}
-## Políticas IAM
-
-{{range .IAMPolicies}}
-` + "```json" + `
-{{.}}
-` + "```" + `
-{{end}}
+### Existing Suggestions (Rule-Based)
+{{range .BaseSuggestions}}
+- [{{.Severity}}] {{.Message}}
+  Recommendation: {{.Recommendation}}
 {{end}}
 
-## Instruções
+### Knowledge Base Context
 
-Analise o código Terraform fornecido e forneça:
-
-1. **Resumo Executivo**: Visão geral da infraestrutura e principais pontos de atenção.
-
-2. **Problemas Críticos**: Identifique vulnerabilidades de segurança, configurações incorretas ou riscos significativos.
-
-3. **Recomendações Prioritárias**: Sugestões de melhorias mais importantes, com exemplos de código.
-
-4. **Otimizações de Custo**: Oportunidades para reduzir custos sem comprometer funcionalidade.
-
-5. **Boas Práticas**: Recomendações para melhorar o código seguindo as melhores práticas de IaC.
-
-6. **Insights Arquiteturais**: Observações sobre a arquitetura e sugestões de design.
-
-Forneça sua resposta como um JSON estruturado seguindo o formato LLMStructuredResponse.`
-
-const securityPromptTemplate = `# Análise de Segurança - Infrastructure as Code
-
-## Código Terraform
-
-` + "```hcl" + `
-{{.TerraformCode}}
-` + "```" + `
-
-{{if .CheckovResults}}
-{{.CheckovResults}}
+#### Relevant Best Practices
+{{range .BestPractices}}
+- {{.Title}}: {{.Description}}
 {{end}}
 
-{{if .IAMPolicies}}
-## Políticas IAM
-
-{{range .IAMPolicies}}
-` + "```json" + `
-{{.}}
-` + "```" + `
-{{end}}
+#### Recommended Modules
+{{range .Modules}}
+- {{.Name}} ({{.Source}}) - {{.Description}}
 {{end}}
 
-## Instruções
+## Your Task
 
-Realize uma análise profunda de segurança do código Terraform fornecido. Concentre-se em:
+As an Infrastructure as Code expert, analyze the above and provide:
 
-1. **Vulnerabilidades Críticas**: Identifique problemas de segurança de alta severidade.
+1. **Enhanced Explanations**: For each existing suggestion, provide:
+   - Why it matters (business impact)
+   - How to implement (specific code example)
+   - What could go wrong if ignored
 
-2. **Configurações Inseguras**: Detecte configurações que violam princípios de segurança.
+2. **New Insights**: Identify additional improvements not caught by rules:
+   - Architectural patterns that could be improved
+   - Security considerations
+   - Cost optimization opportunities
+   - Module suggestions from the recommended list
 
-3. **Problemas de Compliance**: Identifique violações de compliance (GDPR, HIPAA, PCI-DSS, etc).
+3. **Prioritization**: Order suggestions by:
+   - Impact (critical/high/medium/low)
+   - Effort (easy/medium/hard)
+   - ROI (quick wins first)
 
-4. **Exposição de Dados**: Detecte potencial exposição de dados sensíveis.
+## Response Format
 
-5. **Problemas de IAM**: Analise permissões excessivas ou inseguras.
+Respond ONLY with valid JSON:
 
-6. **Recomendações de Correção**: Forneça exemplos de código para corrigir cada problema.
+{
+  "enriched_suggestions": [
+    {
+      "original_id": "suggestion-uuid or null if new",
+      "type": "security|cost|best_practice|architecture",
+      "severity": "critical|high|medium|low",
+      "title": "Brief title",
+      "message": "Detailed explanation with business impact",
+      "code_example": "# HCL code showing fix",
+      "implementation_effort": "easy|medium|hard",
+      "estimated_impact": "Description of impact",
+      "why_it_matters": "Business justification",
+      "references": ["https://...", "https://..."]
+    }
+  ],
+  "architectural_insights": {
+    "pattern_detected": "3-tier web app | microservices | ...",
+    "strengths": ["..."],
+    "areas_for_improvement": ["..."]
+  },
+  "priority_actions": [
+    "Most important action to take first",
+    "Second priority",
+    "..."
+  ]
+}
+`
 
-Forneça sua resposta como um JSON estruturado seguindo o formato SecurityAuditResponse.`
+const PreviewAnalysisPromptTemplate = `
+# Terraform Plan Analysis
 
-const costPromptTemplate = `# Análise de Custos - Infrastructure as Code
+## Plan Summary
 
-## Código Terraform
+- **Resources Affected**: {{.ResourcesAffected}}
+- **Create**: {{.CreateCount}}
+- **Update**: {{.UpdateCount}}
+- **Replace**: {{.ReplaceCount}}
+- **Destroy**: {{.DestroyCount}}
+- **Risk Level**: {{.RiskLevel}}
 
-` + "```hcl" + `
-{{.TerraformCode}}
-` + "```" + `
+## Planned Changes
+{{range .PlannedChanges}}
+- [{{.Action}}] {{.Resource}}
+{{end}}
 
-## Instruções
+## Warnings
+{{range .Warnings}}
+- {{.}}
+{{end}}
 
-Realize uma análise de otimização de custos do código Terraform fornecido. Concentre-se em:
+## Your Task
 
-1. **Dimensionamento de Recursos**: Identifique recursos superdimensionados.
+As an Infrastructure as Code expert, analyze this Terraform plan and provide:
 
-2. **Opções de Compra**: Sugira Reserved Instances, Savings Plans ou outras opções de desconto.
+1. **Risk Assessment**:
+   - Evaluate the overall risk of this plan
+   - Identify high-risk changes (data loss, downtime, etc)
+   - Assess potential blast radius
 
-3. **Recursos Desnecessários**: Identifique recursos que podem ser eliminados ou consolidados.
+2. **Impact Analysis**:
+   - Estimate downtime for services
+   - Identify dependencies that might be affected
+   - Highlight potential performance impacts
 
-4. **Arquitetura Econômica**: Sugira alternativas arquiteturais mais econômicas.
+3. **Recommendations**:
+   - Suggest safer ways to apply these changes
+   - Recommend testing strategies
+   - Propose rollback plan
 
-5. **Estimativas de Economia**: Quando possível, forneça estimativas de economia potencial.
+4. **Best Practices**:
+   - Identify any best practices violations in the plan
+   - Suggest improvements for future changes
 
-6. **Recomendações de Implementação**: Forneça exemplos de código para cada otimização.
+## Response Format
 
-Forneça sua resposta como um JSON estruturado seguindo o formato CostOptimizationResponse.`
+Respond ONLY with valid JSON:
 
-const architecturePromptTemplate = `# Análise Arquitetural - Infrastructure as Code
+{
+  "risk_assessment": {
+    "overall_risk": "low|medium|high|critical",
+    "high_risk_changes": [
+      {
+        "resource": "resource_name",
+        "action": "create|update|replace|destroy",
+        "risk_details": "Description of risk",
+        "mitigation": "How to mitigate"
+      }
+    ],
+    "blast_radius": "Description of potential impact"
+  },
+  "impact_analysis": {
+    "estimated_downtime": "None|Minimal|Significant|Extended",
+    "affected_dependencies": ["service1", "service2"],
+    "performance_impact": "Description of performance impact"
+  },
+  "recommendations": {
+    "apply_strategy": "Recommended approach to apply",
+    "testing_strategy": "Recommended testing approach",
+    "rollback_plan": "Steps to rollback if needed"
+  },
+  "best_practices": [
+    {
+      "issue": "Description of issue",
+      "recommendation": "How to improve"
+    }
+  ]
+}
+`
 
-## Código Terraform
+const SecurityAnalysisPromptTemplate = `
+# Security Analysis for Terraform Code
 
-` + "```hcl" + `
-{{.TerraformCode}}
-` + "```" + `
+## Resources
+{{range .Resources}}
+- {{.Type}}.{{.Name}} ({{.File}}:{{.Line}})
+{{end}}
 
-## Instruções
+## Security Findings
+{{range .SecurityFindings}}
+- [{{.Severity}}] {{.Type}}: {{.Description}}
+  Resource: {{.Resource}}
+  File: {{.File}}:{{.Line}}
+{{end}}
 
-Realize uma análise arquitetural do código Terraform fornecido. Concentre-se em:
+## Your Task
 
-1. **Padrões de Arquitetura**: Identifique os padrões arquiteturais utilizados.
+As a Security Expert for Infrastructure as Code, analyze these findings and provide:
 
-2. **Escalabilidade**: Avalie a capacidade de escalar da infraestrutura.
+1. **Detailed Analysis**:
+   - Explain each security issue in detail
+   - Assess the real-world risk and potential exploit scenarios
+   - Identify any false positives
 
-3. **Resiliência**: Analise a resiliência a falhas e disaster recovery.
+2. **Remediation**:
+   - Provide specific code fixes for each issue
+   - Explain the security principles behind each fix
+   - Suggest additional security controls where appropriate
 
-4. **Modularização**: Sugira oportunidades para melhorar a modularização e reutilização.
+3. **Prioritization**:
+   - Rank issues by severity and exploitability
+   - Identify quick wins vs. complex fixes
+   - Suggest implementation order
 
-5. **Serviços Gerenciados**: Recomende substituição por serviços gerenciados quando apropriado.
+4. **Security Posture Improvement**:
+   - Recommend additional security controls
+   - Suggest security testing strategies
+   - Propose security best practices
 
-6. **Recomendações de Implementação**: Forneça exemplos de código para cada melhoria.
+## Response Format
 
-Forneça sua resposta como um JSON estruturado seguindo o formato ArchitecturalInsight.`
+Respond ONLY with valid JSON:
+
+{
+  "security_analysis": {
+    "critical_findings": [
+      {
+        "finding_id": "finding reference",
+        "title": "Concise title",
+        "description": "Detailed explanation",
+        "exploit_scenario": "How this could be exploited",
+        "is_false_positive": false,
+        "remediation_code": "# Code fix example",
+        "remediation_explanation": "Why this fixes the issue",
+        "additional_controls": ["control1", "control2"]
+      }
+    ],
+    "high_findings": [...],
+    "medium_findings": [...],
+    "low_findings": [...]
+  },
+  "implementation_plan": {
+    "immediate_actions": ["action1", "action2"],
+    "short_term_actions": ["action1", "action2"],
+    "long_term_actions": ["action1", "action2"]
+  },
+  "security_posture_recommendations": [
+    {
+      "area": "Area of improvement",
+      "recommendation": "Detailed recommendation",
+      "implementation": "How to implement"
+    }
+  ]
+}
+`
+
+const CostOptimizationPromptTemplate = `
+# Cost Optimization Analysis for Terraform Code
+
+## Resources
+{{range .Terraform.Resources}}
+- {{.Type}}.{{.Name}} ({{.File}}:{{.Line}})
+{{end}}
+
+## Your Task
+
+As a Cloud Cost Optimization Expert, analyze these resources and provide:
+
+1. **Cost Optimization Opportunities**:
+   - Identify resources that could be optimized
+   - Suggest right-sizing opportunities
+   - Identify unused or underutilized resources
+   - Recommend reserved instances or savings plans
+   - Suggest architecture changes for cost efficiency
+
+2. **Estimated Savings**:
+   - Provide estimated monthly savings for each recommendation
+   - Calculate ROI for implementation effort
+   - Prioritize by savings potential
+
+3. **Implementation Recommendations**:
+   - Provide specific code changes
+   - Suggest implementation approach
+   - Identify any risks or trade-offs
+
+## Response Format
+
+Respond ONLY with valid JSON:
+
+{
+  "cost_optimization": {
+    "total_estimated_savings": "Estimated monthly savings",
+    "opportunities": [
+      {
+        "resource": "resource_name",
+        "current_configuration": "Current setup",
+        "recommendation": "Recommended change",
+        "estimated_savings": "Monthly savings estimate",
+        "implementation_effort": "low|medium|high",
+        "roi": "high|medium|low",
+        "code_example": "# Code example",
+        "risks": ["risk1", "risk2"]
+      }
+    ]
+  },
+  "architecture_recommendations": [
+    {
+      "area": "Area of improvement",
+      "current_approach": "Current architecture",
+      "recommended_approach": "Recommended architecture",
+      "estimated_savings": "Monthly savings estimate",
+      "implementation_complexity": "low|medium|high"
+    }
+  ],
+  "quick_wins": [
+    {
+      "action": "Action to take",
+      "savings": "Savings estimate",
+      "effort": "Implementation effort"
+    }
+  ]
+}
+`
