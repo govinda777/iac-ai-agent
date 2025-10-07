@@ -4,9 +4,13 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/gosouza/iac-ai-agent/internal/agent/analyzer"
+	"github.com/gosouza/iac-ai-agent/internal/agent/scorer"
+	"github.com/gosouza/iac-ai-agent/internal/agent/suggester"
 	"github.com/gosouza/iac-ai-agent/internal/models"
 	"github.com/gosouza/iac-ai-agent/internal/services"
 	"github.com/gosouza/iac-ai-agent/pkg/logger"
+	"github.com/gosouza/iac-ai-agent/test/mocks"
 )
 
 var _ = Describe("ReviewService Integration", func() {
@@ -17,8 +21,30 @@ var _ = Describe("ReviewService Integration", func() {
 	)
 
 	BeforeEach(func() {
-		log = logger.NewLogger("info")
-		analysisService = services.NewAnalysisService(log, 70)
+		log = logger.New("debug", "text")
+		// Instantiate concrete analyzers and the mock
+		tfAnalyzer := analyzer.NewTerraformAnalyzer()
+		mockCheckovAnalyzer := &mocks.MockCheckovAnalyzer{}
+		iamAnalyzer := analyzer.NewIAMAnalyzer(log)
+		prScorer := scorer.NewPRScorer()
+		costOptimizer := suggester.NewCostOptimizer(log)
+		securityAdvisor := suggester.NewSecurityAdvisor(log)
+
+		// Setup the mock to always be "available"
+		mockCheckovAnalyzer.IsAvailableFunc = func() bool {
+			return true
+		}
+
+		analysisService = services.NewAnalysisService(
+			log,
+			70, // minPassScore
+			tfAnalyzer,
+			mockCheckovAnalyzer,
+			iamAnalyzer,
+			prScorer,
+			costOptimizer,
+			securityAdvisor,
+		)
 		reviewService = services.NewReviewService(analysisService, log)
 	})
 

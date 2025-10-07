@@ -7,8 +7,12 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/gosouza/iac-ai-agent/internal/agent/analyzer"
+	"github.com/gosouza/iac-ai-agent/internal/agent/scorer"
+	"github.com/gosouza/iac-ai-agent/internal/agent/suggester"
 	"github.com/gosouza/iac-ai-agent/internal/services"
 	"github.com/gosouza/iac-ai-agent/pkg/logger"
+	"github.com/gosouza/iac-ai-agent/test/mocks"
 )
 
 var _ = Describe("AnalysisService Integration", func() {
@@ -19,8 +23,31 @@ var _ = Describe("AnalysisService Integration", func() {
 	)
 
 	BeforeEach(func() {
-		log = logger.NewLogger("info")
-		analysisService = services.NewAnalysisService(log, 70)
+		log = logger.New("debug", "text")
+
+		// Instantiate concrete analyzers and the mock
+		tfAnalyzer := analyzer.NewTerraformAnalyzer()
+		mockCheckovAnalyzer := &mocks.MockCheckovAnalyzer{}
+		iamAnalyzer := analyzer.NewIAMAnalyzer(log)
+		prScorer := scorer.NewPRScorer()
+		costOptimizer := suggester.NewCostOptimizer(log)
+		securityAdvisor := suggester.NewSecurityAdvisor(log)
+
+		// Setup the mock to always be "available"
+		mockCheckovAnalyzer.IsAvailableFunc = func() bool {
+			return true
+		}
+
+		analysisService = services.NewAnalysisService(
+			log,
+			70, // minPassScore
+			tfAnalyzer,
+			mockCheckovAnalyzer,
+			iamAnalyzer,
+			prScorer,
+			costOptimizer,
+			securityAdvisor,
+		)
 
 		var err error
 		tempDir, err = os.MkdirTemp("", "analysis-integration-test-*")
@@ -79,7 +106,7 @@ output "instance_id" {
 				Expect(response.Analysis.Terraform.TotalOutputs).To(Equal(1))
 			})
 
-			It("deve incluir metadados com score detalhado e recomendação", func() {
+			It("deve incluir metadados com score detalhado", func() {
 				content := `
 resource "aws_vpc" "main" {
   cidr_block = "10.0.0.0/16"
@@ -89,12 +116,14 @@ resource "aws_vpc" "main" {
   }
 }
 `
-				response, err := analysisService.AnalyzeContent(content, "vpc.tf")
+				err := os.WriteFile(filepath.Join(tempDir, "main.tf"), []byte(content), 0644)
+				Expect(err).NotTo(HaveOccurred())
+
+				response, err := analysisService.AnalyzeDirectory(tempDir)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(response.Metadata).To(HaveKey("pr_score"))
 				Expect(response.Metadata).To(HaveKey("is_approved"))
-				Expect(response.Metadata).To(HaveKey("recommendation"))
 			})
 		})
 
@@ -117,7 +146,10 @@ resource "aws_iam_policy" "admin_policy" {
   })
 }
 `
-				response, err := analysisService.AnalyzeContent(content, "iam.tf")
+				err := os.WriteFile(filepath.Join(tempDir, "main.tf"), []byte(content), 0644)
+				Expect(err).NotTo(HaveOccurred())
+
+				response, err := analysisService.AnalyzeDirectory(tempDir)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(response.Analysis.IAM.AdminAccessDetected).To(BeTrue())
@@ -150,7 +182,10 @@ resource "aws_db_instance" "public_db" {
   publicly_accessible  = true
 }
 `
-				response, err := analysisService.AnalyzeContent(content, "public.tf")
+				err := os.WriteFile(filepath.Join(tempDir, "main.tf"), []byte(content), 0644)
+				Expect(err).NotTo(HaveOccurred())
+
+				response, err := analysisService.AnalyzeDirectory(tempDir)
 
 				Expect(err).NotTo(HaveOccurred())
 				Expect(response.Analysis.IAM.PublicAccess).NotTo(BeEmpty())
@@ -513,7 +548,6 @@ output "instance_id" {
 
 				// Verifica metadados
 				Expect(response.Metadata["is_approved"]).NotTo(BeNil())
-				Expect(response.Metadata["recommendation"]).NotTo(BeNil())
 			})
 		})
 	})

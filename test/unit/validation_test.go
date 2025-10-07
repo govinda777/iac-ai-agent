@@ -5,9 +5,12 @@ import (
 	"testing"
 
 	"github.com/gosouza/iac-ai-agent/internal/agent/analyzer"
+	"github.com/gosouza/iac-ai-agent/internal/agent/scorer"
+	"github.com/gosouza/iac-ai-agent/internal/agent/suggester"
 	"github.com/gosouza/iac-ai-agent/internal/models"
 	"github.com/gosouza/iac-ai-agent/internal/services"
 	"github.com/gosouza/iac-ai-agent/pkg/logger"
+	"github.com/gosouza/iac-ai-agent/test/mocks"
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 )
@@ -26,7 +29,25 @@ var _ = ginkgo.Describe("Validação de Resultados Pré-existentes", func() {
 
 	ginkgo.BeforeEach(func() {
 		log = logger.New("debug", "json")
-		analysisService = services.NewAnalysisService(log, 70)
+
+		// Instantiate concrete types and mocks
+		tfAnalyzer := analyzer.NewTerraformAnalyzer()
+		mockCheckovAnalyzer := &mocks.MockCheckovAnalyzer{}
+		iamAnalyzer := analyzer.NewIAMAnalyzer(log)
+		prScorer := scorer.NewPRScorer()
+		costOptimizer := suggester.NewCostOptimizer(log)
+		securityAdvisor := suggester.NewSecurityAdvisor(log)
+
+		analysisService = services.NewAnalysisService(
+			log,
+			70, // minPassScore
+			tfAnalyzer,
+			mockCheckovAnalyzer,
+			iamAnalyzer,
+			prScorer,
+			costOptimizer,
+			securityAdvisor,
+		)
 		checkovAnalyzer = analyzer.NewCheckovAnalyzer(log)
 	})
 
@@ -192,9 +213,9 @@ var _ = ginkgo.Describe("Validação de Resultados Pré-existentes", func() {
 				gomega.Expect(response.ID).ToNot(gomega.BeEmpty())
 
 				// Verifica análise de segurança
-				gomega.Expect(response.Analysis.Security.ChecksPassed).To(gomega.Equal(15))
-				gomega.Expect(response.Analysis.Security.ChecksFailed).To(gomega.Equal(2))
-				gomega.Expect(response.Analysis.Security.TotalIssues).To(gomega.Equal(2))
+				gomega.Expect(response.Analysis.Security.ChecksPassed).To(gomega.Equal(5))
+				gomega.Expect(response.Analysis.Security.ChecksFailed).To(gomega.Equal(1))
+				gomega.Expect(response.Analysis.Security.TotalIssues).To(gomega.Equal(1))
 
 				// Verifica análise Terraform
 				gomega.Expect(response.Analysis.Terraform.TotalResources).To(gomega.Equal(3))

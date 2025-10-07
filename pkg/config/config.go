@@ -31,6 +31,7 @@ type LLMConfig struct {
 	Model       string  `yaml:"model"`
 	Temperature float64 `yaml:"temperature"`
 	MaxTokens   int     `yaml:"max_tokens"`
+	BaseURL     string  `yaml:"base_url"`
 }
 
 // GitHubConfig configurações do GitHub

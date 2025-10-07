@@ -100,8 +100,6 @@ func (btm *BotTokenManager) GetTokenInfo(ctx context.Context) (*TokenInfo, error
 
 // GetBalance obtém o saldo de tokens de uma wallet
 func (btm *BotTokenManager) GetBalance(ctx context.Context, walletAddress string) (*TokenBalance, error) {
-	addr := common.HexToAddress(walletAddress)
-
 	btm.logger.Info("Obtendo saldo de tokens", "wallet", walletAddress)
 
 	// TODO: Chamar smart contract
@@ -224,9 +222,6 @@ func (btm *BotTokenManager) BuyTokens(ctx context.Context, walletAddress string,
 
 // Transfer transfere tokens entre wallets
 func (btm *BotTokenManager) Transfer(ctx context.Context, from, to string, amount *big.Int) (*Transaction, error) {
-	fromAddr := common.HexToAddress(from)
-	toAddr := common.HexToAddress(to)
-
 	btm.logger.Info("Transferindo tokens",
 		"from", from,
 		"to", to,
@@ -262,9 +257,6 @@ func (btm *BotTokenManager) Transfer(ctx context.Context, from, to string, amoun
 
 // Approve aprova gasto de tokens por outro endereço
 func (btm *BotTokenManager) Approve(ctx context.Context, owner, spender string, amount *big.Int) error {
-	ownerAddr := common.HexToAddress(owner)
-	spenderAddr := common.HexToAddress(spender)
-
 	btm.logger.Info("Aprovando gasto de tokens",
 		"owner", owner,
 		"spender", spender,
@@ -278,9 +270,6 @@ func (btm *BotTokenManager) Approve(ctx context.Context, owner, spender string, 
 
 // GetAllowance obtém o allowance de um spender
 func (btm *BotTokenManager) GetAllowance(ctx context.Context, owner, spender string) (*big.Int, error) {
-	ownerAddr := common.HexToAddress(owner)
-	spenderAddr := common.HexToAddress(spender)
-
 	btm.logger.Info("Obtendo allowance",
 		"owner", owner,
 		"spender", spender)

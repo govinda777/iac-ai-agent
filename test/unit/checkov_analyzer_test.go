@@ -1,6 +1,8 @@
 package unit_test
 
 import (
+	"strings"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -239,9 +241,9 @@ func determineSeverityForTest(check models.CheckovCheck) string {
 }
 
 func toLower(s string) string {
-	return s // Simplified for test
+	return strings.ToLower(s)
 }
 
 func contains(s, substr string) bool {
-	return true // Simplified for test - would use strings.Contains in real implementation
+	return strings.Contains(s, substr)
 }

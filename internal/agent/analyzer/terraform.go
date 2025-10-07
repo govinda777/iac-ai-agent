@@ -9,7 +9,28 @@ import (
 	"github.com/gosouza/iac-ai-agent/internal/models"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclparse"
+	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/function"
+	"github.com/zclconf/go-cty/cty/function/stdlib"
 )
+
+var terraformFunctions = map[string]function.Function{
+	"jsonencode": function.New(&function.Spec{
+		Params: []function.Parameter{
+			{
+				Name:             "val",
+				Type:             cty.DynamicPseudoType,
+				AllowNull:        true,
+				AllowUnknown:     true,
+				AllowDynamicType: true,
+			},
+		},
+		Type: function.StaticReturnType(cty.String),
+		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			return stdlib.JSONEncode(args[0])
+		},
+	}),
+}
 
 // TerraformAnalyzer realiza análise de código Terraform
 type TerraformAnalyzer struct {
@@ -134,7 +155,7 @@ func (ta *TerraformAnalyzer) analyzeFile(path string) (*models.TerraformAnalysis
 // parseFile faz parsing de um arquivo HCL
 func (ta *TerraformAnalyzer) parseFile(file *hcl.File, filename string, analysis *models.TerraformAnalysis) {
 	// Extrai o conteúdo do body
-	body, _ := file.Body.Content(&hcl.BodySchema{
+	body, diags := file.Body.Content(&hcl.BodySchema{
 		Blocks: []hcl.BlockHeaderSchema{
 			{Type: "resource", LabelNames: []string{"type", "name"}},
 			{Type: "module", LabelNames: []string{"name"}},
@@ -144,6 +165,19 @@ func (ta *TerraformAnalyzer) parseFile(file *hcl.File, filename string, analysis
 			{Type: "data", LabelNames: []string{"type", "name"}},
 		},
 	})
+
+	if diags.HasErrors() {
+		analysis.Valid = false
+		for _, diag := range diags {
+			analysis.SyntaxErrors = append(analysis.SyntaxErrors, models.SyntaxError{
+				File:    filename,
+				Line:    diag.Subject.Start.Line,
+				Column:  diag.Subject.Start.Column,
+				Message: diag.Summary,
+				Snippet: diag.Detail,
+			})
+		}
+	}
 
 	// Parse blocks
 	for _, block := range body.Blocks {
@@ -169,6 +203,12 @@ func (ta *TerraformAnalyzer) parseFile(file *hcl.File, filename string, analysis
 // parseResource extrai informações de um resource block
 func (ta *TerraformAnalyzer) parseResource(block *hcl.Block, filename string, analysis *models.TerraformAnalysis) {
 	if len(block.Labels) < 2 {
+		analysis.Valid = false
+		analysis.SyntaxErrors = append(analysis.SyntaxErrors, models.SyntaxError{
+			File:    filename,
+			Line:    block.DefRange.Start.Line,
+			Message: "Bloco de recurso malformado: requer tipo e nome",
+		})
 		return
 	}
 
@@ -180,6 +220,44 @@ func (ta *TerraformAnalyzer) parseResource(block *hcl.Block, filename string, an
 		LineStart:  block.DefRange.Start.Line,
 		LineEnd:    block.DefRange.End.Line,
 		Attributes: make(map[string]interface{}),
+	}
+
+	// Avalia atributos
+	evalCtx := &hcl.EvalContext{
+		Functions: terraformFunctions,
+	}
+	attrs, diags := block.Body.JustAttributes()
+	if diags.HasErrors() {
+		analysis.Valid = false
+		for _, diag := range diags {
+			analysis.SyntaxErrors = append(analysis.SyntaxErrors, models.SyntaxError{
+				File:    filename,
+				Line:    diag.Subject.Start.Line,
+				Column:  diag.Subject.Start.Column,
+				Message: diag.Summary,
+				Snippet: diag.Detail,
+			})
+		}
+	}
+	for name, attr := range attrs {
+		val, valDiags := attr.Expr.Value(evalCtx)
+		if valDiags.HasErrors() {
+			continue
+		}
+
+		// Tenta converter para tipos Go nativos
+		if val.IsKnown() && !val.IsNull() {
+			switch val.Type() {
+			case cty.String:
+				resource.Attributes[name] = val.AsString()
+			case cty.Bool:
+				resource.Attributes[name] = val.True()
+			case cty.Number:
+				bf := val.AsBigFloat()
+				f64, _ := bf.Float64()
+				resource.Attributes[name] = f64
+			}
+		}
 	}
 
 	analysis.Resources = append(analysis.Resources, resource)
