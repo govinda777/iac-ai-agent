@@ -1,9 +1,6 @@
 package llm
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/gosouza/iac-ai-agent/internal/models"
 	"github.com/gosouza/iac-ai-agent/pkg/config"
 	"github.com/gosouza/iac-ai-agent/pkg/logger"

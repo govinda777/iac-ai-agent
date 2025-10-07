@@ -1,7 +1,6 @@
 package llm
 
 import (
-	"context"
 	"fmt"
 	"time"
 
@@ -69,10 +68,6 @@ func (c *Client) Generate(req *models.LLMRequest) (*models.LLMResponse, error) {
 		"model", c.config.LLM.Model,
 		"prompt_length", len(req.Prompt),
 		"max_tokens", req.MaxTokens)
-
-	// Cria contexto com timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
-	defer cancel()
 
 	// Chama o provedor
 	resp, err := c.provider.Generate(req)

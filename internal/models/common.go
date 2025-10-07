@@ -109,19 +109,28 @@ type CostRecommendation struct {
 
 // LLMRequest representa uma requisição para o LLM
 type LLMRequest struct {
-	Prompt      string                 `json:"prompt"`
-	Context     map[string]interface{} `json:"context"`
-	Temperature float64                `json:"temperature"`
-	MaxTokens   int                    `json:"max_tokens"`
+	Prompt          string    `json:"prompt"`
+	SystemPrompt    string    `json:"system_prompt,omitempty"`
+	ContextMessages []Message `json:"context_messages,omitempty"`
+	Temperature     float64   `json:"temperature"`
+	MaxTokens       int       `json:"max_tokens"`
+	ResponseFormat  string    `json:"response_format,omitempty"`
 }
 
 // LLMResponse representa a resposta do LLM
 type LLMResponse struct {
-	Content       string                 `json:"content"`
-	TokensUsed    int                    `json:"tokens_used"`
-	Model         string                 `json:"model"`
-	FinishReason  string                 `json:"finish_reason"`
-	Metadata      map[string]interface{} `json:"metadata"`
+	Content    string                 `json:"content"`
+	TokensUsed int                    `json:"tokens_used"`
+	Model      string                 `json:"model"`
+	Provider   string                 `json:"provider,omitempty"`
+	LatencyMs  int64                  `json:"latency_ms,omitempty"`
+	Metadata   map[string]interface{} `json:"metadata"`
+}
+
+// Message represents a message in a conversation context
+type Message struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
 }
 
 // ErrorResponse representa uma resposta de erro

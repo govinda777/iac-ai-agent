@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gosouza/iac-ai-agent/pkg/config"
 	"github.com/gosouza/iac-ai-agent/pkg/logger"
@@ -203,9 +202,6 @@ func (nam *NFTAccessManager) MintAccessNFT(ctx context.Context, walletAddress st
 
 // TransferAccess transfere um NFT de acesso
 func (nam *NFTAccessManager) TransferAccess(ctx context.Context, from, to string, tokenID *big.Int) error {
-	fromAddr := common.HexToAddress(from)
-	toAddr := common.HexToAddress(to)
-
 	nam.logger.Info("Transferindo NFT de acesso",
 		"from", from,
 		"to", to,
