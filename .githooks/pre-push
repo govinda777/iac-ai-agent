@@ -27,13 +27,18 @@ echo ""
 # 1. LINTER
 # ============================================
 echo -e "${YELLOW}📋 [1/4] Executando Linter...${NC}"
-if ! make lint; then
-    echo -e "${RED}❌ Linter falhou! Corrija os erros antes do push.${NC}"
-    echo ""
-    echo "💡 Dica: Execute 'make lint' para ver os erros"
-    exit 1
+if which golangci-lint > /dev/null; then
+    if ! make lint; then
+        echo -e "${RED}❌ Linter falhou! Corrija os erros antes do push.${NC}"
+        echo ""
+        echo "💡 Dica: Execute 'make lint' para ver os erros"
+        exit 1
+    fi
+    echo -e "${GREEN}✅ Linter passou!${NC}"
+else
+    echo -e "${YELLOW}⚠️  golangci-lint não está instalado. Pulando verificação.${NC}"
+    echo -e "${YELLOW}💡 Para instalar: 'make lint-install' ou 'brew install golangci-lint'${NC}"
 fi
-echo -e "${GREEN}✅ Linter passou!${NC}"
 echo ""
 
 # ============================================

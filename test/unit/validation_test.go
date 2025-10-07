@@ -2,7 +2,6 @@ package unit
 
 import (
 	"encoding/json"
-	"testing"
 
 	"github.com/gosouza/iac-ai-agent/internal/agent/analyzer"
 	"github.com/gosouza/iac-ai-agent/internal/agent/scorer"
@@ -14,11 +13,6 @@ import (
 	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 )
-
-func TestValidation(t *testing.T) {
-	gomega.RegisterFailHandler(ginkgo.Fail)
-	ginkgo.RunSpecs(t, "Validation Suite")
-}
 
 var _ = ginkgo.Describe("Validação de Resultados Pré-existentes", func() {
 	var (
