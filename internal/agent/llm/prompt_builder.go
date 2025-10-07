@@ -1,5 +1,8 @@
 package llm
 
+// NOTE: This file contains comments and strings in Portuguese, which may be flagged by spell checkers.
+// This is intentional and not a bug.
+
 import (
 	"bytes"
 	"fmt"

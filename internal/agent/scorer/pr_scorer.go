@@ -182,41 +182,41 @@ func (ps *PRScorer) calculateMaintainabilityScore(terraform *models.TerraformAna
 
 // calculateDocumentationScore calcula score de documentação (0-100)
 func (ps *PRScorer) calculateDocumentationScore(terraform *models.TerraformAnalysis) int {
-	score := 100
+	var varScore, outputScore int
 
-	// Verifica descrições em variáveis
+	// Calcula score das variáveis (até 50 pontos)
 	totalVars := terraform.TotalVariables
-	varsWithDesc := 0
-	for _, v := range terraform.Variables {
-		if v.Description != "" {
-			varsWithDesc++
-		}
-	}
-
 	if totalVars > 0 {
-		docPercentage := float64(varsWithDesc) / float64(totalVars)
-		score = int(docPercentage * 50) // 50% do score vem de variáveis documentadas
-	} else {
-		score = 50 // Score neutro se não há variáveis
-	}
-
-	// Verifica descrições em outputs
-	totalOutputs := terraform.TotalOutputs
-	outputsWithDesc := 0
-	for _, o := range terraform.Outputs {
-		if o.Description != "" {
-			outputsWithDesc++
+		varsWithDesc := 0
+		for _, v := range terraform.Variables {
+			if v.Description != "" {
+				varsWithDesc++
+			}
 		}
-	}
-
-	if totalOutputs > 0 {
-		docPercentage := float64(outputsWithDesc) / float64(totalOutputs)
-		score += int(docPercentage * 50) // Mais 50% dos outputs
+		docPercentage := float64(varsWithDesc) / float64(totalVars)
+		varScore = int(docPercentage * 50)
 	} else {
-		score += 50
+		varScore = 50 // Score neutro se não há variáveis
 	}
 
-	// Normaliza
+	// Calcula score dos outputs (até 50 pontos)
+	totalOutputs := terraform.TotalOutputs
+	if totalOutputs > 0 {
+		outputsWithDesc := 0
+		for _, o := range terraform.Outputs {
+			if o.Description != "" {
+				outputsWithDesc++
+			}
+		}
+		docPercentage := float64(outputsWithDesc) / float64(totalOutputs)
+		outputScore = int(docPercentage * 50)
+	} else {
+		outputScore = 50 // Score neutro se não há outputs
+	}
+
+	score := varScore + outputScore
+
+	// Normaliza para garantir que está entre 0 e 100
 	if score > 100 {
 		score = 100
 	}
