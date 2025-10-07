@@ -32,8 +32,8 @@ type PreviewReview struct {
 	} `json:"best_practices"`
 }
 
-// SecurityAnalysis representa uma análise de segurança
-type SecurityAnalysis struct {
+// SecurityAnalysisResponse representa uma análise de segurança detalhada
+type SecurityAnalysisResponse struct {
 	SecurityAnalysis struct {
 		CriticalFindings []SecurityFindingDetail `json:"critical_findings"`
 		HighFindings     []SecurityFindingDetail `json:"high_findings"`
@@ -95,7 +95,7 @@ type CostOptimization struct {
 
 // EnrichedSuggestionResponse representa a resposta com sugestões enriquecidas
 type EnrichedSuggestionResponse struct {
-	EnrichedSuggestions []EnrichedSuggestion `json:"enriched_suggestions"`
+	EnrichedSuggestions []EnrichedSuggestionLLM `json:"enriched_suggestions"`
 	ArchitecturalInsights struct {
 		PatternDetected      string   `json:"pattern_detected"`
 		Strengths            []string `json:"strengths"`
@@ -104,8 +104,8 @@ type EnrichedSuggestionResponse struct {
 	PriorityActions []string `json:"priority_actions"`
 }
 
-// EnrichedSuggestion representa uma sugestão enriquecida pelo LLM
-type EnrichedSuggestion struct {
+// EnrichedSuggestionLLM representa uma sugestão enriquecida pelo LLM na resposta
+type EnrichedSuggestionLLM struct {
 	OriginalID         string   `json:"original_id"`
 	Type               string   `json:"type"`
 	Severity           string   `json:"severity"`
@@ -129,17 +129,17 @@ func ParseEnrichedSuggestions(response string) ([]Suggestion, error) {
 	suggestions := make([]Suggestion, 0, len(enrichedResponse.EnrichedSuggestions))
 	for _, es := range enrichedResponse.EnrichedSuggestions {
 		suggestion := Suggestion{
-			ID:             es.OriginalID,
 			Type:           es.Type,
 			Severity:       es.Severity,
 			Message:        es.Message,
 			Recommendation: es.CodeExample,
-			Details:        map[string]interface{}{
+			Metadata:       map[string]interface{}{
 				"implementation_effort": es.ImplementationEffort,
 				"estimated_impact":      es.EstimatedImpact,
 				"why_it_matters":       es.WhyItMatters,
 				"references":           es.References,
 			},
+			References: es.References,
 		}
 		suggestions = append(suggestions, suggestion)
 	}
@@ -158,8 +158,8 @@ func ParsePreviewReview(response string) (*PreviewReview, error) {
 }
 
 // ParseSecurityAnalysis analisa a resposta do LLM para extrair uma análise de segurança
-func ParseSecurityAnalysis(response string) (*SecurityAnalysis, error) {
-	var securityAnalysis SecurityAnalysis
+func ParseSecurityAnalysis(response string) (*SecurityAnalysisResponse, error) {
+	var securityAnalysis SecurityAnalysisResponse
 	err := json.Unmarshal([]byte(response), &securityAnalysis)
 	if err != nil {
 		return nil, err

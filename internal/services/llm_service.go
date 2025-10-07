@@ -87,7 +87,7 @@ func (s *LLMService) GenerateSecurityAnalysis(
 	ctx context.Context,
 	analysis *models.AnalysisDetails,
 	securityFindings []models.SecurityFinding,
-) (*models.SecurityAnalysis, error) {
+) (*models.SecurityAnalysisResponse, error) {
 	// Constrói o prompt para análise de segurança
 	prompt := s.builder.BuildSecurityAnalysisPrompt(analysis, securityFindings)
 

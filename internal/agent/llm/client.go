@@ -13,7 +13,7 @@ import (
 type Client struct {
 	config   *config.Config
 	logger   *logger.Logger
-	provider LLMProvider
+	provider Provider
 }
 
 // NewClient cria um novo cliente LLM
