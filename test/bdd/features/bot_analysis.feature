@@ -72,11 +72,13 @@ Funcionalidade: Análise de Infraestrutura como Código
       | Medium     | 3          |
       | Low        | 1          |
     E cada issue deve ter:
+      """
       - Check ID
       - Descrição do problema
       - Impacto de negócio
       - Como corrigir (código)
       - Referências externas
+      """
 
   Cenário: Análise completa (Full Review)
     Dado que tenho um projeto Terraform completo
