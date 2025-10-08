@@ -257,7 +257,6 @@ func (a *WhatsAppAgent) executeCommand(ctx context.Context, cmd *Command, msg *W
 
 // extractCommandArgs extrai argumentos e blocos de código do comando
 func (a *WhatsAppAgent) extractCommandArgs(text, pattern string) ([]string, string) {
-	// Remover o comando do texto
 	re := regexp.MustCompile(pattern)
 	matches := re.FindStringSubmatch(text)
 	if len(matches) < 2 {
@@ -266,20 +265,23 @@ func (a *WhatsAppAgent) extractCommandArgs(text, pattern string) ([]string, stri
 
 	remaining := strings.TrimSpace(matches[1])
 
-	// Procurar por blocos de código
 	codeBlockRegex := regexp.MustCompile("```(?s)(.*?)```")
 	codeMatches := codeBlockRegex.FindStringSubmatch(remaining)
 
 	var codeBlock string
 	if len(codeMatches) > 1 {
-		codeBlock = strings.TrimSpace(codeMatches[1])
-		// Remover o bloco de código do texto restante
+		content := codeMatches[1]
+		// Remove a dica de linguagem opcional (ex: hcl, json) da primeira linha.
+		parts := strings.SplitN(strings.TrimSpace(content), "\n", 2)
+		if len(parts) == 2 && len(strings.Fields(parts[0])) == 1 {
+			codeBlock = strings.TrimSpace(parts[1])
+		} else {
+			codeBlock = strings.TrimSpace(content)
+		}
 		remaining = codeBlockRegex.ReplaceAllString(remaining, "")
 	}
 
-	// Dividir argumentos
 	args := strings.Fields(remaining)
-
 	return args, codeBlock
 }
 
