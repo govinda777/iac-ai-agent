@@ -41,8 +41,6 @@ capabilities:
   whatsapp:
     enabled: true
     webhook_url: "https://seu-dominio.com/webhook/whatsapp"
-    verify_token: "seu_token_secreto_aqui"
-    api_key: "sua_chave_api_whatsapp"
     
     # Configurações de rate limiting
     rate_limiting:
@@ -157,7 +155,6 @@ monitoring:
       smtp_host: "smtp.gmail.com"
       smtp_port: 587
       username: "seu-email@gmail.com"
-      password: "sua-senha-app"
       from: "iac-ai-agent@example.com"
       to: ["admin@example.com"]
     
