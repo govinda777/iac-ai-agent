@@ -1,0 +1,261 @@
+/**
+ * Estilos para o componente WhatsApp Key Manager
+ */
+
+.whatsapp-key-manager {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.whatsapp-key-manager h2 {
+  color: #25d366;
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 12px;
+}
+
+.key-manager-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Estilos para o status da carteira */
+.wallet-status {
+  background-color: #ffffff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border-left: 4px solid #128c7e;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.connect-wallet-btn {
+  background-color: #128c7e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.connect-wallet-btn:hover {
+  background-color: #075e54;
+}
+
+.connect-wallet-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Formulário de entrada da chave API */
+.api-key-form {
+  background-color: #ffffff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.api-key-form h3 {
+  color: #075e54;
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.input-group input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #128c7e;
+  box-shadow: 0 0 0 2px rgba(18, 140, 126, 0.2);
+}
+
+.input-group button {
+  background-color: #25d366;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.input-group button:hover {
+  background-color: #128c7e;
+}
+
+.input-group button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Ações para chave armazenada */
+.stored-key-actions {
+  background-color: #ffffff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.stored-key-actions h3 {
+  color: #075e54;
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+.button-group button {
+  flex: 1;
+  background-color: #128c7e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.button-group button:hover {
+  background-color: #075e54;
+}
+
+.button-group button.delete-btn {
+  background-color: #dc3545;
+}
+
+.button-group button.delete-btn:hover {
+  background-color: #b02a37;
+}
+
+.button-group button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Exibição da chave recuperada */
+.retrieved-key {
+  margin-top: 16px;
+  background-color: #f1f8e9;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #dcedc8;
+}
+
+.retrieved-key h4 {
+  color: #33691e;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.key-display {
+  background-color: #ffffff;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #dcdcdc;
+  overflow-x: auto;
+}
+
+.key-display code {
+  font-family: monospace;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Mensagens de feedback */
+.error-message {
+  background-color: #ffebee;
+  color: #b71c1c;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  border-left: 4px solid #b71c1c;
+}
+
+.success-message {
+  background-color: #e8f5e9;
+  color: #1b5e20;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  border-left: 4px solid #1b5e20;
+}
+
+.loading-indicator {
+  text-align: center;
+  padding: 12px;
+  font-weight: 600;
+  color: #128c7e;
+}
+
+/* Informações de segurança */
+.security-info {
+  margin-top: 24px;
+  background-color: #e1f5fe;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #0288d1;
+}
+
+.security-info h3 {
+  color: #01579b;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.security-info ul {
+  padding-left: 20px;
+  margin-bottom: 0;
+}
+
+.security-info li {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #455a64;
+}
+
+.security-info li:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .whatsapp-key-manager {
+    padding: 16px;
+    border-radius: 8px;
+  }
+  
+  .input-group {
+    flex-direction: column;
+  }
+  
+  .button-group {
+    flex-direction: column;
+  }
+}

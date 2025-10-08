@@ -9,11 +9,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gosouza/iac-ai-agent/api/rest"
-	_ "github.com/gosouza/iac-ai-agent/docs" // Swagger docs
-	"github.com/gosouza/iac-ai-agent/internal/startup"
-	"github.com/gosouza/iac-ai-agent/pkg/config"
-	"github.com/gosouza/iac-ai-agent/pkg/logger"
+	"github.com/govinda777/iac-ai-agent/api/rest"
+	_ "github.com/govinda777/iac-ai-agent/docs" // Swagger docs
+	"github.com/govinda777/iac-ai-agent/internal/platform/web3"
+	"github.com/govinda777/iac-ai-agent/internal/services"
+	"github.com/govinda777/iac-ai-agent/internal/startup"
+	"github.com/govinda777/iac-ai-agent/pkg/config"
+	"github.com/govinda777/iac-ai-agent/pkg/logger"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
@@ -57,19 +59,57 @@ func main() {
 	// ============================================================
 	log.Info("🔍 Executando validações de startup...")
 
-	validator := startup.NewValidator(cfg, log)
+	// Verificar se estamos no modo de desenvolvimento sem validação
+	if os.Getenv("ENABLE_STARTUP_VALIDATION") == "false" {
+		log.Info("⚠️ Validações desabilitadas - modo desenvolvimento")
+		log.Info("✅ Pulando validação de startup")
+	} else {
+		validator := startup.NewValidator(cfg, log)
 
-	// Validar tudo - panic se falhar
-	validator.MustValidate(ctx)
+		// Validar tudo - panic se falhar
+		validator.MustValidate(ctx)
 
-	log.Info("✅ Todas as validações passaram!")
+		log.Info("✅ Todas as validações passaram!")
+	}
 	log.Info("")
 
 	// ============================================================
 	// INITIALIZE SERVICES
 	// ============================================================
 	log.Info("📦 Inicializando serviços...")
-	log.Info("✅ Services serão inicializados pelo Handler")
+
+	// Inicializar cliente Base Network
+	baseClient, err := web3.NewBaseClient(cfg, log)
+	if err != nil {
+		log.Error("❌ Falha ao inicializar cliente Base Network", "error", err)
+		os.Exit(1)
+	}
+
+	// Inicializar serviço de agentes
+	agentService := services.NewAgentService(cfg, log, baseClient)
+
+	// Verificar se já existe um agente para a wallet ou criar um novo
+	log.Info("🤖 Verificando agente para wallet", "address", cfg.Web3.WalletAddress)
+	agent, err := agentService.EnsureAgentExists(ctx)
+	if err != nil {
+		log.Warn("⚠️ Não foi possível verificar/criar agente", "error", err)
+		log.Warn("⚠️ Algumas funcionalidades podem estar limitadas")
+	} else {
+		log.Info("✅ Agente configurado com sucesso",
+			"agent_id", agent.ID,
+			"template", agent.TemplateID,
+			"contract", agent.ContractAddress)
+
+		// Verificar se o agente tem chave do WhatsApp
+		if agent.HasWhatsAppKey {
+			log.Info("✅ Agente possui chave de API do WhatsApp configurada")
+		} else {
+			log.Info("ℹ️ Agente não possui chave de API do WhatsApp configurada")
+			log.Info("ℹ️ Use a API para configurar a chave do WhatsApp usando Lit Protocol")
+		}
+	}
+
+	log.Info("✅ Serviços inicializados com sucesso")
 
 	// ============================================================
 	// SETUP HTTP SERVER

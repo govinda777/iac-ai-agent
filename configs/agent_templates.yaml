@@ -3,6 +3,25 @@
 # Define os templates de agentes disponíveis
 
 templates:
+  - id: whatsapp-chatbot
+    name: "WhatsApp Chatbot Agent"
+    description: "Agente integrado com WhatsApp para comunicação via chat"
+    category: communication
+    is_recommended: true
+    use_cases:
+      - "Atendimento automatizado via WhatsApp"
+      - "Integração com serviços externos"
+      - "Respostas contextualizadas"
+      - "Processamento de comandos"
+      - "Notificações automáticas"
+    tags:
+      - whatsapp
+      - chatbot
+      - communication
+      - customer-service
+      - messaging
+      - lit-protocol
+
   - id: general-purpose
     name: "General Purpose IaC Agent"
     description: "Agente versátil para análise completa de Infrastructure as Code"

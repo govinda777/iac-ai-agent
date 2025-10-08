@@ -1,7 +1,7 @@
 package mocks
 
 import (
-	"github.com/gosouza/iac-ai-agent/internal/models"
+	"github.com/govinda777/iac-ai-agent/internal/models"
 )
 
 // MockCheckovAnalyzer is a mock implementation of the CheckovAnalyzerInterface.

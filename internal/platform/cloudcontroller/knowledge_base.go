@@ -1,8 +1,8 @@
 package cloudcontroller
 
 import (
-	"github.com/gosouza/iac-ai-agent/internal/models"
-	"github.com/gosouza/iac-ai-agent/pkg/logger"
+	"github.com/govinda777/iac-ai-agent/internal/models"
+	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
 // KnowledgeBase armazena e gerencia conhecimento sobre IaC

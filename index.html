@@ -29,6 +29,26 @@
                     <li><a href="https://github.com/gosouza/iac-ai-agent" class="nav-link" target="_blank">GitHub</a></li>
                 </ul>
                 <div class="nav-buttons">
+                    <!-- Auth buttons -->
+                    <div class="auth-buttons">
+                        <button class="btn btn-outline connect-wallet-btn">
+                            <i class="fa-solid fa-wallet"></i>
+                            <span class="button-text">Conectar Wallet</span>
+                        </button>
+                        <div class="user-profile" id="user-profile" style="display:none;">
+                            <div class="wallet-info">
+                                <i class="fa-solid fa-wallet"></i>
+                                <span class="wallet-address">0x0000...0000</span>
+                            </div>
+                            <div class="token-info">
+                                <i class="fa-solid fa-coins"></i>
+                                <span class="token-balance">0</span> IACAI
+                            </div>
+                            <button class="btn btn-outline btn-sm" id="logout-btn">
+                                <i class="fa-solid fa-sign-out-alt"></i>
+                            </button>
+                        </div>
+                    </div>
                     <a href="https://nation.fun/" class="btn btn-outline" target="_blank">Nation.fun</a>
                     <a href="docs/QUICKSTART.md" class="btn btn-primary">Começar</a>
                 </div>
@@ -434,6 +454,50 @@
         </div>
     </footer>
 
+    <!-- Auth container for Privy -->
+    <div id="auth-container" class="auth-container"></div>
+
+    <!-- Modal for Privy Onramp -->
+    <div id="onramp-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Comprar com Cartão/PIX</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="onramp-details">
+                    <p>Você está comprando: <span id="onramp-tier-name"></span></p>
+                    <p>Preço: <span id="onramp-tier-price"></span></p>
+                    <p>Tokens: <span id="onramp-token-amount"></span></p>
+                </div>
+                <form id="onramp-form">
+                    <div class="form-group">
+                        <label for="payment-method">Método de Pagamento</label>
+                        <select id="payment-method">
+                            <option value="credit_card">Cartão de Crédito</option>
+                            <option value="pix">PIX (Brasil)</option>
+                            <option value="bank_transfer">Transferência Bancária</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Continuar</button>
+                        <button type="button" class="btn btn-outline modal-cancel">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message container for notifications -->
+    <div class="message-container"></div>
+
+    <!-- Core JS -->
     <script src="js/main.js"></script>
+    
+    <!-- Web3 Integration -->
+    <script src="js/auth.js"></script>
+    <script src="js/nft-purchase.js"></script>
+    <script src="js/token-purchase.js"></script>
+    <script src="js/analysis.js"></script>
 </body>
 </html>

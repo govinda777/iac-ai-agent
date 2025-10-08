@@ -3,7 +3,7 @@ package scorer
 import (
 	"math"
 
-	"github.com/gosouza/iac-ai-agent/internal/models"
+	"github.com/govinda777/iac-ai-agent/internal/models"
 )
 
 // PRScorer calcula scores de qualidade para PRs

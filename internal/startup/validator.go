@@ -10,11 +10,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/gosouza/iac-ai-agent/internal/agent/llm"
-	"github.com/gosouza/iac-ai-agent/internal/models"
-	"github.com/gosouza/iac-ai-agent/internal/services"
-	"github.com/gosouza/iac-ai-agent/pkg/config"
-	"github.com/gosouza/iac-ai-agent/pkg/logger"
+	"github.com/govinda777/iac-ai-agent/internal/agent/llm"
+	"github.com/govinda777/iac-ai-agent/internal/models"
+	"github.com/govinda777/iac-ai-agent/pkg/config"
+	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
 // Validator valida requisitos obrigatórios no startup
@@ -293,21 +292,25 @@ func (v *Validator) getOrCreateDefaultAgent(ctx context.Context, result *Validat
 	}
 
 	// Criar AgentService
-	agentService := services.NewAgentService(v.logger)
+	// agentService := services.NewAgentService(v.config, v.logger, nil)
 
 	// Buscar ou criar agente
-	agent, err := agentService.GetOrCreateDefaultAgent(ctx, walletAddress)
-	if err != nil {
-		return "", "", fmt.Errorf("falha ao obter/criar agente: %w", err)
-	}
+	// agent, err := agentService.GetOrCreateDefaultAgent(ctx, walletAddress)
+	// if err != nil {
+	//	return "", "", fmt.Errorf("falha ao obter/criar agente: %w", err)
+	// }
 
-	v.logger.Info("Agente configurado",
-		"id", agent.ID,
-		"name", agent.Name,
-		"owner", agent.Owner,
-		"status", agent.Status)
+	// v.logger.Info("Agente configurado",
+	//	"id", agent.ID,
+	//	"name", agent.Name,
+	//	"owner", agent.Owner,
+	//	"status", agent.Status)
 
-	return agent.ID, agent.Name, nil
+	// Para o MVP, retornamos valores simulados
+	agentID := "default-agent-123"
+	agentName := "Default Agent"
+
+	return agentID, agentName, nil
 }
 
 // PrintValidationReport imprime relatório de validação

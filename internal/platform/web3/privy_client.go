@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gosouza/iac-ai-agent/pkg/config"
-	"github.com/gosouza/iac-ai-agent/pkg/logger"
+	"github.com/govinda777/iac-ai-agent/pkg/config"
+	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
 // PrivyClient é o cliente para integração com Privy.io
@@ -67,16 +67,18 @@ type VerifyTokenResponse struct {
 
 // VerifyToken verifica um token de autenticação Privy
 func (pc *PrivyClient) VerifyToken(token string) (*PrivyUser, error) {
-	url := fmt.Sprintf("%s/api/v1/verification_keys", pc.baseURL)
+	// Privy API v1 endpoint para verificação de token
+	url := fmt.Sprintf("%s/api/v1/auth/introspect", pc.baseURL)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("erro ao criar requisição: %w", err)
 	}
 
-	// Privy usa apenas App ID para autenticação
+	// Privy usa App ID para autenticação e token como Bearer
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	req.Header.Set("privy-app-id", pc.appID)
+	req.Header.Set("Content-Type", "application/json")
 
 	pc.logger.Info("Verificando token Privy")
 	resp, err := pc.httpClient.Do(req)
@@ -94,10 +96,22 @@ func (pc *PrivyClient) VerifyToken(token string) (*PrivyUser, error) {
 		return nil, fmt.Errorf("Privy API retornou erro %d: %s", resp.StatusCode, string(body))
 	}
 
-	var user PrivyUser
-	if err := json.Unmarshal(body, &user); err != nil {
+	// Decodificar resposta da API Privy
+	var introspectResponse struct {
+		User  PrivyUser `json:"user"`
+		Valid bool      `json:"valid"`
+	}
+
+	if err := json.Unmarshal(body, &introspectResponse); err != nil {
 		return nil, fmt.Errorf("erro ao fazer parse da resposta: %w", err)
 	}
+
+	// Verificar se o token é válido
+	if !introspectResponse.Valid {
+		return nil, fmt.Errorf("token Privy inválido")
+	}
+
+	user := introspectResponse.User
 
 	// Extrair wallet address e email dos linked accounts
 	for _, account := range user.LinkedAccounts {
@@ -237,8 +251,12 @@ func (pc *PrivyClient) ValidateWalletOwnership(userID, walletAddress string) (bo
 func (pc *PrivyClient) CreateEmbeddedWallet(userID string) (*LinkedAccount, error) {
 	url := fmt.Sprintf("%s/api/v1/users/%s/embedded_wallet", pc.baseURL, userID)
 
-	payload := map[string]string{
+	payload := map[string]interface{}{
 		"chain_type": "base", // Base Network
+		"create_options": map[string]interface{}{
+			"cust_type":        "privy_mpc",
+			"preferred_client": "privy_mpc",
+		},
 	}
 
 	jsonData, err := json.Marshal(payload)
@@ -270,11 +288,54 @@ func (pc *PrivyClient) CreateEmbeddedWallet(userID string) (*LinkedAccount, erro
 		return nil, fmt.Errorf("Privy API retornou erro %d: %s", resp.StatusCode, string(body))
 	}
 
-	var wallet LinkedAccount
-	if err := json.Unmarshal(body, &wallet); err != nil {
+	var response struct {
+		Wallet LinkedAccount `json:"wallet"`
+	}
+
+	if err := json.Unmarshal(body, &response); err != nil {
 		return nil, fmt.Errorf("erro ao fazer parse da resposta: %w", err)
 	}
 
-	pc.logger.Info("Embedded wallet criada", "address", wallet.Address)
-	return &wallet, nil
+	pc.logger.Info("Embedded wallet criada", "address", response.Wallet.Address)
+	return &response.Wallet, nil
+}
+
+// GetEmbeddedWallets obtém todas as embedded wallets de um usuário
+func (pc *PrivyClient) GetEmbeddedWallets(userID string) ([]LinkedAccount, error) {
+	url := fmt.Sprintf("%s/api/v1/users/%s/embedded_wallets", pc.baseURL, userID)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao criar requisição: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("privy-app-id", pc.appID)
+
+	pc.logger.Info("Obtendo embedded wallets", "user_id", userID)
+	resp, err := pc.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao chamar Privy API: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao ler resposta: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Privy API retornou erro %d: %s", resp.StatusCode, string(body))
+	}
+
+	var response struct {
+		Wallets []LinkedAccount `json:"wallets"`
+	}
+
+	if err := json.Unmarshal(body, &response); err != nil {
+		return nil, fmt.Errorf("erro ao fazer parse da resposta: %w", err)
+	}
+
+	pc.logger.Info("Embedded wallets obtidas", "count", len(response.Wallets))
+	return response.Wallets, nil
 }

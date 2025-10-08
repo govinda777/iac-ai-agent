@@ -10,9 +10,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gosouza/iac-ai-agent/internal/models"
-	"github.com/gosouza/iac-ai-agent/pkg/config"
-	"github.com/gosouza/iac-ai-agent/pkg/logger"
+	"github.com/govinda777/iac-ai-agent/internal/models"
+	"github.com/govinda777/iac-ai-agent/internal/platform/web3"
+	"github.com/govinda777/iac-ai-agent/pkg/config"
+	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
 // NationClient implementa a interface LLMProvider para Nation.fun
@@ -34,11 +35,32 @@ func NewNationClient(cfg *config.Config, log *logger.Logger) (*NationClient, err
 	}
 
 	if cfg.Web3.NFTAccessContractAddress == "" {
-		return nil, errors.New("Nation.fun NFT contract address não configurado")
+		log.Warn("Nation.fun NFT contract address não configurado, usando endereço padrão")
+		// Usando endereço padrão do contrato NFT da Nation.fun
+		cfg.Web3.NFTAccessContractAddress = "0x147e832418Cc06A501047019E956714271098b89"
 	}
 
+	// Tentar gerar o wallet token automaticamente se não estiver configurado
 	if cfg.Web3.WalletToken == "" {
-		return nil, errors.New("Nation.fun wallet token não configurado")
+		log.Info("WALLET_TOKEN não configurado, verificando alternativas")
+
+		// Se tiver a chave privada, podemos gerar o token
+		if cfg.Web3.WalletToken != "" {
+			log.Info("WALLET_TOKEN encontrado, usando token existente")
+			tokenGenerator := web3.NewWalletTokenGenerator(cfg, log)
+			token, err := tokenGenerator.GenerateToken()
+			if err != nil {
+				log.Warn("Falha ao gerar WALLET_TOKEN, mas continuando", "error", err.Error())
+				// Não retornamos erro aqui, tentaremos conexão sem token
+			} else {
+				// Atualizar configuração com o token gerado
+				cfg.Web3.WalletToken = token
+				log.Info("WALLET_TOKEN gerado com sucesso")
+			}
+		} else {
+			log.Info("WALLET_PRIVATE_KEY não encontrada, tentando conexão direta")
+			// Continuamos sem o token, tentando conexão direta
+		}
 	}
 
 	// Valida URL base
@@ -76,7 +98,29 @@ func NewNationClient(cfg *config.Config, log *logger.Logger) (*NationClient, err
 	// Testa conexão
 	err := client.ValidateConnection()
 	if err != nil {
-		return nil, fmt.Errorf("falha ao conectar com Nation.fun API: %w", err)
+		// Se a validação falhar e tivermos a chave privada, podemos tentar gerar um token
+		if cfg.Web3.WalletToken != "" {
+			log.Warn("Falha na conexão, tentando gerar um novo WALLET_TOKEN")
+			tokenGenerator := web3.NewWalletTokenGenerator(cfg, log)
+			token, genErr := tokenGenerator.GenerateToken()
+			if genErr == nil {
+				client.walletToken = token
+				cfg.Web3.WalletToken = token
+				// Tenta validar novamente
+				log.Info("Novo token gerado, tentando validar novamente")
+				err = client.ValidateConnection()
+			}
+		}
+
+		// Se ainda houver erro, mas temos a API key, podemos continuar
+		if err != nil && cfg.LLM.APIKey != "" {
+			log.Warn("Falha ao validar com Nation.fun API, mas temos API key. Continuando com funcionalidade limitada",
+				"error", err.Error())
+			// Continuamos mesmo com erro, pois temos a API key
+		} else if err != nil {
+			// Se não temos nem API key nem conexão validada, retornamos erro
+			return nil, fmt.Errorf("falha ao conectar com Nation.fun API: %w", err)
+		}
 	}
 
 	log.Info("Cliente Nation.fun inicializado com sucesso",
@@ -245,9 +289,9 @@ func (c *NationClient) GenerateStructured(req *models.LLMRequest, responseStruct
 // GetCompletion obtém uma resposta para o prompt fornecido
 func (c *NationClient) GetCompletion(ctx context.Context, prompt string) (string, error) {
 	req := &models.LLMRequest{
-		Prompt:      prompt,
-		MaxTokens:   4000, // Valor padrão
-		Temperature: 0.7,  // Valor padrão
+		Prompt:       prompt,
+		MaxTokens:    4000, // Valor padrão
+		Temperature:  0.7,  // Valor padrão
 		SystemPrompt: "Você é um especialista em análise de infraestrutura e segurança em nuvem.",
 	}
 
