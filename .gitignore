@@ -39,3 +39,6 @@ reports/assets/
 # .idea/
 # .vscode/
 bin/iac-ai-agent
+
+# Vercel
+.vercel/
