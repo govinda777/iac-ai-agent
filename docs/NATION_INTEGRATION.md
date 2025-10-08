@@ -37,7 +37,7 @@ Para usar o Nation.fun como provedor LLM, você precisa:
 
 1. **NFT Nation.fun**: Adquirir um NFT em [nation.fun](https://nation.fun)
 2. **Wallet Token**: Token de autenticação da sua wallet
-3. **API Key**: Chave de API do Nation.fun
+3. **Sem API Key**: Não é necessária chave de API externa
 
 ## ⚙️ Configuração
 
@@ -46,8 +46,8 @@ Para usar o Nation.fun como provedor LLM, você precisa:
 ```bash
 # Nation.fun
 LLM_PROVIDER=nation.fun
-LLM_API_KEY=your_api_key
 LLM_MODEL=nation-1
+# Não é necessária chave de API - acesso via NFT
 
 # NFT Access
 NFT_CONTRACT_ADDRESS=0x...  # Endereço do contrato Nation.fun
@@ -64,7 +64,7 @@ llm:
   model: "nation-1"
   temperature: 0.2
   max_tokens: 4000
-  # api_key: definido via env var
+  # Não é necessária chave de API - acesso via NFT
 
 # Web3 Configuration
 web3:
@@ -133,9 +133,8 @@ fmt.Printf("Problemas Críticos: %d\n", len(analysis.CriticalIssues))
 Durante o startup, o sistema valida automaticamente:
 
 1. Conexão com Nation.fun API
-2. Validade do API Key
-3. Posse do NFT Nation.fun
-4. Validade do Wallet Token
+2. Posse do NFT Nation.fun
+3. Validade do Wallet Token
 
 Se qualquer validação falhar, a aplicação não inicia.
 

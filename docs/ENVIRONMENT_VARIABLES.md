@@ -64,9 +64,9 @@ A aplicação **NÃO VAI INICIAR** sem estas variáveis configuradas corretament
 - **Como obter**:
   - **OpenAI**: https://platform.openai.com/api-keys
   - **Anthropic**: https://console.anthropic.com/
-- **Formato OpenAI**: `sk-` seguido de caracteres
-- **Formato Anthropic**: `sk-ant-` seguido de caracteres
-- **Exemplo**: `LLM_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
+- **Formato Nation.fun**: Não é necessária chave de API externa
+- **Acesso**: Via NFT Nation.fun
+- **Exemplo**: `LLM_PROVIDER=nation.fun`
 - **⚠️ Esta chave gera custos! Monitore seu uso**
 
 ### `LLM_PROVIDER`
@@ -193,10 +193,10 @@ WALLET_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f
 NATION_NFT_CONTRACT=0x1234567890123456789012345678901234567890
 NATION_NFT_REQUIRED=true
 
-# 3. LLM API
-LLM_PROVIDER=openai
-LLM_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-LLM_MODEL=gpt-4
+# 3. LLM API (Nation.fun)
+LLM_PROVIDER=nation.fun
+LLM_MODEL=nation-1
+# Não é necessária chave de API - acesso via NFT Nation.fun
 LLM_TEMPERATURE=0.2
 LLM_MAX_TOKENS=4000
 
@@ -297,7 +297,7 @@ Quando você executa `go run cmd/agent/main.go`, a aplicação valida:
 
 💡 Solução:
 1. Crie arquivo .env na raiz do projeto
-2. Adicione: LLM_API_KEY=sk-...
+2. Configure: LLM_PROVIDER=nation.fun
 3. Execute novamente
 ```
 

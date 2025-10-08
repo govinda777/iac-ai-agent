@@ -6,6 +6,7 @@ Este é o índice completo da documentação do IaC AI Agent, organizado por cat
 
 ### Para Iniciantes
 - **[README.md](../README.md)** - Visão geral e quick start em 5 minutos
+- **[QUICKSTART_CONSOLIDADO.md](QUICKSTART_CONSOLIDADO.md)** - 🆕 **Guia consolidado de início rápido**
 - **[QUICKSTART_ATUALIZADO.md](QUICKSTART_ATUALIZADO.md)** - Setup detalhado passo-a-passo
 - **[GUIA_INSTALACAO.md](GUIA_INSTALACAO.md)** - Instalação completa com troubleshooting
 - **[STARTUP_PROCESS.md](STARTUP_PROCESS.md)** - 🆕 Processo detalhado de inicialização da aplicação
@@ -89,10 +90,11 @@ Este é o índice completo da documentação do IaC AI Agent, organizado por cat
 ## 🎯 Por Tipo de Usuário
 
 ### 👨‍💻 Desenvolvedor Individual
-1. [README.md](../README.md) - Quick start
-2. [EXEMPLOS_PRATICOS.md](EXEMPLOS_PRATICOS.md) - Exemplos de uso
-3. [AGENT_SYSTEM.md](AGENT_SYSTEM.md) - Sistema de agentes
-4. [TESTING.md](TESTING.md) - Como testar
+1. [QUICKSTART_CONSOLIDADO.md](QUICKSTART_CONSOLIDADO.md) - 🆕 **Guia consolidado de início rápido**
+2. [README.md](../README.md) - Quick start
+3. [EXEMPLOS_PRATICOS.md](EXEMPLOS_PRATICOS.md) - Exemplos de uso
+4. [AGENT_SYSTEM.md](AGENT_SYSTEM.md) - Sistema de agentes
+5. [TESTING.md](TESTING.md) - Como testar
 
 ### 🏢 Time DevOps
 1. [GUIA_INSTALACAO.md](GUIA_INSTALACAO.md) - Instalação completa
@@ -131,9 +133,10 @@ Este é o índice completo da documentação do IaC AI Agent, organizado por cat
 ## 📈 Por Nível de Experiência
 
 ### 🟢 Iniciante (0-6 meses)
-1. [README.md](../README.md) - Visão geral
-2. [QUICKSTART_ATUALIZADO.md](QUICKSTART_ATUALIZADO.md) - Setup básico
-3. [EXEMPLOS_PRATICOS.md](EXEMPLOS_PRATICOS.md) - Exemplos simples
+1. [QUICKSTART_CONSOLIDADO.md](QUICKSTART_CONSOLIDADO.md) - 🆕 **Guia consolidado de início rápido**
+2. [README.md](../README.md) - Visão geral
+3. [QUICKSTART_ATUALIZADO.md](QUICKSTART_ATUALIZADO.md) - Setup básico
+4. [EXEMPLOS_PRATICOS.md](EXEMPLOS_PRATICOS.md) - Exemplos simples
 
 ### 🟡 Intermediário (6 meses - 2 anos)
 1. [AGENT_SYSTEM.md](AGENT_SYSTEM.md) - Sistema de agentes
@@ -155,6 +158,6 @@ Este é o índice completo da documentação do IaC AI Agent, organizado por cat
 ---
 
 **Status**: ✅ Documentação completa e organizada  
-**Versão**: 1.2.0  
-**Última atualização**: 2024-12-19  
-**Total de documentos**: 29+
+**Versão**: 1.3.0  
+**Última atualização**: 2025-01-15  
+**Total de documentos**: 30+

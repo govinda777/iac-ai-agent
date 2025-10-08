@@ -32,7 +32,7 @@
 🤖 Acesse: https://platform.openai.com/api-keys
 🔑 Create new secret key
 💳 Adicione créditos (mínimo $5)
-📋 Copie a key (começa com sk-...)
+📋 Configure o provedor LLM para Nation.fun
 ```
 
 ### 4️⃣ Configure o arquivo .env
@@ -64,10 +64,10 @@ WALLET_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb... # ← Private key 
 NATION_NFT_CONTRACT=0x1234567890123456789012345678901234567890 # ← Contrato da Nation
 NATION_NFT_REQUIRED=true                                        # ← Deixe true
 
-# 3. LLM (OpenAI)
-LLM_PROVIDER=openai                          # ← openai ou anthropic
-LLM_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxx   # ← Sua OpenAI API key
-LLM_MODEL=gpt-4                              # ← Modelo (gpt-4 recomendado)
+# 3. LLM (Nation.fun)
+LLM_PROVIDER=nation.fun
+LLM_MODEL=nation-1
+# Não é necessária chave de API - acesso via NFT Nation.fun
 
 # ============================================
 # 🟡 RECOMENDADAS
@@ -108,8 +108,8 @@ Antes de executar, confirme:
 - [ ] ✅ `WALLET_ADDRESS` é o endereço da wallet com o NFT
 - [ ] ✅ `WALLET_PRIVATE_KEY` está preenchida (começa com 0x)
 - [ ] ✅ `NATION_NFT_CONTRACT` é o endereço do contrato Nation.fun
-- [ ] ✅ `LLM_API_KEY` está preenchida (sk-...)
-- [ ] ✅ Você tem créditos na OpenAI
+- [ ] ✅ `LLM_PROVIDER` está configurado como `nation.fun`
+- [ ] ✅ Você possui um NFT Nation.fun
 - [ ] ✅ Arquivo `.env` está na raiz do projeto
 - [ ] ✅ `.env` está no `.gitignore` (NUNCA comite!)
 
@@ -215,8 +215,8 @@ Press Ctrl+C to shutdown gracefully
 1. Verifique se o arquivo .env existe na raiz
 2. Verifique se todas as variáveis OBRIGATÓRIAS estão preenchidas
 3. Não deixe espaços antes/depois do =
-   ✅ Correto:   LLM_API_KEY=sk-xxx
-   ❌ Errado:    LLM_API_KEY = sk-xxx
+   ✅ Correto:   LLM_PROVIDER=nation.fun
+   ❌ Errado:    LLM_PROVIDER = nation.fun
 ```
 
 ### Erro: "LLM validation failed"

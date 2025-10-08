@@ -102,7 +102,7 @@ func (lpc *LitProtocolClient) GetWhatsAppAPIKey() (string, error) {
 1. **Setup mínimo**:
    ```bash
    cp env.example .env
-   echo "LLM_API_KEY=sk-proj-..." >> .env
+   echo "LLM_PROVIDER=nation.fun" >> .env
    make run
    ```
 

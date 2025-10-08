@@ -179,9 +179,11 @@ fi
 echo ""
 echo "📋 Verificando conectividade..."
 
-# 10. Verificar conectividade com Nation.fun
+# 10. Verificar conectividade com Nation.fun (apenas se validação estiver habilitada)
 echo -n "Verificando conectividade Nation.fun... "
-if [ -f .env ] && grep -q "^WALLET_ADDRESS=" .env; then
+if [ -f .env ] && grep -q "^ENABLE_STARTUP_VALIDATION=false" .env; then
+    print_warning "Validação de startup desabilitada - pulando verificação Nation.fun"
+elif [ -f .env ] && grep -q "^WALLET_ADDRESS=" .env; then
     WALLET_ADDRESS=$(grep "^WALLET_ADDRESS=" .env | cut -d'=' -f2)
     if curl -s "https://api.nation.fun/v1/nft/check/$WALLET_ADDRESS" > /dev/null 2>&1; then
         print_status 0 "Conectividade Nation.fun OK"

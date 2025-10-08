@@ -6,12 +6,9 @@ import (
 	"math/big"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/govinda777/iac-ai-agent/internal/agent/llm"
-	"github.com/govinda777/iac-ai-agent/internal/models"
 	"github.com/govinda777/iac-ai-agent/internal/platform/web3"
 	"github.com/govinda777/iac-ai-agent/internal/services"
 	"github.com/govinda777/iac-ai-agent/pkg/config"

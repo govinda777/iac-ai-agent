@@ -39,10 +39,22 @@ build: ## Build the application
 
 run: build ## Run the application
 	@echo "Running $(APP_NAME)..."
+	@echo "🚀 Starting application..."
+	@echo "📚 Swagger UI will be available at: http://localhost:8080/swagger/"
+	@echo "⏳ Waiting 3 seconds for server to start..."
+	@sleep 3
+	@echo "🌐 Opening Swagger UI in browser..."
+	@open http://localhost:8080/swagger/ || echo "⚠️  Could not open browser automatically. Please visit: http://localhost:8080/swagger/"
 	@./bin/$(APP_NAME)
 
 run-swagger: swagger build ## Generate Swagger docs and run the application
 	@echo "Running $(APP_NAME) with Swagger UI..."
+	@echo "🚀 Starting application with Swagger..."
+	@echo "📚 Swagger UI will be available at: http://localhost:8080/swagger/"
+	@echo "⏳ Waiting 3 seconds for server to start..."
+	@sleep 3
+	@echo "🌐 Opening Swagger UI in browser..."
+	@open http://localhost:8080/swagger/ || echo "⚠️  Could not open browser automatically. Please visit: http://localhost:8080/swagger/"
 	@./bin/$(APP_NAME)
 
 test: ## Run all tests

@@ -37,10 +37,10 @@ nano .env
 # 🔴 ÚNICA VARIÁVEL OBRIGATÓRIA
 # ============================================
 
-# LLM (OpenAI)
-LLM_PROVIDER=openai                          # ← openai ou anthropic
-LLM_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxx   # ← Sua OpenAI API key
-LLM_MODEL=gpt-4                              # ← Modelo (gpt-4 recomendado)
+# LLM (Nation.fun)
+LLM_PROVIDER=nation.fun
+LLM_MODEL=nation-1
+# Não é necessária chave de API - acesso via NFT Nation.fun
 
 # ============================================
 # 🟢 JÁ CONFIGURADO AUTOMATICAMENTE

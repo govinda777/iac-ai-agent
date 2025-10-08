@@ -1,16 +1,16 @@
 definitions:
-  github_com_gosouza_iac-ai-agent_internal_models.AnalysisDetails:
+  github_com_govinda777_iac-ai-agent_internal_models.AnalysisDetails:
     properties:
       cost:
-        $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.CostAnalysis'
+        $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.CostAnalysis'
       iam:
-        $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.IAMAnalysis'
+        $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.IAMAnalysis'
       security:
-        $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.SecurityAnalysis'
+        $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.SecurityAnalysis'
       terraform:
-        $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.TerraformAnalysis'
+        $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.TerraformAnalysis'
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.AnalysisRequest:
+  github_com_govinda777_iac-ai-agent_internal_models.AnalysisRequest:
     properties:
       branch:
         type: string
@@ -23,10 +23,10 @@ definitions:
       repository:
         type: string
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.AnalysisResponse:
+  github_com_govinda777_iac-ai-agent_internal_models.AnalysisResponse:
     properties:
       analysis:
-        $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.AnalysisDetails'
+        $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.AnalysisDetails'
       id:
         type: string
       metadata:
@@ -36,12 +36,12 @@ definitions:
         type: integer
       suggestions:
         items:
-          $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.Suggestion'
+          $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.Suggestion'
         type: array
       timestamp:
         type: string
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.Comment:
+  github_com_govinda777_iac-ai-agent_internal_models.Comment:
     properties:
       body:
         type: string
@@ -55,7 +55,7 @@ definitions:
         description: LEFT, RIGHT
         type: string
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.CostAnalysis:
+  github_com_govinda777_iac-ai-agent_internal_models.CostAnalysis:
     properties:
       currency:
         type: string
@@ -65,10 +65,10 @@ definitions:
         type: number
       recommendations:
         items:
-          $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.CostRecommendation'
+          $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.CostRecommendation'
         type: array
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.CostRecommendation:
+  github_com_govinda777_iac-ai-agent_internal_models.CostRecommendation:
     properties:
       current_cost:
         type: number
@@ -82,7 +82,7 @@ definitions:
       resource:
         type: string
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.ErrorResponse:
+  github_com_govinda777_iac-ai-agent_internal_models.ErrorResponse:
     properties:
       code:
         type: string
@@ -93,7 +93,7 @@ definitions:
       message:
         type: string
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.FileReview:
+  github_com_govinda777_iac-ai-agent_internal_models.FileReview:
     properties:
       additions:
         type: integer
@@ -101,7 +101,7 @@ definitions:
         type: integer
       comments:
         items:
-          $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.Comment'
+          $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.Comment'
         type: array
       deletions:
         type: integer
@@ -114,10 +114,10 @@ definitions:
         type: string
       suggestions:
         items:
-          $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.Suggestion'
+          $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.Suggestion'
         type: array
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.GraphEdge:
+  github_com_govinda777_iac-ai-agent_internal_models.GraphEdge:
     properties:
       from:
         type: string
@@ -127,7 +127,7 @@ definitions:
         description: explicit, implicit
         type: string
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.GraphNode:
+  github_com_govinda777_iac-ai-agent_internal_models.GraphNode:
     properties:
       id:
         type: string
@@ -138,7 +138,7 @@ definitions:
       type:
         type: string
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.IAMAnalysis:
+  github_com_govinda777_iac-ai-agent_internal_models.IAMAnalysis:
     properties:
       admin_access_detected:
         type: boolean
@@ -146,7 +146,7 @@ definitions:
         type: boolean
       principal_risks:
         items:
-          $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.PrincipalRisk'
+          $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.PrincipalRisk'
         type: array
       public_access:
         items:
@@ -165,7 +165,7 @@ definitions:
           type: string
         type: array
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.PrincipalRisk:
+  github_com_govinda777_iac-ai-agent_internal_models.PrincipalRisk:
     properties:
       permissions:
         items:
@@ -181,18 +181,18 @@ definitions:
         description: user, role, service
         type: string
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.ResourceGraph:
+  github_com_govinda777_iac-ai-agent_internal_models.ResourceGraph:
     properties:
       edges:
         items:
-          $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.GraphEdge'
+          $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.GraphEdge'
         type: array
       nodes:
         items:
-          $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.GraphNode'
+          $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.GraphNode'
         type: array
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.ReviewRequest:
+  github_com_govinda777_iac-ai-agent_internal_models.ReviewRequest:
     properties:
       installation_id:
         type: integer
@@ -203,13 +203,13 @@ definitions:
       repository:
         type: string
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.ReviewResponse:
+  github_com_govinda777_iac-ai-agent_internal_models.ReviewResponse:
     properties:
       analysis:
-        $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.AnalysisDetails'
+        $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.AnalysisDetails'
       file_reviews:
         items:
-          $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.FileReview'
+          $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.FileReview'
         type: array
       files_analyzed:
         type: integer
@@ -231,7 +231,7 @@ definitions:
       total_suggestions:
         type: integer
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.SecurityAnalysis:
+  github_com_govinda777_iac-ai-agent_internal_models.SecurityAnalysis:
     properties:
       checks_failed:
         type: integer
@@ -241,7 +241,7 @@ definitions:
         type: integer
       findings:
         items:
-          $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.SecurityFinding'
+          $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.SecurityFinding'
         type: array
       high:
         type: integer
@@ -254,7 +254,7 @@ definitions:
       total_issues:
         type: integer
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.SecurityFinding:
+  github_com_govinda777_iac-ai-agent_internal_models.SecurityFinding:
     properties:
       check_id:
         type: string
@@ -279,7 +279,7 @@ definitions:
       severity:
         type: string
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.Suggestion:
+  github_com_govinda777_iac-ai-agent_internal_models.Suggestion:
     properties:
       auto_fix_available:
         type: boolean
@@ -291,9 +291,18 @@ definitions:
         type: integer
       message:
         type: string
+      metadata:
+        additionalProperties: true
+        type: object
       recommendation:
         type: string
       reference_link:
+        type: string
+      references:
+        items:
+          type: string
+        type: array
+      resource:
         type: string
       severity:
         description: critical, high, medium, low, info
@@ -302,7 +311,7 @@ definitions:
         description: security, cost, best_practice, performance
         type: string
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.SyntaxError:
+  github_com_govinda777_iac-ai-agent_internal_models.SyntaxError:
     properties:
       column:
         type: integer
@@ -315,7 +324,7 @@ definitions:
       snippet:
         type: string
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.TerraformAnalysis:
+  github_com_govinda777_iac-ai-agent_internal_models.TerraformAnalysis:
     properties:
       best_practice_warnings:
         items:
@@ -323,25 +332,25 @@ definitions:
         type: array
       modules:
         items:
-          $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.TerraformModule'
+          $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.TerraformModule'
         type: array
       outputs:
         items:
-          $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.TerraformOutput'
+          $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.TerraformOutput'
         type: array
       providers:
         items:
           type: string
         type: array
       resource_graph:
-        $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ResourceGraph'
+        $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.ResourceGraph'
       resources:
         items:
-          $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.TerraformResource'
+          $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.TerraformResource'
         type: array
       syntax_errors:
         items:
-          $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.SyntaxError'
+          $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.SyntaxError'
         type: array
       total_data_sources:
         type: integer
@@ -357,10 +366,10 @@ definitions:
         type: boolean
       variables:
         items:
-          $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.TerraformVariable'
+          $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.TerraformVariable'
         type: array
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.TerraformModule:
+  github_com_govinda777_iac-ai-agent_internal_models.TerraformModule:
     properties:
       file:
         type: string
@@ -378,7 +387,7 @@ definitions:
       version:
         type: string
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.TerraformOutput:
+  github_com_govinda777_iac-ai-agent_internal_models.TerraformOutput:
     properties:
       description:
         type: string
@@ -391,7 +400,7 @@ definitions:
       value:
         type: string
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.TerraformResource:
+  github_com_govinda777_iac-ai-agent_internal_models.TerraformResource:
     properties:
       attributes:
         additionalProperties: true
@@ -417,7 +426,7 @@ definitions:
       type:
         type: string
     type: object
-  github_com_gosouza_iac-ai-agent_internal_models.TerraformVariable:
+  github_com_govinda777_iac-ai-agent_internal_models.TerraformVariable:
     properties:
       default: {}
       description:
@@ -450,6 +459,35 @@ paths:
       summary: Informações da API
       tags:
       - info
+  /agent/health:
+    get:
+      description: Verifica o status de saúde do agente incluindo validação NFT Nation
+        e teste de conectividade
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Status detalhado do agente
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Agent Health check detalhado
+      tags:
+      - health
+  /agent/template:
+    get:
+      description: Compara dados do agente atual com o template de configuração
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Comparação agente vs template
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Comparação Agente vs Template
+      tags:
+      - agent
   /analyze:
     post:
       consumes:
@@ -462,22 +500,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.AnalysisRequest'
+          $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.AnalysisRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Resultado da análise
           schema:
-            $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.AnalysisResponse'
+            $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.AnalysisResponse'
         "400":
           description: Requisição inválida
           schema:
-            $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ErrorResponse'
+            $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.ErrorResponse'
         "500":
           description: Erro interno do servidor
           schema:
-            $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ErrorResponse'
+            $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.ErrorResponse'
       summary: Analisar código IaC
       tags:
       - analysis
@@ -506,22 +544,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ReviewRequest'
+          $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.ReviewRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Resultado do review
           schema:
-            $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ReviewResponse'
+            $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.ReviewResponse'
         "400":
           description: Requisição inválida
           schema:
-            $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ErrorResponse'
+            $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.ErrorResponse'
         "500":
           description: Erro interno do servidor
           schema:
-            $ref: '#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ErrorResponse'
+            $ref: '#/definitions/github_com_govinda777_iac-ai-agent_internal_models.ErrorResponse'
       summary: Review de Pull Request
       tags:
       - review

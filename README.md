@@ -950,7 +950,7 @@ go install github.com/onsi/ginkgo/v2/ginkgo@latest
 cp .env-example .env.test
 
 <span class="comment"># 3. Edite .env.test e adicione chaves de teste</span>
-<span class="highlight"># - LLM_API_KEY=sk-... (recomendamos criar uma chave separada para testes)</span>
+<span class="highlight"># - LLM_PROVIDER=nation.fun (provedor exclusivo)</span>
 <span class="highlight"># - PRIVY_APP_ID=app_xxx (ambiente de teste)</span>
 <span class="highlight"># - BASE_RPC_URL=https://goerli.base.org (Base Testnet)</span>
 

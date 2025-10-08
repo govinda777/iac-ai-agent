@@ -10,21 +10,22 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/govinda777/iac-ai-agent/api/rest"
 	"github.com/govinda777/iac-ai-agent/internal/agent/capabilities"
 	"github.com/govinda777/iac-ai-agent/internal/agent/core"
+	"github.com/govinda777/iac-ai-agent/pkg/config"
+	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
 func main() {
 	// Carregar configuração
-	config, err := loadConfig()
+	agentConfig, err := loadConfig()
 	if err != nil {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
 	// Criar agente principal
-	agent := core.NewAgent(config)
+	agent := core.NewAgent(agentConfig)
 
 	// Registrar habilidades
 	if err := registerCapabilities(agent); err != nil {
@@ -44,17 +45,31 @@ func main() {
 
 	log.Printf("Agent started successfully: %s", agent.ID)
 
-	// Criar handler REST
+	// Criar configuração e logger para o handler REST
+	restConfig := &config.Config{
+		Server: config.ServerConfig{
+			Port: "8080",
+			Host: "localhost",
+		},
+		Logging: config.LoggingConfig{
+			Level:  "info",
+			Format: "json",
+		},
+	}
+	restLogger := logger.New("info", "json")
+
+	// Criar handler REST com Swagger
+	handler := rest.NewHandler(restConfig, restLogger)
+
+	// Configurar rotas com Swagger UI
+	router := handler.SetupRoutes()
+
+	// Middleware (comentado temporariamente para teste)
+	// router.Use(rest.LoggingMiddleware)
+	// router.Use(rest.TokenValidationMiddleware("your_verify_token_here"))
+
+	// Registrar rotas do agente também
 	agentHandler := rest.NewAgentHandler(agent)
-
-	// Configurar rotas
-	router := mux.NewRouter()
-
-	// Middleware
-	router.Use(rest.LoggingMiddleware)
-	router.Use(rest.TokenValidationMiddleware("your_verify_token_here"))
-
-	// Registrar rotas
 	agentHandler.RegisterRoutes(router)
 
 	// Configurar servidor HTTP

@@ -37,6 +37,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/agent/health": {
+            "get": {
+                "description": "Verifica o status de saúde do agente incluindo validação NFT Nation e teste de conectividade",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Agent Health check detalhado",
+                "responses": {
+                    "200": {
+                        "description": "Status detalhado do agente",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/agent/template": {
+            "get": {
+                "description": "Compara dados do agente atual com o template de configuração",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "agent"
+                ],
+                "summary": "Comparação Agente vs Template",
+                "responses": {
+                    "200": {
+                        "description": "Comparação agente vs template",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/analyze": {
             "post": {
                 "description": "Analisa código Terraform para identificar problemas de segurança, custos e best practices",
@@ -57,7 +99,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.AnalysisRequest"
+                            "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.AnalysisRequest"
                         }
                     }
                 ],
@@ -65,19 +107,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Resultado da análise",
                         "schema": {
-                            "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.AnalysisResponse"
+                            "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.AnalysisResponse"
                         }
                     },
                     "400": {
                         "description": "Requisição inválida",
                         "schema": {
-                            "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Erro interno do servidor",
                         "schema": {
-                            "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -124,7 +166,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ReviewRequest"
+                            "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.ReviewRequest"
                         }
                     }
                 ],
@@ -132,19 +174,19 @@ const docTemplate = `{
                     "200": {
                         "description": "Resultado do review",
                         "schema": {
-                            "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ReviewResponse"
+                            "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.ReviewResponse"
                         }
                     },
                     "400": {
                         "description": "Requisição inválida",
                         "schema": {
-                            "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Erro interno do servidor",
                         "schema": {
-                            "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.ErrorResponse"
                         }
                     }
                 }
@@ -152,24 +194,24 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_gosouza_iac-ai-agent_internal_models.AnalysisDetails": {
+        "github_com_govinda777_iac-ai-agent_internal_models.AnalysisDetails": {
             "type": "object",
             "properties": {
                 "cost": {
-                    "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.CostAnalysis"
+                    "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.CostAnalysis"
                 },
                 "iam": {
-                    "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.IAMAnalysis"
+                    "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.IAMAnalysis"
                 },
                 "security": {
-                    "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.SecurityAnalysis"
+                    "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.SecurityAnalysis"
                 },
                 "terraform": {
-                    "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.TerraformAnalysis"
+                    "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.TerraformAnalysis"
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.AnalysisRequest": {
+        "github_com_govinda777_iac-ai-agent_internal_models.AnalysisRequest": {
             "type": "object",
             "properties": {
                 "branch": {
@@ -189,11 +231,11 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.AnalysisResponse": {
+        "github_com_govinda777_iac-ai-agent_internal_models.AnalysisResponse": {
             "type": "object",
             "properties": {
                 "analysis": {
-                    "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.AnalysisDetails"
+                    "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.AnalysisDetails"
                 },
                 "id": {
                     "type": "string"
@@ -208,7 +250,7 @@ const docTemplate = `{
                 "suggestions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.Suggestion"
+                        "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.Suggestion"
                     }
                 },
                 "timestamp": {
@@ -216,7 +258,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.Comment": {
+        "github_com_govinda777_iac-ai-agent_internal_models.Comment": {
             "type": "object",
             "properties": {
                 "body": {
@@ -237,7 +279,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.CostAnalysis": {
+        "github_com_govinda777_iac-ai-agent_internal_models.CostAnalysis": {
             "type": "object",
             "properties": {
                 "currency": {
@@ -252,12 +294,12 @@ const docTemplate = `{
                 "recommendations": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.CostRecommendation"
+                        "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.CostRecommendation"
                     }
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.CostRecommendation": {
+        "github_com_govinda777_iac-ai-agent_internal_models.CostRecommendation": {
             "type": "object",
             "properties": {
                 "current_cost": {
@@ -278,7 +320,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.ErrorResponse": {
+        "github_com_govinda777_iac-ai-agent_internal_models.ErrorResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -295,7 +337,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.FileReview": {
+        "github_com_govinda777_iac-ai-agent_internal_models.FileReview": {
             "type": "object",
             "properties": {
                 "additions": {
@@ -307,7 +349,7 @@ const docTemplate = `{
                 "comments": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.Comment"
+                        "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.Comment"
                     }
                 },
                 "deletions": {
@@ -326,12 +368,12 @@ const docTemplate = `{
                 "suggestions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.Suggestion"
+                        "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.Suggestion"
                     }
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.GraphEdge": {
+        "github_com_govinda777_iac-ai-agent_internal_models.GraphEdge": {
             "type": "object",
             "properties": {
                 "from": {
@@ -346,7 +388,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.GraphNode": {
+        "github_com_govinda777_iac-ai-agent_internal_models.GraphNode": {
             "type": "object",
             "properties": {
                 "id": {
@@ -363,7 +405,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.IAMAnalysis": {
+        "github_com_govinda777_iac-ai-agent_internal_models.IAMAnalysis": {
             "type": "object",
             "properties": {
                 "admin_access_detected": {
@@ -375,7 +417,7 @@ const docTemplate = `{
                 "principal_risks": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.PrincipalRisk"
+                        "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.PrincipalRisk"
                     }
                 },
                 "public_access": {
@@ -404,7 +446,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.PrincipalRisk": {
+        "github_com_govinda777_iac-ai-agent_internal_models.PrincipalRisk": {
             "type": "object",
             "properties": {
                 "permissions": {
@@ -428,24 +470,24 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.ResourceGraph": {
+        "github_com_govinda777_iac-ai-agent_internal_models.ResourceGraph": {
             "type": "object",
             "properties": {
                 "edges": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.GraphEdge"
+                        "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.GraphEdge"
                     }
                 },
                 "nodes": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.GraphNode"
+                        "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.GraphNode"
                     }
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.ReviewRequest": {
+        "github_com_govinda777_iac-ai-agent_internal_models.ReviewRequest": {
             "type": "object",
             "properties": {
                 "installation_id": {
@@ -462,16 +504,16 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.ReviewResponse": {
+        "github_com_govinda777_iac-ai-agent_internal_models.ReviewResponse": {
             "type": "object",
             "properties": {
                 "analysis": {
-                    "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.AnalysisDetails"
+                    "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.AnalysisDetails"
                 },
                 "file_reviews": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.FileReview"
+                        "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.FileReview"
                     }
                 },
                 "files_analyzed": {
@@ -504,7 +546,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.SecurityAnalysis": {
+        "github_com_govinda777_iac-ai-agent_internal_models.SecurityAnalysis": {
             "type": "object",
             "properties": {
                 "checks_failed": {
@@ -519,7 +561,7 @@ const docTemplate = `{
                 "findings": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.SecurityFinding"
+                        "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.SecurityFinding"
                     }
                 },
                 "high": {
@@ -539,7 +581,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.SecurityFinding": {
+        "github_com_govinda777_iac-ai-agent_internal_models.SecurityFinding": {
             "type": "object",
             "properties": {
                 "check_id": {
@@ -577,7 +619,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.Suggestion": {
+        "github_com_govinda777_iac-ai-agent_internal_models.Suggestion": {
             "type": "object",
             "properties": {
                 "auto_fix_available": {
@@ -595,10 +637,23 @@ const docTemplate = `{
                 "message": {
                     "type": "string"
                 },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
                 "recommendation": {
                     "type": "string"
                 },
                 "reference_link": {
+                    "type": "string"
+                },
+                "references": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "resource": {
                     "type": "string"
                 },
                 "severity": {
@@ -611,7 +666,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.SyntaxError": {
+        "github_com_govinda777_iac-ai-agent_internal_models.SyntaxError": {
             "type": "object",
             "properties": {
                 "column": {
@@ -631,7 +686,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.TerraformAnalysis": {
+        "github_com_govinda777_iac-ai-agent_internal_models.TerraformAnalysis": {
             "type": "object",
             "properties": {
                 "best_practice_warnings": {
@@ -643,13 +698,13 @@ const docTemplate = `{
                 "modules": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.TerraformModule"
+                        "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.TerraformModule"
                     }
                 },
                 "outputs": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.TerraformOutput"
+                        "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.TerraformOutput"
                     }
                 },
                 "providers": {
@@ -659,18 +714,18 @@ const docTemplate = `{
                     }
                 },
                 "resource_graph": {
-                    "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.ResourceGraph"
+                    "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.ResourceGraph"
                 },
                 "resources": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.TerraformResource"
+                        "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.TerraformResource"
                     }
                 },
                 "syntax_errors": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.SyntaxError"
+                        "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.SyntaxError"
                     }
                 },
                 "total_data_sources": {
@@ -694,12 +749,12 @@ const docTemplate = `{
                 "variables": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_gosouza_iac-ai-agent_internal_models.TerraformVariable"
+                        "$ref": "#/definitions/github_com_govinda777_iac-ai-agent_internal_models.TerraformVariable"
                     }
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.TerraformModule": {
+        "github_com_govinda777_iac-ai-agent_internal_models.TerraformModule": {
             "type": "object",
             "properties": {
                 "file": {
@@ -726,7 +781,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.TerraformOutput": {
+        "github_com_govinda777_iac-ai-agent_internal_models.TerraformOutput": {
             "type": "object",
             "properties": {
                 "description": {
@@ -746,7 +801,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.TerraformResource": {
+        "github_com_govinda777_iac-ai-agent_internal_models.TerraformResource": {
             "type": "object",
             "properties": {
                 "attributes": {
@@ -785,7 +840,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_gosouza_iac-ai-agent_internal_models.TerraformVariable": {
+        "github_com_govinda777_iac-ai-agent_internal_models.TerraformVariable": {
             "type": "object",
             "properties": {
                 "default": {},

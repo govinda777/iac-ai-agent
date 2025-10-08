@@ -43,7 +43,9 @@ cp env.example .env
 2. **Configure a única variável obrigatória**:
 ```bash
 # .env
-LLM_API_KEY=sk-proj-sua_chave_openai_aqui
+LLM_PROVIDER=nation.fun
+LLM_MODEL=nation-1
+# Não é necessária chave de API - acesso via NFT Nation.fun
 ```
 
 3. **Inicie o agente**:
