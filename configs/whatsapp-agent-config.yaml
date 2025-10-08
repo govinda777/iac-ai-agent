@@ -46,16 +46,6 @@ security:
   signature_validation: true
   ip_whitelist: []
 
-# Configurações de cache
-cache:
-  enabled: true
-  type: "redis"
-  host: "localhost"
-  port: 6379
-  password: ""
-  db: 0
-  ttl: "1h"
-
 # Configurações de monitoramento
 monitoring:
   enabled: true
