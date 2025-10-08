@@ -3,9 +3,9 @@ package services
 import (
 	"context"
 
-	"github.com/gosouza/iac-ai-agent/internal/agent/llm"
-	"github.com/gosouza/iac-ai-agent/internal/models"
-	"github.com/gosouza/iac-ai-agent/pkg/logger"
+	"github.com/govinda777/iac-ai-agent/internal/agent/llm"
+	"github.com/govinda777/iac-ai-agent/internal/models"
+	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
 // LLMService representa o serviço para interação com modelos de linguagem

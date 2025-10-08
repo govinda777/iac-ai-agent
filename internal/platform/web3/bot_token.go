@@ -6,8 +6,8 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/gosouza/iac-ai-agent/pkg/config"
-	"github.com/gosouza/iac-ai-agent/pkg/logger"
+	"github.com/govinda777/iac-ai-agent/pkg/config"
+	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
 // BotTokenManager gerencia o token do bot (ERC-20)
@@ -38,13 +38,13 @@ func NewBotTokenManager(cfg *config.Config, log *logger.Logger, baseClient *Base
 
 // TokenInfo contém informações sobre o token
 type TokenInfo struct {
-	Address      string   `json:"address"`
-	Name         string   `json:"name"`
-	Symbol       string   `json:"symbol"`
-	Decimals     uint8    `json:"decimals"`
-	TotalSupply  *big.Int `json:"total_supply"`
-	TotalSupplyFormatted string `json:"total_supply_formatted"`
-	Price        *TokenPrice `json:"price,omitempty"`
+	Address              string      `json:"address"`
+	Name                 string      `json:"name"`
+	Symbol               string      `json:"symbol"`
+	Decimals             uint8       `json:"decimals"`
+	TotalSupply          *big.Int    `json:"total_supply"`
+	TotalSupplyFormatted string      `json:"total_supply_formatted"`
+	Price                *TokenPrice `json:"price,omitempty"`
 }
 
 // TokenPrice contém informações de preço
@@ -56,39 +56,39 @@ type TokenPrice struct {
 
 // TokenBalance representa o saldo de tokens de uma wallet
 type TokenBalance struct {
-	Address         string   `json:"address"`
-	Balance         *big.Int `json:"balance"`
-	BalanceFormatted string  `json:"balance_formatted"`
-	ValueUSD        string   `json:"value_usd,omitempty"`
+	Address          string   `json:"address"`
+	Balance          *big.Int `json:"balance"`
+	BalanceFormatted string   `json:"balance_formatted"`
+	ValueUSD         string   `json:"value_usd,omitempty"`
 }
 
 // TokenPackage representa um pacote de tokens para venda
 type TokenPackage struct {
-	PackageID   uint8    `json:"package_id"`
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	TokenAmount *big.Int `json:"token_amount"`
-	TokenAmountFormatted string `json:"token_amount_formatted"`
-	Price       *big.Int `json:"price_wei"`
-	PriceUSD    string   `json:"price_usd"`
-	Discount    string   `json:"discount,omitempty"`
-	IsActive    bool     `json:"is_active"`
+	PackageID            uint8    `json:"package_id"`
+	Name                 string   `json:"name"`
+	Description          string   `json:"description"`
+	TokenAmount          *big.Int `json:"token_amount"`
+	TokenAmountFormatted string   `json:"token_amount_formatted"`
+	Price                *big.Int `json:"price_wei"`
+	PriceUSD             string   `json:"price_usd"`
+	Discount             string   `json:"discount,omitempty"`
+	IsActive             bool     `json:"is_active"`
 }
 
 // GetTokenInfo retorna informações sobre o token
 func (btm *BotTokenManager) GetTokenInfo(ctx context.Context) (*TokenInfo, error) {
 	// TODO: Buscar do smart contract
 	// totalSupply := contract.totalSupply()
-	
+
 	totalSupply := new(big.Int)
 	totalSupply.SetString("1000000000000000000000000", 10) // 1M tokens
 
 	return &TokenInfo{
-		Address:      btm.contractAddr.Hex(),
-		Name:         btm.tokenName,
-		Symbol:       btm.tokenSymbol,
-		Decimals:     btm.decimals,
-		TotalSupply:  totalSupply,
+		Address:              btm.contractAddr.Hex(),
+		Name:                 btm.tokenName,
+		Symbol:               btm.tokenSymbol,
+		Decimals:             btm.decimals,
+		TotalSupply:          totalSupply,
 		TotalSupplyFormatted: btm.formatTokenAmount(totalSupply),
 		Price: &TokenPrice{
 			USD:         "0.10",
@@ -121,48 +121,48 @@ func (btm *BotTokenManager) GetBalance(ctx context.Context, walletAddress string
 func (btm *BotTokenManager) GetTokenPackages(ctx context.Context) ([]TokenPackage, error) {
 	packages := []TokenPackage{
 		{
-			PackageID:   1,
-			Name:        "Starter Pack",
-			Description: "Pacote inicial para começar",
-			TokenAmount: btm.parseTokenAmount("100"),
+			PackageID:            1,
+			Name:                 "Starter Pack",
+			Description:          "Pacote inicial para começar",
+			TokenAmount:          btm.parseTokenAmount("100"),
 			TokenAmountFormatted: "100 IACAI",
-			Price:       big.NewInt(5000000000000000), // 0.005 ETH
-			PriceUSD:    "10.00",
-			Discount:    "",
-			IsActive:    true,
+			Price:                big.NewInt(5000000000000000), // 0.005 ETH
+			PriceUSD:             "10.00",
+			Discount:             "",
+			IsActive:             true,
 		},
 		{
-			PackageID:   2,
-			Name:        "Power Pack",
-			Description: "Pacote popular com 10% de desconto",
-			TokenAmount: btm.parseTokenAmount("500"),
+			PackageID:            2,
+			Name:                 "Power Pack",
+			Description:          "Pacote popular com 10% de desconto",
+			TokenAmount:          btm.parseTokenAmount("500"),
 			TokenAmountFormatted: "500 IACAI",
-			Price:       big.NewInt(22500000000000000), // 0.0225 ETH
-			PriceUSD:    "45.00",
-			Discount:    "10%",
-			IsActive:    true,
+			Price:                big.NewInt(22500000000000000), // 0.0225 ETH
+			PriceUSD:             "45.00",
+			Discount:             "10%",
+			IsActive:             true,
 		},
 		{
-			PackageID:   3,
-			Name:        "Pro Pack",
-			Description: "Pacote profissional com 15% de desconto",
-			TokenAmount: btm.parseTokenAmount("1000"),
+			PackageID:            3,
+			Name:                 "Pro Pack",
+			Description:          "Pacote profissional com 15% de desconto",
+			TokenAmount:          btm.parseTokenAmount("1000"),
 			TokenAmountFormatted: "1000 IACAI",
-			Price:       big.NewInt(42500000000000000), // 0.0425 ETH
-			PriceUSD:    "85.00",
-			Discount:    "15%",
-			IsActive:    true,
+			Price:                big.NewInt(42500000000000000), // 0.0425 ETH
+			PriceUSD:             "85.00",
+			Discount:             "15%",
+			IsActive:             true,
 		},
 		{
-			PackageID:   4,
-			Name:        "Enterprise Pack",
-			Description: "Pacote enterprise com 25% de desconto",
-			TokenAmount: btm.parseTokenAmount("5000"),
+			PackageID:            4,
+			Name:                 "Enterprise Pack",
+			Description:          "Pacote enterprise com 25% de desconto",
+			TokenAmount:          btm.parseTokenAmount("5000"),
 			TokenAmountFormatted: "5000 IACAI",
-			Price:       big.NewInt(187500000000000000), // 0.1875 ETH
-			PriceUSD:    "375.00",
-			Discount:    "25%",
-			IsActive:    true,
+			Price:                big.NewInt(187500000000000000), // 0.1875 ETH
+			PriceUSD:             "375.00",
+			Discount:             "25%",
+			IsActive:             true,
 		},
 	}
 
@@ -247,10 +247,10 @@ func (btm *BotTokenManager) Transfer(ctx context.Context, from, to string, amoun
 	btm.logger.Info("Tokens transferidos com sucesso", "tx_hash", txHash)
 
 	return &Transaction{
-		Hash:  txHash,
-		From:  from,
-		To:    to,
-		Value: amount,
+		Hash:   txHash,
+		From:   from,
+		To:     to,
+		Value:  amount,
 		Status: 1,
 	}, nil
 }
@@ -324,13 +324,13 @@ func (btm *BotTokenManager) GetTokenPrice(ctx context.Context) (*TokenPrice, err
 func (btm *BotTokenManager) CalculateTokenCost(operationType string) (*big.Int, error) {
 	// Tabela de preços por tipo de operação
 	costs := map[string]string{
-		"terraform_analysis": "1",    // 1 token
-		"checkov_scan":       "2",    // 2 tokens
-		"llm_analysis":       "5",    // 5 tokens (mais caro, usa LLM)
-		"preview_analysis":   "3",    // 3 tokens
-		"security_audit":     "10",   // 10 tokens (auditoria completa)
-		"cost_optimization":  "5",    // 5 tokens
-		"full_review":        "15",   // 15 tokens (review completo)
+		"terraform_analysis": "1",  // 1 token
+		"checkov_scan":       "2",  // 2 tokens
+		"llm_analysis":       "5",  // 5 tokens (mais caro, usa LLM)
+		"preview_analysis":   "3",  // 3 tokens
+		"security_audit":     "10", // 10 tokens (auditoria completa)
+		"cost_optimization":  "5",  // 5 tokens
+		"full_review":        "15", // 15 tokens (review completo)
 	}
 
 	costStr, ok := costs[operationType]
@@ -347,14 +347,14 @@ func (btm *BotTokenManager) parseTokenAmount(amount string) *big.Int {
 	// Converte string para big.Int com decimais
 	value := new(big.Int)
 	value.SetString(amount, 10)
-	
+
 	// Multiplica por 10^decimals
 	multiplier := new(big.Int).Exp(
 		big.NewInt(10),
 		big.NewInt(int64(btm.decimals)),
 		nil,
 	)
-	
+
 	return value.Mul(value, multiplier)
 }
 
@@ -372,6 +372,11 @@ func (btm *BotTokenManager) formatTokenAmount(amount *big.Int) string {
 	)
 
 	return fmt.Sprintf("%s %s", value.Text('f', 2), btm.tokenSymbol)
+}
+
+// FormatTokenAmount formata um valor de token para exibição
+func (btm *BotTokenManager) FormatTokenAmount(amount *big.Int) string {
+	return btm.formatTokenAmount(amount)
 }
 
 func (btm *BotTokenManager) formatEth(amount *big.Int) string {

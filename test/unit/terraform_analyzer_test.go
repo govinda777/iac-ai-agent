@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/gosouza/iac-ai-agent/internal/agent/analyzer"
+	"github.com/govinda777/iac-ai-agent/internal/agent/analyzer"
 )
 
 var _ = Describe("TerraformAnalyzer", func() {

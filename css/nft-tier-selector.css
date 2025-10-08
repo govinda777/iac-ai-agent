@@ -1,0 +1,435 @@
+/**
+ * Estilos para o componente NFT Tier Selector
+ */
+
+.nft-tier-selector {
+  font-family: 'Inter', sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: #1a202c;
+}
+
+.section-description {
+  font-size: 1.125rem;
+  text-align: center;
+  color: #4a5568;
+  margin-bottom: 3rem;
+}
+
+/* Grid de preços */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+/* Card de tier */
+.pricing-card {
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.03);
+  padding: 2rem;
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  border: 2px solid transparent;
+  overflow: hidden;
+}
+
+.pricing-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-card.selected {
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.3);
+}
+
+.pricing-card.popular {
+  border-color: #4299e1;
+  transform: scale(1.03);
+}
+
+.popular-badge {
+  position: absolute;
+  top: 12px;
+  right: 0;
+  background-color: #4299e1;
+  color: white;
+  padding: 0.25rem 1.5rem 0.25rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 4px 0 0 4px;
+  box-shadow: 0 2px 5px rgba(66, 153, 225, 0.4);
+}
+
+.tier-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: #1a202c;
+}
+
+.tier-description {
+  font-size: 1rem;
+  color: #4a5568;
+  margin-bottom: 1.5rem;
+}
+
+.tier-price {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.eth-price {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.usd-price {
+  font-size: 1rem;
+  color: #718096;
+}
+
+.tier-features {
+  list-style-type: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+}
+
+.tier-features li {
+  padding: 0.5rem 0 0.5rem 1.75rem;
+  position: relative;
+  color: #4a5568;
+  font-size: 0.9375rem;
+}
+
+.tier-features li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #3182ce;
+  font-weight: bold;
+}
+
+.select-tier-btn {
+  background-color: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 1rem;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.select-tier-btn:hover {
+  background-color: #2b6cb0;
+}
+
+/* Opções de compra */
+.purchase-options {
+  background-color: #f8fafc;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.purchase-options h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: #1a202c;
+}
+
+#selected-tier-info {
+  font-size: 1.125rem;
+  margin-bottom: 2rem;
+  color: #4a5568;
+}
+
+.purchase-methods {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.purchase-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  min-width: 200px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.purchase-btn .icon {
+  font-size: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.purchase-btn .button-text {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.purchase-btn .price-amount {
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+.purchase-btn.eth-btn:hover:not(.disabled) {
+  background-color: #ebf4ff;
+  border-color: #4299e1;
+}
+
+.purchase-btn.card-btn:hover:not(.disabled) {
+  background-color: #f0fff4;
+  border-color: #48bb78;
+}
+
+.purchase-btn.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Status de transação */
+.transaction-status {
+  background-color: #ebf8ff;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border-left-color: #3182ce;
+  margin: 0 auto 1.5rem;
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.transaction-status h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 0.5rem;
+}
+
+#transaction-message {
+  color: #4a5568;
+  margin-bottom: 1.5rem;
+}
+
+.progress-bar {
+  background-color: #edf2f7;
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background-color: #3182ce;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+/* NFT Owned */
+.nft-owned {
+  background-color: #f0fff4;
+  border-radius: 12px;
+  padding: 2.5rem;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.success-icon {
+  width: 60px;
+  height: 60px;
+  background-color: #48bb78;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  font-size: 1.75rem;
+  color: white;
+}
+
+.nft-owned h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: #1a202c;
+}
+
+.nft-owned p {
+  font-size: 1.125rem;
+  color: #4a5568;
+  margin-bottom: 2rem;
+}
+
+.nft-details {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.nft-tier-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.nft-tier-badge.basic {
+  background-color: #e6fffa;
+  color: #319795;
+}
+
+.nft-tier-badge.pro {
+  background-color: #ebf4ff;
+  color: #3182ce;
+}
+
+.nft-tier-badge.enterprise {
+  background-color: #faf5ff;
+  color: #805ad5;
+}
+
+.nft-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.primary-button, .secondary-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.primary-button {
+  background-color: #3182ce;
+  color: white;
+  border: none;
+  text-decoration: none;
+}
+
+.primary-button:hover {
+  background-color: #2b6cb0;
+}
+
+.secondary-button {
+  background-color: white;
+  color: #3182ce;
+  border: 1px solid #3182ce;
+}
+
+.secondary-button:hover {
+  background-color: #ebf8ff;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .pricing-card.popular {
+    transform: none;
+    order: -1;
+  }
+  
+  .purchase-methods {
+    flex-direction: column;
+  }
+}
+
+/* Tema escuro */
+@media (prefers-color-scheme: dark) {
+  .nft-tier-selector {
+    color: #e2e8f0;
+  }
+  
+  .section-title {
+    color: #f7fafc;
+  }
+  
+  .section-description {
+    color: #cbd5e0;
+  }
+  
+  .pricing-card {
+    background-color: #2d3748;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+  
+  .tier-name {
+    color: #f7fafc;
+  }
+  
+  .tier-description, .tier-features li {
+    color: #cbd5e0;
+  }
+  
+  .eth-price {
+    color: #f7fafc;
+  }
+  
+  .purchase-options {
+    background-color: #1a202c;
+  }
+  
+  .purchase-options h3 {
+    color: #f7fafc;
+  }
+  
+  #selected-tier-info {
+    color: #cbd5e0;
+  }
+  
+  .purchase-btn {
+    background-color: #2d3748;
+    border-color: #4a5568;
+  }
+}

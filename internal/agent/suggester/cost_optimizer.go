@@ -3,8 +3,8 @@ package suggester
 import (
 	"fmt"
 
-	"github.com/gosouza/iac-ai-agent/internal/models"
-	"github.com/gosouza/iac-ai-agent/pkg/logger"
+	"github.com/govinda777/iac-ai-agent/internal/models"
+	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
 // CostOptimizer gera sugestões de otimização de custo

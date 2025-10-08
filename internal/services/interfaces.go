@@ -1,6 +1,6 @@
 package services
 
-import "github.com/gosouza/iac-ai-agent/internal/models"
+import "github.com/govinda777/iac-ai-agent/internal/models"
 
 // TerraformAnalyzerInterface defines the interface for a Terraform analyzer.
 type TerraformAnalyzerInterface interface {

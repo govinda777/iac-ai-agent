@@ -6,8 +6,8 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/gosouza/iac-ai-agent/pkg/config"
-	"github.com/gosouza/iac-ai-agent/pkg/logger"
+	"github.com/govinda777/iac-ai-agent/pkg/config"
+	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
 // NFTAccessManager gerencia NFTs de acesso ao bot

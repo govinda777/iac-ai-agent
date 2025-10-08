@@ -8,6 +8,7 @@ Funcionalidade: Onboarding de Usuário via Privy
     Dado que o serviço Privy está disponível
     E que a Base Network está acessível
     E que os contratos de NFT e Token estão deployados
+    E que o frontend está corretamente configurado com Privy SDK
 
   Cenário: Novo usuário faz login com Metamask
     Dado que sou um novo usuário sem conta

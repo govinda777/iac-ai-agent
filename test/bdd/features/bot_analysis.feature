@@ -5,9 +5,10 @@ Funcionalidade: Análise de Infraestrutura como Código
   Para receber sugestões de melhorias
 
   Contexto:
-    Dado que estou autenticado
-    E possuo NFT "Pro Access"
+    Dado que estou autenticado com a wallet "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+    E possuo NFT "Pro Access" (Token ID: 12345)
     E possuo 100 IACAI tokens
+    E minha sessão está ativa
 
   Cenário: Análise básica de código Terraform
     Dado que tenho o seguinte código Terraform:

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/gosouza/iac-ai-agent/pkg/config"
-	"github.com/gosouza/iac-ai-agent/pkg/logger"
+	"github.com/govinda777/iac-ai-agent/pkg/config"
+	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
 // PrivyOnrampManager gerencia compras de crypto via Privy Onramp

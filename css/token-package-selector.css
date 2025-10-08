@@ -1,0 +1,445 @@
+/**
+ * Estilos para o componente Token Package Selector
+ */
+
+.token-package-selector {
+  font-family: 'Inter', sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: #1a202c;
+}
+
+.token-balance-display {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 1rem;
+  background-color: #f7fafc;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.balance-label {
+  font-size: 1rem;
+  color: #4a5568;
+  margin-right: 0.5rem;
+}
+
+.balance-amount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2b6cb0;
+}
+
+/* Grid de pacotes */
+.package-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+/* Card de pacote */
+.package-card {
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.03);
+  padding: 1.5rem;
+  transition: transform 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  border: 2px solid transparent;
+  overflow: hidden;
+}
+
+.package-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.package-card.selected {
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.3);
+}
+
+.package-card.popular {
+  border-color: #48bb78;
+  transform: scale(1.03);
+}
+
+.popular-badge {
+  position: absolute;
+  top: 12px;
+  right: 0;
+  background-color: #48bb78;
+  color: white;
+  padding: 0.25rem 1.5rem 0.25rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 4px 0 0 4px;
+  box-shadow: 0 2px 5px rgba(72, 187, 120, 0.4);
+}
+
+.package-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #1a202c;
+}
+
+.package-description {
+  font-size: 0.875rem;
+  color: #4a5568;
+  margin-bottom: 1.5rem;
+}
+
+.token-amount {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.token-count {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #4299e1;
+  display: block;
+}
+
+.token-label {
+  font-size: 0.875rem;
+  color: #4a5568;
+}
+
+.package-price {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.eth-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.usd-price {
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+.discount-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: #fed7d7;
+  color: #e53e3e;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.select-package-btn {
+  background-color: #4299e1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: auto;
+}
+
+.select-package-btn:hover {
+  background-color: #3182ce;
+}
+
+/* Opções de compra */
+.purchase-options {
+  background-color: #f8fafc;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.purchase-options h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: #1a202c;
+}
+
+#selected-package-info {
+  font-size: 1.125rem;
+  margin-bottom: 2rem;
+  color: #4a5568;
+}
+
+.purchase-methods {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.purchase-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  min-width: 200px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.purchase-btn .icon {
+  font-size: 1.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.purchase-btn .button-text {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.purchase-btn .price-amount {
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+.purchase-btn.eth-btn:hover:not(.disabled) {
+  background-color: #ebf4ff;
+  border-color: #4299e1;
+}
+
+.purchase-btn.card-btn:hover:not(.disabled) {
+  background-color: #f0fff4;
+  border-color: #48bb78;
+}
+
+.purchase-btn.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Status de transação */
+.transaction-status {
+  background-color: #ebf8ff;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border-left-color: #4299e1;
+  margin: 0 auto 1.5rem;
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.transaction-status h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 0.5rem;
+}
+
+#transaction-message {
+  color: #4a5568;
+  margin-bottom: 1.5rem;
+}
+
+.progress-bar {
+  background-color: #edf2f7;
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background-color: #4299e1;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+/* Informações de uso de token */
+.token-usage-info {
+  background-color: #f0f9ff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.token-usage-info h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.token-costs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.cost-item {
+  background-color: white;
+  padding: 0.75rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.operation {
+  font-size: 0.875rem;
+  color: #4a5568;
+}
+
+.cost {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #4299e1;
+  background-color: #ebf8ff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .package-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .package-card.popular {
+    transform: none;
+    order: -1;
+  }
+  
+  .purchase-methods {
+    flex-direction: column;
+  }
+  
+  .token-costs {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tema escuro */
+@media (prefers-color-scheme: dark) {
+  .token-package-selector {
+    color: #e2e8f0;
+  }
+  
+  .section-title {
+    color: #f7fafc;
+  }
+  
+  .token-balance-display {
+    background-color: #2d3748;
+  }
+  
+  .balance-label {
+    color: #cbd5e0;
+  }
+  
+  .balance-amount {
+    color: #63b3ed;
+  }
+  
+  .package-card {
+    background-color: #2d3748;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+  
+  .package-name {
+    color: #f7fafc;
+  }
+  
+  .package-description, .token-label {
+    color: #cbd5e0;
+  }
+  
+  .token-count {
+    color: #63b3ed;
+  }
+  
+  .eth-price {
+    color: #f7fafc;
+  }
+  
+  .purchase-options {
+    background-color: #1a202c;
+  }
+  
+  .purchase-options h3 {
+    color: #f7fafc;
+  }
+  
+  #selected-package-info {
+    color: #cbd5e0;
+  }
+  
+  .purchase-btn {
+    background-color: #2d3748;
+    border-color: #4a5568;
+  }
+  
+  .token-usage-info {
+    background-color: #1a202c;
+  }
+  
+  .token-usage-info h3 {
+    color: #f7fafc;
+  }
+  
+  .cost-item {
+    background-color: #2d3748;
+  }
+  
+  .operation {
+    color: #cbd5e0;
+  }
+  
+  .cost {
+    background-color: #2a4365;
+    color: #63b3ed;
+  }
+}

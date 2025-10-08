@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gosouza/iac-ai-agent/internal/models"
-	"github.com/gosouza/iac-ai-agent/pkg/config"
-	"github.com/gosouza/iac-ai-agent/pkg/logger"
+	"github.com/govinda777/iac-ai-agent/internal/models"
+	"github.com/govinda777/iac-ai-agent/pkg/config"
+	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
 // Client é o cliente principal para interagir com LLMs
@@ -31,8 +31,8 @@ func NewClient(cfg *config.Config, log *logger.Logger) *Client {
 		// O erro será retornado quando Generate for chamado
 	} else {
 		client.provider = provider
-		log.Info("Cliente LLM inicializado com sucesso", 
-			"provider", cfg.LLM.Provider, 
+		log.Info("Cliente LLM inicializado com sucesso",
+			"provider", cfg.LLM.Provider,
 			"model", cfg.LLM.Model)
 	}
 
@@ -53,17 +53,17 @@ func (c *Client) Generate(req *models.LLMRequest) (*models.LLMResponse, error) {
 	if req.SystemPrompt == "" {
 		req.SystemPrompt = "Você é um especialista em Infrastructure as Code, segurança e otimização de cloud. Forneça análises detalhadas e recomendações práticas."
 	}
-	
+
 	if req.MaxTokens == 0 {
 		req.MaxTokens = 4000
 	}
-	
+
 	if req.Temperature == 0 {
 		req.Temperature = 0.2
 	}
 
 	// Log da requisição
-	c.logger.Info("Gerando resposta LLM", 
+	c.logger.Info("Gerando resposta LLM",
 		"provider", c.config.LLM.Provider,
 		"model", c.config.LLM.Model,
 		"prompt_length", len(req.Prompt),
@@ -80,7 +80,7 @@ func (c *Client) Generate(req *models.LLMRequest) (*models.LLMResponse, error) {
 	resp.LatencyMs = time.Since(startTime).Milliseconds()
 
 	// Log da resposta
-	c.logger.Info("Resposta LLM recebida", 
+	c.logger.Info("Resposta LLM recebida",
 		"latency_ms", resp.LatencyMs,
 		"tokens_used", resp.TokensUsed,
 		"response_length", len(resp.Content))
@@ -96,7 +96,7 @@ func (c *Client) GenerateStructured(req *models.LLMRequest, target interface{}) 
 	}
 
 	// Log da requisição
-	c.logger.Info("Gerando resposta estruturada", 
+	c.logger.Info("Gerando resposta estruturada",
 		"provider", c.config.LLM.Provider,
 		"model", c.config.LLM.Model,
 		"target_type", fmt.Sprintf("%T", target))
@@ -125,7 +125,7 @@ func (c *Client) ValidateConnection() error {
 		return fmt.Errorf("falha na validação de conexão LLM: %w", err)
 	}
 
-	c.logger.Info("Conexão LLM validada com sucesso", 
+	c.logger.Info("Conexão LLM validada com sucesso",
 		"provider", c.config.LLM.Provider,
 		"model", c.config.LLM.Model)
 

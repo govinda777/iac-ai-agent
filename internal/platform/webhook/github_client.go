@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gosouza/iac-ai-agent/pkg/config"
-	"github.com/gosouza/iac-ai-agent/pkg/logger"
+	"github.com/govinda777/iac-ai-agent/pkg/config"
+	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
 // GitHubClient é o cliente para interagir com a API do GitHub

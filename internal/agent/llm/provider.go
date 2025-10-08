@@ -2,9 +2,10 @@ package llm
 
 import (
 	"context"
-	"github.com/gosouza/iac-ai-agent/internal/models"
-	"github.com/gosouza/iac-ai-agent/pkg/config"
-	"github.com/gosouza/iac-ai-agent/pkg/logger"
+
+	"github.com/govinda777/iac-ai-agent/internal/models"
+	"github.com/govinda777/iac-ai-agent/pkg/config"
+	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
 // Provider define a interface para provedores de LLM

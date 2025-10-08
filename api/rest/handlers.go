@@ -5,13 +5,13 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/gosouza/iac-ai-agent/internal/agent/analyzer"
-	"github.com/gosouza/iac-ai-agent/internal/agent/scorer"
-	"github.com/gosouza/iac-ai-agent/internal/agent/suggester"
-	"github.com/gosouza/iac-ai-agent/internal/models"
-	"github.com/gosouza/iac-ai-agent/internal/services"
-	"github.com/gosouza/iac-ai-agent/pkg/config"
-	"github.com/gosouza/iac-ai-agent/pkg/logger"
+	"github.com/govinda777/iac-ai-agent/internal/agent/analyzer"
+	"github.com/govinda777/iac-ai-agent/internal/agent/scorer"
+	"github.com/govinda777/iac-ai-agent/internal/agent/suggester"
+	"github.com/govinda777/iac-ai-agent/internal/models"
+	"github.com/govinda777/iac-ai-agent/internal/services"
+	"github.com/govinda777/iac-ai-agent/pkg/config"
+	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
 // @title IaC AI Agent API
@@ -36,6 +36,7 @@ type Handler struct {
 	logger          *logger.Logger
 	analysisService *services.AnalysisService
 	reviewService   *services.ReviewService
+	web3Handler     *Web3Handler
 }
 
 // NewHandler cria um novo handler
@@ -58,12 +59,19 @@ func NewHandler(cfg *config.Config, log *logger.Logger) *Handler {
 		costOptimizer,
 		securityAdvisor,
 	)
+	// Web3 handler será inicializado posteriormente quando tivermos os serviços Web3
 	return &Handler{
 		config:          cfg,
 		logger:          log,
 		analysisService: analysisService,
 		reviewService:   services.NewReviewService(analysisService, log),
+		// web3Handler será configurado com SetupWeb3Handler
 	}
+}
+
+// SetupWeb3Handler configura o handler Web3
+func (h *Handler) SetupWeb3Handler(web3AuthService *services.Web3AuthService) {
+	h.web3Handler = NewWeb3Handler(web3AuthService)
 }
 
 // SetupRoutes configura as rotas da API
@@ -81,6 +89,11 @@ func (h *Handler) SetupRoutes() *mux.Router {
 
 	// Info endpoint
 	r.HandleFunc("/", h.HandleRoot).Methods("GET")
+
+	// Web3 endpoints
+	if h.web3Handler != nil {
+		h.web3Handler.RegisterRoutes(r)
+	}
 
 	return r
 }

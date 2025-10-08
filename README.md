@@ -135,48 +135,56 @@ flowchart TB
     B --- C[Next.js]
     end
     
-    subgraph "Backend (Go)"
+    subgraph "Backend Go"
     D[API REST] --- E[Web3 Platform]
     E --- F[LLM]
     D --- G[Analyzers]
     G --- H[Knowledge Base]
     end
     
-    subgraph "Base Network (L2)"
+    subgraph "Base Network L2"
     I[NFT Access] --- J[IACAI Token]
     end
     
     Frontend --> Backend
-    Backend --> "Base Network (L2)"
+    Backend --> "Base Network L2"
     
-    class Frontend,Backend,"Base Network (L2)" node
+    class Frontend,Backend,"Base Network L2" node
     
     classDef node fill:#f9f9f9,stroke:#333,stroke-width:1px,rx:5px,ry:5px
 ```
 
-## ⚡ Quick Start
+## 🔧 Guia de Instalação e Configuração
 
 <div class="warning-box">
-  <h3>🚨 ANTES DE COMEÇAR - LEIA ISTO!</h3>
+  <h3>🚨 PRÉ-REQUISITOS OBRIGATÓRIOS</h3>
   <p>A aplicação <strong>NÃO VAI INICIAR</strong> sem estas 3 coisas configuradas:</p>
 </div>
 
-| Requisito | O que é | Onde obter |
-|-----------|---------|------------|
-| 🎨 **Nation.fun NFT** | NFT de membership da Nation.fun | [nation.fun](https://nation.fun/) |
-| 🔐 **Privy.io Account** | Credenciais de autenticação Web3 | [privy.io](https://privy.io) |
-| 🤖 **OpenAI API Key** | Chave de API do LLM | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) |
+| Requisito | O que é | Onde obter | Como verificar |
+|-----------|---------|------------|----------------|
+| 🎨 **Nation.fun NFT** | NFT de membership | [nation.fun](https://nation.fun/) | `curl -X GET https://api.nation.fun/v1/verify/{WALLET_ADDRESS}` |
+| 🔐 **Privy.io Account** | Credenciais Web3 | [privy.io](https://privy.io) | Acessar dashboard em [console.privy.io](https://console.privy.io) |
+| 🤖 **OpenAI API Key** | Chave do LLM | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) | `curl https://api.openai.com/v1/chat/completions -H "Authorization: Bearer {API_KEY}"` |
+
+### Instalação Passo-a-passo
 
 <div class="terminal">
 <pre>
-<span class="comment"># 1. Clone</span>
+<span class="comment"># 1. Clone do repositório</span>
 git clone https://github.com/gosouza/iac-ai-agent
 cd iac-ai-agent
 
-<span class="comment"># 2. Configure variáveis OBRIGATÓRIAS</span>
-cp .env.example .env
+<span class="comment"># 2. Instalação de dependências</span>
+go mod download
 
-<span class="comment"># Edite .env e adicione:</span>
+<span class="comment"># 3. Instale o Checkov (scanner de segurança)</span>
+pip install checkov
+
+<span class="comment"># 4. Configure o ambiente</span>
+cp .env-example .env
+
+<span class="comment"># 5. Edite .env e adicione AS VARIÁVEIS OBRIGATÓRIAS:</span>
 <span class="highlight"># - PRIVY_APP_ID=app_xxx</span>
 <span class="highlight"># - PRIVY_APP_SECRET=xxx</span>
 <span class="highlight"># - WALLET_ADDRESS=0x... (com Nation.fun NFT)</span>
@@ -184,17 +192,36 @@ cp .env.example .env
 <span class="highlight"># - NATION_NFT_CONTRACT=0x...</span>
 <span class="highlight"># - LLM_API_KEY=sk-...</span>
 
-<span class="comment"># 3. Execute</span>
+<span class="comment"># 6. Verifique a instalação</span>
+make check-env
+</pre>
+</div>
+
+### Inicialização e Validação
+
+<div class="terminal">
+<pre>
+<span class="comment"># 1. Modo desenvolvimento</span>
+make dev
+# ou
 go run cmd/agent/main.go
 
-<span class="comment"># A aplicação vai validar TUDO antes de iniciar!</span>
+<span class="comment"># 2. Build e execução</span>
+make build
+./bin/iac-ai-agent
+
+<span class="comment"># 3. A aplicação valida tudo antes de iniciar!</span>
 <span class="success"># ✅ LLM Connection</span>
 <span class="success"># ✅ Privy.io Credentials</span>
 <span class="success"># ✅ Base Network</span>
 <span class="success"># ✅ Nation.fun NFT Ownership</span>
 
-<span class="comment"># 4. Teste</span>
+<span class="comment"># 4. Verificar se a API está funcionando</span>
 curl http://localhost:8080/health
+# Resposta esperada: {"status":"ok","version":"1.0.0"}
+
+<span class="comment"># 5. Abra o navegador</span>
+open http://localhost:8080
 </pre>
 </div>
 
@@ -311,12 +338,23 @@ sequenceDiagram
 
 <div class="doc-grid">
   <div class="doc-card">
-    <h3>Para Começar</h3>
+    <h3>Guias de Instalação e Configuração</h3>
     <ul>
-      <li>📖 <a href="docs/QUICKSTART.md">Quick Start</a> - Setup em 5 minutos</li>
+      <li>📖 <a href="docs/QUICKSTART_ATUALIZADO.md">Quick Start Atualizado</a> - Setup rápido em 5 minutos</li>
+      <li>🐳 <a href="docs/INSTALACAO_DOCKER.md">Guia Docker</a> - Instalação com containers</li>
+      <li>🔧 <a href="docs/CONFIGURACAO_VARIAVEIS.md">Configuração de Variáveis</a> - Detalhamento completo</li>
+      <li>📱 <a href="docs/WHATSAPP_API_KEY_CONFIG.md">WhatsApp API Key</a> - Configuração do WhatsApp</li>
+      <li>🖥️ <a href="docs/GUIA_INSTALACAO.md">Guia Completo</a> - Passo-a-passo detalhado</li>
+    </ul>
+  </div>
+
+  <div class="doc-card">
+    <h3>Documentação Técnica</h3>
+    <ul>
       <li>🎯 <a href="docs/OBJECTIVE.md">Objetivo do Projeto</a> - Visão completa</li>
       <li>🏗️ <a href="docs/ARCHITECTURE.md">Arquitetura</a> - Design técnico</li>
       <li>🤖 <a href="docs/AGENT_SYSTEM.md">Sistema de Agentes</a> - Documentação completa</li>
+      <li>⚡ <a href="docs/AGENT_QUICKSTART.md">Agent Quickstart</a> - Primeiros passos</li>
     </ul>
   </div>
   
@@ -327,31 +365,77 @@ sequenceDiagram
       <li>📝 <a href="docs/IMPLEMENTATION_SUMMARY.md">Resumo de Implementação</a> - O que foi feito</li>
       <li>🗺️ <a href="docs/IMPLEMENTATION_ROADMAP.md">Roadmap</a> - Próximos passos</li>
       <li>🧪 <a href="docs/TESTING.md">Testes</a> - Estratégia e execução</li>
+      <li>🔍 <a href="docs/VALIDATION_MODE.md">Modo Validação</a> - Debug e testes</li>
+      <li>📊 <a href="docs/BDD_TEST_REPORT.md">Relatório de Testes BDD</a> - Cobertura</li>
+      <li>🌐 <a href="docs/WEB3_IMPLEMENTATION_PLAN.md">Plano Web3</a> - Implementação detalhada</li>
     </ul>
   </div>
 </div>
 
-## 🧪 Testes BDD
+## 🧪 Testes
 
-Testes completos em Gherkin (português) cobrindo todos os fluxos:
+### Configuração do Ambiente de Testes
 
 <div class="terminal">
 <pre>
-<span class="comment"># Instalar Godog</span>
+<span class="comment"># 1. Instale as dependências necessárias para testes</span>
 go install github.com/cucumber/godog/cmd/godog@latest
+go install github.com/onsi/ginkgo/v2/ginkgo@latest
 
-<span class="comment"># Executar todos os testes</span>
-godog test/bdd/features/
+<span class="comment"># 2. Configure o ambiente de testes</span>
+cp .env-example .env.test
 
-<span class="comment"># Testes disponíveis:</span>
-<span class="success"># ✓ user_onboarding.feature     - Autenticação Privy</span>
-<span class="success"># ✓ nft_purchase.feature         - Compra de NFT</span>
-<span class="success"># ✓ token_purchase.feature       - Compra de tokens</span>
-<span class="success"># ✓ bot_analysis.feature         - Uso do bot</span>
+<span class="comment"># 3. Edite .env.test e adicione chaves de teste</span>
+<span class="highlight"># - LLM_API_KEY=sk-... (recomendamos criar uma chave separada para testes)</span>
+<span class="highlight"># - PRIVY_APP_ID=app_xxx (ambiente de teste)</span>
+<span class="highlight"># - BASE_RPC_URL=https://goerli.base.org (Base Testnet)</span>
+
+<span class="comment"># 4. Prepare o ambiente de testes</span>
+make test-setup
 </pre>
 </div>
 
-### Exemplo de Cenário BDD
+### Execução de Testes
+
+<div class="terminal">
+<pre>
+<span class="comment"># 1. Testes unitários</span>
+make test-unit
+# ou
+go test ./test/unit/... -v
+
+<span class="comment"># 2. Testes de integração</span>
+make test-integration
+# ou
+go test ./test/integration/... -v
+
+<span class="comment"># 3. Testes BDD (Behavior Driven Development)</span>
+make test-bdd
+# ou
+godog test/bdd/features/
+
+<span class="comment"># 4. Executar testes de um cenário específico</span>
+godog test/bdd/features/bot_analysis.feature
+
+<span class="comment"># 5. Executar todos os testes e gerar relatório</span>
+make test-all
+# Relatório HTML será gerado em: ./reports/test-report.html
+</pre>
+</div>
+
+### Cenários de Teste BDD
+
+Testes completos em Gherkin (português) cobrindo todos os fluxos:
+
+| Arquivo | Descrição | Status |
+|---------|-----------|--------|
+| **user_onboarding.feature** | Autenticação Privy e onboarding | ✅ Implementado |
+| **nft_purchase.feature** | Compra de NFT de acesso | ✅ Implementado |
+| **token_purchase.feature** | Compra de tokens IACAI | ✅ Implementado |
+| **bot_analysis.feature** | Uso do bot para análise | ✅ Implementado |
+| **critical_path.feature** | Testes de fluxos críticos | 🚧 Em desenvolvimento |
+
+#### Exemplo de Cenário BDD
 
 ```gherkin
 Cenário: Comprar NFT Pro Access usando Privy Onramp
@@ -371,29 +455,72 @@ Cenário: Comprar NFT Pro Access usando Privy Onramp
 
 ## 🚀 Deployment
 
+### Opções de Implantação
+
 <div class="deployment-options">
   <div class="deployment-card">
-    <h3>Backend (Docker)</h3>
+    <h3>Local (Desenvolvimento)</h3>
     <pre>
-# Build
+<span class="comment"># 1. Configurar ambiente</span>
+make setup
+
+<span class="comment"># 2. Executar em modo de desenvolvimento</span>
+make dev
+
+<span class="comment"># 3. Construir binário</span>
+make build
+
+<span class="comment"># 4. Executar binário compilado</span>
+./bin/iac-ai-agent
+</pre>
+  </div>
+
+  <div class="deployment-card">
+    <h3>Docker (Recomendado)</h3>
+    <pre>
+<span class="comment"># 1. Construir imagem</span>
 docker build -t iacai-agent .
 
-# Run
+<span class="comment"># 2. Executar container</span>
 docker run -p 8080:8080 \
-  -e PRIVY_APP_ID=xxx \
-  -e PRIVY_APP_SECRET=xxx \
-  -e LLM_API_KEY=xxx \
-  -e BASE_RPC_URL=https://mainnet.base.org \
+  --env-file .env \
   iacai-agent
+
+<span class="comment"># 3. Alternativa: usar docker-compose</span>
+docker-compose -f configs/docker-compose.yml up -d
 </pre>
   </div>
   
   <div class="deployment-card">
+    <h3>Produção (Cloud)</h3>
+    <pre>
+<span class="comment"># 1. AWS ECS/EKS</span>
+make deploy-aws
+
+<span class="comment"># 2. Google Cloud Run</span>
+make deploy-gcp
+
+<span class="comment"># 3. Azure Container Apps</span>
+make deploy-azure
+</pre>
+  </div>
+
+  <div class="deployment-card">
     <h3>Smart Contracts</h3>
     <pre>
+<span class="comment"># 1. Instalar dependências</span>
 cd contracts
 npm install
+
+<span class="comment"># 2. Configurar chaves privadas</span>
+cp .env.example .env
+# Adicione PRIVATE_KEY=0x... no .env
+
+<span class="comment"># 3. Deploy na Base Mainnet</span>
 npx hardhat run scripts/deploy.ts --network base
+
+<span class="comment"># 4. Verificar contratos</span>
+npx hardhat verify --network base [CONTRACT_ADDRESS]
 </pre>
     <p>Contratos deployados na <strong>Base Mainnet</strong> (Chain ID 8453):</p>
     <ul>
@@ -401,6 +528,24 @@ npx hardhat run scripts/deploy.ts --network base
       <li>IACAI Token: <code>0x...</code> (a ser deployado)</li>
     </ul>
   </div>
+</div>
+
+### Verificação de Deployment
+
+<div class="terminal">
+<pre>
+<span class="comment"># 1. Verificar se a API está acessível</span>
+curl https://seu-dominio.com/health
+
+<span class="comment"># 2. Verificar logs</span>
+docker logs -f iacai-agent
+
+<span class="comment"># 3. Monitorar performance</span>
+docker stats iacai-agent
+
+<span class="comment"># 4. Verificar variáveis de ambiente</span>
+docker exec iacai-agent env | grep PRIVY
+</pre>
 </div>
 
 ## 🛠️ Stack Tecnológica

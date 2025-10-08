@@ -1,8 +1,8 @@
 package unit
 
 import (
-	"github.com/gosouza/iac-ai-agent/internal/agent/scorer"
-	"github.com/gosouza/iac-ai-agent/internal/models"
+	"github.com/govinda777/iac-ai-agent/internal/agent/scorer"
+	"github.com/govinda777/iac-ai-agent/internal/models"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )

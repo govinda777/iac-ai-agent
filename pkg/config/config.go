@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"os"
+	"os/exec"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -26,19 +28,21 @@ type ServerConfig struct {
 
 // LLMConfig configurações do LLM
 type LLMConfig struct {
-	Provider    string  `yaml:"provider"` // openai, anthropic
-	APIKey      string  `yaml:"api_key"`
+	Provider    string  `yaml:"provider"` // nation.fun
 	Model       string  `yaml:"model"`
 	Temperature float64 `yaml:"temperature"`
 	MaxTokens   int     `yaml:"max_tokens"`
 	BaseURL     string  `yaml:"base_url"`
+	APIKey      string  `yaml:"api_key"` // Chave da API do LLM
 }
 
 // GitHubConfig configurações do GitHub
 type GitHubConfig struct {
-	Token         string `yaml:"token"`
-	WebhookSecret string `yaml:"webhook_secret"`
 	AutoComment   bool   `yaml:"auto_comment"`
+	Token         string `yaml:"token"`          // Token do GitHub
+	WebhookSecret string `yaml:"webhook_secret"` // Secret do webhook
+	// Token e WebhookSecret são acessados via Git Secrets
+	// Use GetGitHubToken() e GetGitHubWebhookSecret() para acessar
 }
 
 // AnalysisConfig configurações de análise
@@ -87,8 +91,11 @@ type Web3Config struct {
 	EnterpriseTierRateLimit int `yaml:"enterprise_tier_rate_limit"`
 
 	// Nation.fun Configuration
-	WalletToken         string `yaml:"wallet_token"`          // Token de autenticação da wallet
-	WalletAddress       string `yaml:"wallet_address"`        // Endereço da wallet
+	WalletToken   string `yaml:"wallet_token"`   // Token de autenticação da wallet
+	WalletAddress string `yaml:"wallet_address"` // Endereço da wallet
+	// REMOVIDO: NÃO USAR CHAVE PRIVADA DIRETAMENTE
+	// Por razões de segurança, não armazenamos a chave privada na estrutura de configuração
+	// Use apenas tokens já gerados ou assinaturas externas
 	DefaultAgentAddress string `yaml:"default_agent_address"` // Endereço do agente padrão
 }
 
@@ -169,20 +176,12 @@ func (c *Config) loadFromEnv() {
 		// Default para Nation.fun
 		c.LLM.Provider = "nation.fun"
 	}
-	if apiKey := os.Getenv("LLM_API_KEY"); apiKey != "" {
-		c.LLM.APIKey = apiKey
-	}
+	// LLM API Key não é mais usada - autenticação via carteira Web3
 	if model := os.Getenv("LLM_MODEL"); model != "" {
 		c.LLM.Model = model
 	}
 
-	// GitHub
-	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
-		c.GitHub.Token = token
-	}
-	if secret := os.Getenv("GITHUB_WEBHOOK_SECRET"); secret != "" {
-		c.GitHub.WebhookSecret = secret
-	}
+	// GitHub secrets são acessados via Git Secrets - não via variáveis de ambiente
 
 	// Analysis
 	if checkov := os.Getenv("CHECKOV_ENABLED"); checkov == "false" {
@@ -224,6 +223,15 @@ func (c *Config) loadFromEnv() {
 	if walletAddr := os.Getenv("WALLET_ADDRESS"); walletAddr != "" {
 		c.Web3.WalletAddress = walletAddr
 	}
+	// REMOVIDO: Não carregamos mais a chave privada diretamente
+	// Use serviços de assinatura externos ou tokens pré-gerados
+	if os.Getenv("WALLET_PRIVATE_KEY") != "" {
+		fmt.Println("\n\n⚠️  ALERTA DE SEGURANÇA CRÍTICO!")
+		fmt.Println("❌ A variável WALLET_PRIVATE_KEY foi detectada mas NÃO será usada!")
+		fmt.Println("❌ Por razões de segurança, chaves privadas não devem ser expostas em variáveis de ambiente")
+		fmt.Println("❌ Use apenas WALLET_TOKEN pré-gerado ou serviços de assinatura externa")
+		fmt.Println()
+	}
 	if agentAddr := os.Getenv("DEFAULT_AGENT_ADDRESS"); agentAddr != "" {
 		c.Web3.DefaultAgentAddress = agentAddr
 	} else {
@@ -252,8 +260,8 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("log level inválido: %s", c.Logging.Level)
 	}
 
-	// Valida Nation.fun config quando provider é nation.fun
-	if c.LLM.Provider == "nation.fun" || c.LLM.Provider == "nation" {
+	// Valida Nation.fun config quando provider é nation.fun e o modo de validação está ativado
+	if (c.LLM.Provider == "nation.fun" || c.LLM.Provider == "nation") && os.Getenv("ENABLE_STARTUP_VALIDATION") != "false" {
 		if c.Web3.NFTAccessContractAddress == "" {
 			return fmt.Errorf("NFT_CONTRACT_ADDRESS é obrigatório para Nation.fun")
 		}
@@ -261,6 +269,8 @@ func (c *Config) Validate() error {
 		if c.Web3.WalletToken == "" {
 			return fmt.Errorf("WALLET_TOKEN é obrigatório para Nation.fun")
 		}
+
+		// Autenticação LLM é feita via carteira Web3 - não precisa de API key tradicional
 	}
 
 	return nil
@@ -269,4 +279,48 @@ func (c *Config) Validate() error {
 // GetAddress retorna o endereço completo do servidor
 func (c *Config) GetAddress() string {
 	return c.Server.Host + ":" + c.Server.Port
+}
+
+// GetGitHubToken obtém o token do GitHub via Git Secrets
+func (c *Config) GetGitHubToken() (string, error) {
+	return getGitSecret("github_token")
+}
+
+// GetGitHubWebhookSecret obtém o webhook secret do GitHub via Git Secrets
+func (c *Config) GetGitHubWebhookSecret() (string, error) {
+	return getGitSecret("github_webhook_secret")
+}
+
+// GetWalletPrivateKey obtém a chave privada da carteira via Git Secrets
+func (c *Config) GetWalletPrivateKey() (string, error) {
+	return getGitSecret("wallet_private_key")
+}
+
+// GetWhatsAppAPIKey obtém a chave da API WhatsApp via Git Secrets
+func (c *Config) GetWhatsAppAPIKey() (string, error) {
+	return getGitSecret("whatsapp_api_key")
+}
+
+// getGitSecret executa git secret show para obter um secret específico
+func getGitSecret(secretName string) (string, error) {
+	// Verifica se git-secret está disponível
+	if !isGitSecretAvailable() {
+		return "", fmt.Errorf("git-secret não está disponível. Instale com: brew install git-secret")
+	}
+
+	// Executa git secret show
+	cmd := exec.Command("git", "secret", "show", secretName)
+	output, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("erro ao obter secret '%s': %w", secretName, err)
+	}
+
+	return strings.TrimSpace(string(output)), nil
+}
+
+// isGitSecretAvailable verifica se git-secret está disponível no sistema
+func isGitSecretAvailable() bool {
+	cmd := exec.Command("git", "secret", "--version")
+	err := cmd.Run()
+	return err == nil
 }
