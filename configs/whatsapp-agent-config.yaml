@@ -46,16 +46,6 @@ security:
   signature_validation: true
   ip_whitelist: []
 
-# Configurações de banco de dados
-database:
-  type: "postgresql"
-  host: "localhost"
-  port: 5432
-  name: "whatsapp_agent"
-  username: "whatsapp_user"
-  password: "sua_senha_aqui"
-  ssl_mode: "require"
-
 # Configurações de cache
 cache:
   enabled: true
