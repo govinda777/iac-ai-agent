@@ -27,36 +27,36 @@ func NewPrivyOnrampManager(cfg *config.Config, log *logger.Logger, privyClient *
 
 // OnrampQuote representa uma cotação de onramp
 type OnrampQuote struct {
-	QuoteID         string   `json:"quote_id"`
-	SourceAmount    string   `json:"source_amount"` // Valor em moeda fiat
-	SourceCurrency  string   `json:"source_currency"` // USD, EUR, BRL, etc
-	TargetAmount    string   `json:"target_amount"` // Valor em crypto
-	TargetCurrency  string   `json:"target_currency"` // ETH, USDC, etc
-	NetworkFee      string   `json:"network_fee"`
-	ProviderFee     string   `json:"provider_fee"`
-	TotalCost       string   `json:"total_cost"`
-	ExchangeRate    string   `json:"exchange_rate"`
-	EstimatedTime   string   `json:"estimated_time"` // "5-10 minutes"
-	Provider        string   `json:"provider"` // moonpay, transak, etc
-	ExpiresAt       int64    `json:"expires_at"`
+	QuoteID        string `json:"quote_id"`
+	SourceAmount   string `json:"source_amount"`   // Valor em moeda fiat
+	SourceCurrency string `json:"source_currency"` // USD, EUR, BRL, etc
+	TargetAmount   string `json:"target_amount"`   // Valor em crypto
+	TargetCurrency string `json:"target_currency"` // ETH, USDC, etc
+	NetworkFee     string `json:"network_fee"`
+	ProviderFee    string `json:"provider_fee"`
+	TotalCost      string `json:"total_cost"`
+	ExchangeRate   string `json:"exchange_rate"`
+	EstimatedTime  string `json:"estimated_time"` // "5-10 minutes"
+	Provider       string `json:"provider"`       // moonpay, transak, etc
+	ExpiresAt      int64  `json:"expires_at"`
 }
 
 // OnrampTransaction representa uma transação de onramp
 type OnrampTransaction struct {
-	TransactionID   string `json:"transaction_id"`
-	QuoteID         string `json:"quote_id"`
-	UserID          string `json:"user_id"`
-	WalletAddress   string `json:"wallet_address"`
-	Status          string `json:"status"` // pending, processing, completed, failed
-	SourceAmount    string `json:"source_amount"`
-	SourceCurrency  string `json:"source_currency"`
-	TargetAmount    string `json:"target_amount"`
-	TargetCurrency  string `json:"target_currency"`
-	PaymentMethod   string `json:"payment_method"` // credit_card, debit_card, bank_transfer, pix
-	TxHash          string `json:"tx_hash,omitempty"` // Hash da transação on-chain
-	CreatedAt       int64  `json:"created_at"`
-	CompletedAt     int64  `json:"completed_at,omitempty"`
-	ErrorMessage    string `json:"error_message,omitempty"`
+	TransactionID  string `json:"transaction_id"`
+	QuoteID        string `json:"quote_id"`
+	UserID         string `json:"user_id"`
+	WalletAddress  string `json:"wallet_address"`
+	Status         string `json:"status"` // pending, processing, completed, failed
+	SourceAmount   string `json:"source_amount"`
+	SourceCurrency string `json:"source_currency"`
+	TargetAmount   string `json:"target_amount"`
+	TargetCurrency string `json:"target_currency"`
+	PaymentMethod  string `json:"payment_method"`    // credit_card, debit_card, bank_transfer, pix
+	TxHash         string `json:"tx_hash,omitempty"` // Hash da transação on-chain
+	CreatedAt      int64  `json:"created_at"`
+	CompletedAt    int64  `json:"completed_at,omitempty"`
+	ErrorMessage   string `json:"error_message,omitempty"`
 }
 
 // OnrampSession representa uma sessão de compra
@@ -79,9 +79,9 @@ type OnrampSession struct {
 type CreateOnrampSessionRequest struct {
 	UserID         string                 `json:"user_id"`
 	WalletAddress  string                 `json:"wallet_address"`
-	Purpose        string                 `json:"purpose"` // "nft_access" ou "bot_tokens"
-	TargetItemID   string                 `json:"target_item_id"` // tier_id ou package_id
-	SourceCurrency string                 `json:"source_currency"` // USD, EUR, BRL
+	Purpose        string                 `json:"purpose"`                  // "nft_access" ou "bot_tokens"
+	TargetItemID   string                 `json:"target_item_id"`           // tier_id ou package_id
+	SourceCurrency string                 `json:"source_currency"`          // USD, EUR, BRL
 	PaymentMethod  string                 `json:"payment_method,omitempty"` // Opcional
 	Metadata       map[string]interface{} `json:"metadata,omitempty"`
 }
@@ -145,10 +145,10 @@ func (pom *PrivyOnrampManager) CreateOnrampSession(ctx context.Context, req *Cre
 		Status:         "created",
 		Quote:          quote,
 		Metadata: map[string]interface{}{
-			"item_id":         req.TargetItemID,
+			"item_id":          req.TargetItemID,
 			"item_description": itemDescription,
-			"source_currency": req.SourceCurrency,
-			"user_email":      user.Email,
+			"source_currency":  req.SourceCurrency,
+			"user_email":       user.Email,
 		},
 		CreatedAt: 1700000000,
 		ExpiresAt: 1700003600, // 1 hora
@@ -165,7 +165,7 @@ func (pom *PrivyOnrampManager) CreateOnrampSession(ctx context.Context, req *Cre
 // InitiatePayment inicia o pagamento via Privy Onramp
 func (pom *PrivyOnrampManager) InitiatePayment(ctx context.Context, sessionID string, paymentMethod string) (*OnrampTransaction, error) {
 	// TODO: Em produção, buscar sessão do banco de dados
-	
+
 	pom.logger.Info("Iniciando pagamento",
 		"session_id", sessionID,
 		"payment_method", paymentMethod)
@@ -235,7 +235,7 @@ func (pom *PrivyOnrampManager) GetOnrampStatus(ctx context.Context, transactionI
 func (pom *PrivyOnrampManager) ProcessOnrampCompletion(ctx context.Context, transactionID string) error {
 	pom.logger.Info("Processando conclusão de onramp", "transaction_id", transactionID)
 
-	// TODO: 
+	// TODO:
 	// 1. Verificar que pagamento foi recebido
 	// 2. Executar a ação correspondente:
 	//    - Se purpose = nft_access: mintar NFT
@@ -285,7 +285,7 @@ func (pom *PrivyOnrampManager) GetSupportedCryptos() []string {
 // getQuote obtém uma cotação de compra
 func (pom *PrivyOnrampManager) getQuote(ctx context.Context, amount *big.Int, targetCurrency, sourceCurrency string) (*OnrampQuote, error) {
 	// TODO: Chamar API do provedor de onramp para cotação real
-	
+
 	// Simula cotação
 	ethValue := new(big.Float).Quo(
 		new(big.Float).SetInt(amount),

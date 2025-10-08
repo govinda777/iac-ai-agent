@@ -8,6 +8,7 @@ import (
 	"github.com/govinda777/iac-ai-agent/internal/agent/suggester"
 	"github.com/govinda777/iac-ai-agent/internal/models"
 	"github.com/govinda777/iac-ai-agent/internal/services"
+	"github.com/govinda777/iac-ai-agent/pkg/config"
 	"github.com/govinda777/iac-ai-agent/pkg/logger"
 	"github.com/govinda777/iac-ai-agent/test/mocks"
 	"github.com/onsi/ginkgo/v2"
@@ -41,6 +42,7 @@ var _ = ginkgo.Describe("Validação de Resultados Pré-existentes", func() {
 			prScorer,
 			costOptimizer,
 			securityAdvisor,
+			&config.Config{}, // config parameter
 		)
 		checkovAnalyzer = analyzer.NewCheckovAnalyzer(log)
 	})

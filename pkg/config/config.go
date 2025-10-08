@@ -18,6 +18,7 @@ type Config struct {
 	Scoring  ScoringConfig  `yaml:"scoring"`
 	Logging  LoggingConfig  `yaml:"logging"`
 	Web3     Web3Config     `yaml:"web3"`
+	Notion   NotionConfig   `yaml:"notion"`
 }
 
 // ServerConfig configurações do servidor HTTP
@@ -97,6 +98,28 @@ type Web3Config struct {
 	// Por razões de segurança, não armazenamos a chave privada na estrutura de configuração
 	// Use apenas tokens já gerados ou assinaturas externas
 	DefaultAgentAddress string `yaml:"default_agent_address"` // Endereço do agente padrão
+
+	// Nation NFT Validation Configuration
+	NationNFTRequired bool   `yaml:"nation_nft_required"` // Se validação de NFT é obrigatória
+	NationNFTContract string `yaml:"nation_nft_contract"` // Endereço do contrato NFT do Nation
+}
+
+// NotionConfig configurações do Notion
+type NotionConfig struct {
+	// API Configuration
+	APIKey  string `yaml:"api_key"`  // Chave da API do Notion
+	BaseURL string `yaml:"base_url"` // URL base da API (padrão: https://api.notion.com/v1)
+
+	// Agent Configuration
+	AgentName        string `yaml:"agent_name"`        // Nome do agente no Notion
+	AgentDescription string `yaml:"agent_description"` // Descrição do agente
+
+	// Features
+	EnableAgentCreation bool `yaml:"enable_agent_creation"`  // Habilitar criação automática de agente
+	AutoCreateOnStartup bool `yaml:"auto_create_on_startup"` // Criar agente automaticamente na inicialização
+
+	// Rate Limiting
+	MaxRequestsPerMinute int `yaml:"max_requests_per_minute"` // Limite de requisições por minuto
 }
 
 // Load carrega configuração de um arquivo YAML
@@ -127,6 +150,14 @@ func Load(path string) (*Config, error) {
 		Logging: LoggingConfig{
 			Level:  "info",
 			Format: "json",
+		},
+		Notion: NotionConfig{
+			BaseURL:              "https://api.notion.com/v1",
+			AgentName:            "IaC AI Agent",
+			AgentDescription:     "Intelligent Infrastructure as Code Analysis Agent",
+			EnableAgentCreation:  true,
+			AutoCreateOnStartup:  true,
+			MaxRequestsPerMinute: 60,
 		},
 	}
 
@@ -208,9 +239,15 @@ func (c *Config) loadFromEnv() {
 	}
 	if baseRPC := os.Getenv("BASE_RPC_URL"); baseRPC != "" {
 		c.Web3.BaseRPCURL = baseRPC
+	} else {
+		// Descobrir automaticamente RPC da Base Network
+		c.Web3.BaseRPCURL = GetDefaultBaseRPC()
 	}
 	if nftAddr := os.Getenv("NFT_CONTRACT_ADDRESS"); nftAddr != "" {
 		c.Web3.NFTAccessContractAddress = nftAddr
+	} else {
+		// Descobrir automaticamente o contrato Nation Pass
+		c.Web3.NFTAccessContractAddress = GetDefaultNationPassContract()
 	}
 	if tokenAddr := os.Getenv("TOKEN_CONTRACT_ADDRESS"); tokenAddr != "" {
 		c.Web3.BotTokenContractAddress = tokenAddr
@@ -222,6 +259,9 @@ func (c *Config) loadFromEnv() {
 	}
 	if walletAddr := os.Getenv("WALLET_ADDRESS"); walletAddr != "" {
 		c.Web3.WalletAddress = walletAddr
+	} else {
+		// Wallet padrão para testes e desenvolvimento
+		c.Web3.WalletAddress = GetDefaultWalletAddress()
 	}
 	// REMOVIDO: Não carregamos mais a chave privada diretamente
 	// Use serviços de assinatura externos ou tokens pré-gerados
@@ -237,6 +277,34 @@ func (c *Config) loadFromEnv() {
 	} else {
 		// Agente padrão caso não seja especificado
 		c.Web3.DefaultAgentAddress = "0x147e832418Cc06A501047019E956714271098b89"
+	}
+
+	// Nation NFT Validation
+	if os.Getenv("NATION_NFT_REQUIRED") == "true" {
+		c.Web3.NationNFTRequired = true
+	}
+	if nationContract := os.Getenv("NATION_NFT_CONTRACT"); nationContract != "" {
+		c.Web3.NationNFTContract = nationContract
+	}
+
+	// Notion
+	if notionAPIKey := os.Getenv("NOTION_API_KEY"); notionAPIKey != "" {
+		c.Notion.APIKey = notionAPIKey
+	}
+	if notionBaseURL := os.Getenv("NOTION_BASE_URL"); notionBaseURL != "" {
+		c.Notion.BaseURL = notionBaseURL
+	}
+	if notionAgentName := os.Getenv("NOTION_AGENT_NAME"); notionAgentName != "" {
+		c.Notion.AgentName = notionAgentName
+	}
+	if notionAgentDesc := os.Getenv("NOTION_AGENT_DESCRIPTION"); notionAgentDesc != "" {
+		c.Notion.AgentDescription = notionAgentDesc
+	}
+	if os.Getenv("NOTION_ENABLE_AGENT_CREATION") == "false" {
+		c.Notion.EnableAgentCreation = false
+	}
+	if os.Getenv("NOTION_AUTO_CREATE_ON_STARTUP") == "false" {
+		c.Notion.AutoCreateOnStartup = false
 	}
 }
 
@@ -262,15 +330,19 @@ func (c *Config) Validate() error {
 
 	// Valida Nation.fun config quando provider é nation.fun e o modo de validação está ativado
 	if (c.LLM.Provider == "nation.fun" || c.LLM.Provider == "nation") && os.Getenv("ENABLE_STARTUP_VALIDATION") != "false" {
-		if c.Web3.NFTAccessContractAddress == "" {
-			return fmt.Errorf("NFT_CONTRACT_ADDRESS é obrigatório para Nation.fun")
+		// Verificar se NFT Pass do Nation é obrigatório
+		if c.Web3.NationNFTRequired {
+			if c.Web3.WalletAddress == "" {
+				return fmt.Errorf("WALLET_ADDRESS é obrigatório quando NATION_NFT_REQUIRED=true")
+			}
 		}
 
-		if c.Web3.WalletToken == "" {
-			return fmt.Errorf("WALLET_TOKEN é obrigatório para Nation.fun")
-		}
+		// Autenticação LLM é feita via NFT Pass do Nation - não precisa de API key ou token tradicional
+	}
 
-		// Autenticação LLM é feita via carteira Web3 - não precisa de API key tradicional
+	// Validação Notion (opcional)
+	if c.Notion.EnableAgentCreation && c.Notion.APIKey == "" {
+		return fmt.Errorf("NOTION_API_KEY é obrigatório quando enable_agent_creation está habilitado")
 	}
 
 	return nil
@@ -299,6 +371,11 @@ func (c *Config) GetWalletPrivateKey() (string, error) {
 // GetWhatsAppAPIKey obtém a chave da API WhatsApp via Git Secrets
 func (c *Config) GetWhatsAppAPIKey() (string, error) {
 	return getGitSecret("whatsapp_api_key")
+}
+
+// GetNotionAPIKey obtém a chave da API Notion via Git Secrets
+func (c *Config) GetNotionAPIKey() (string, error) {
+	return getGitSecret("notion_api_key")
 }
 
 // getGitSecret executa git secret show para obter um secret específico

@@ -32,11 +32,19 @@ func NewPrivyClient(cfg *config.Config, log *logger.Logger) *PrivyClient {
 	}
 }
 
+// PrivyWallet representa uma wallet do Privy
+type PrivyWallet struct {
+	Address string `json:"address"`
+	Type    string `json:"type"`
+	ChainID string `json:"chain_id"`
+}
+
 // PrivyUser representa um usuário autenticado via Privy
 type PrivyUser struct {
 	ID               string          `json:"id"`
 	CreatedAt        time.Time       `json:"created_at"`
 	LinkedAccounts   []LinkedAccount `json:"linked_accounts"`
+	Wallets          []PrivyWallet   `json:"-"` // Extracted from linked_accounts
 	WalletAddress    string          `json:"-"` // Extracted from linked_accounts
 	Email            string          `json:"-"` // Extracted if available
 	MFAEnabled       bool            `json:"mfa_enabled"`

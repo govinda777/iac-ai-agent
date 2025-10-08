@@ -10,6 +10,25 @@ import (
 	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
+// NFTMintResult representa o resultado de um mint de NFT
+type NFTMintResult struct {
+	TokenID         string `json:"token_id"`
+	TransactionHash string `json:"transaction_hash"`
+	Status          string `json:"status"`
+	Tier            string `json:"tier"`
+	BlockNumber     uint64 `json:"block_number,omitempty"`
+	GasUsed         uint64 `json:"gas_used,omitempty"`
+}
+
+// NFTAccessStatus representa o status de acesso NFT
+type NFTAccessStatus struct {
+	HasAccess   bool   `json:"has_access"`
+	TokenID     string `json:"token_id"`
+	Tier        string `json:"tier"`
+	Balance     int    `json:"balance"`
+	LastUpdated int64  `json:"last_updated"`
+}
+
 // NFTAccessManager gerencia NFTs de acesso ao bot
 type NFTAccessManager struct {
 	config       *config.Config
@@ -32,26 +51,26 @@ func NewNFTAccessManager(cfg *config.Config, log *logger.Logger, baseClient *Bas
 
 // NFTAccessTier representa um tier de acesso
 type NFTAccessTier struct {
-	TierID      uint8   `json:"tier_id"`
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Price       *big.Int `json:"price_wei"`
-	PriceUSD    string  `json:"price_usd"`
-	MaxSupply   uint64  `json:"max_supply"`
-	CurrentSupply uint64 `json:"current_supply"`
-	Benefits    []string `json:"benefits"`
-	IsActive    bool    `json:"is_active"`
+	TierID        uint8    `json:"tier_id"`
+	Name          string   `json:"name"`
+	Description   string   `json:"description"`
+	Price         *big.Int `json:"price_wei"`
+	PriceUSD      string   `json:"price_usd"`
+	MaxSupply     uint64   `json:"max_supply"`
+	CurrentSupply uint64   `json:"current_supply"`
+	Benefits      []string `json:"benefits"`
+	IsActive      bool     `json:"is_active"`
 }
 
 // NFTAccess representa um NFT de acesso
 type NFTAccess struct {
-	TokenID     *big.Int `json:"token_id"`
-	Owner       string   `json:"owner"`
-	Tier        NFTAccessTier `json:"tier"`
-	MintedAt    uint64   `json:"minted_at"`
-	ExpiresAt   uint64   `json:"expires_at,omitempty"` // 0 = never expires
-	IsActive    bool     `json:"is_active"`
-	Metadata    string   `json:"metadata"` // IPFS URI
+	TokenID   *big.Int      `json:"token_id"`
+	Owner     string        `json:"owner"`
+	Tier      NFTAccessTier `json:"tier"`
+	MintedAt  uint64        `json:"minted_at"`
+	ExpiresAt uint64        `json:"expires_at,omitempty"` // 0 = never expires
+	IsActive  bool          `json:"is_active"`
+	Metadata  string        `json:"metadata"` // IPFS URI
 }
 
 // GetAccessTiers retorna todos os tiers de acesso disponíveis
@@ -59,12 +78,12 @@ func (nam *NFTAccessManager) GetAccessTiers(ctx context.Context) ([]NFTAccessTie
 	// Hardcoded tiers - em produção, viriam do smart contract
 	tiers := []NFTAccessTier{
 		{
-			TierID:      1,
-			Name:        "Basic Access",
-			Description: "Acesso básico ao IaC AI Agent",
-			Price:       big.NewInt(10000000000000000), // 0.01 ETH
-			PriceUSD:    "25.00",
-			MaxSupply:   10000,
+			TierID:        1,
+			Name:          "Basic Access",
+			Description:   "Acesso básico ao IaC AI Agent",
+			Price:         big.NewInt(10000000000000000), // 0.01 ETH
+			PriceUSD:      "25.00",
+			MaxSupply:     10000,
 			CurrentSupply: 0,
 			Benefits: []string{
 				"Análises ilimitadas de Terraform",
@@ -75,12 +94,12 @@ func (nam *NFTAccessManager) GetAccessTiers(ctx context.Context) ([]NFTAccessTie
 			IsActive: true,
 		},
 		{
-			TierID:      2,
-			Name:        "Pro Access",
-			Description: "Acesso profissional com AI avançada",
-			Price:       big.NewInt(50000000000000000), // 0.05 ETH
-			PriceUSD:    "125.00",
-			MaxSupply:   5000,
+			TierID:        2,
+			Name:          "Pro Access",
+			Description:   "Acesso profissional com AI avançada",
+			Price:         big.NewInt(50000000000000000), // 0.05 ETH
+			PriceUSD:      "125.00",
+			MaxSupply:     5000,
 			CurrentSupply: 0,
 			Benefits: []string{
 				"Tudo do Basic Access",
@@ -94,12 +113,12 @@ func (nam *NFTAccessManager) GetAccessTiers(ctx context.Context) ([]NFTAccessTie
 			IsActive: true,
 		},
 		{
-			TierID:      3,
-			Name:        "Enterprise Access",
-			Description: "Acesso enterprise com features exclusivas",
-			Price:       big.NewInt(200000000000000000), // 0.2 ETH
-			PriceUSD:    "500.00",
-			MaxSupply:   1000,
+			TierID:        3,
+			Name:          "Enterprise Access",
+			Description:   "Acesso enterprise com features exclusivas",
+			Price:         big.NewInt(200000000000000000), // 0.2 ETH
+			PriceUSD:      "500.00",
+			MaxSupply:     1000,
 			CurrentSupply: 0,
 			Benefits: []string{
 				"Tudo do Pro Access",
@@ -121,16 +140,16 @@ func (nam *NFTAccessManager) GetAccessTiers(ctx context.Context) ([]NFTAccessTie
 // CheckAccess verifica se uma wallet tem acesso ao bot
 func (nam *NFTAccessManager) CheckAccess(ctx context.Context, walletAddress string) (*NFTAccess, error) {
 	addr := common.HexToAddress(walletAddress)
-	
+
 	// TODO: Chamar smart contract para verificar balance
 	// Por ora, simula a verificação
-	
+
 	nam.logger.Info("Verificando acesso", "wallet", walletAddress)
-	
+
 	// Simulação: verifica se tem algum NFT
 	// Em produção, isso seria uma chamada ao contrato
 	balance := nam.getSimulatedBalance(addr)
-	
+
 	if balance.Cmp(big.NewInt(0)) == 0 {
 		return nil, fmt.Errorf("wallet não possui NFT de acesso")
 	}
@@ -138,13 +157,13 @@ func (nam *NFTAccessManager) CheckAccess(ctx context.Context, walletAddress stri
 	// Retorna o NFT (simulado)
 	tiers, _ := nam.GetAccessTiers(ctx)
 	return &NFTAccess{
-		TokenID:  big.NewInt(123), // Simulado
-		Owner:    walletAddress,
-		Tier:     tiers[1], // Pro tier
-		MintedAt: 1700000000,
+		TokenID:   big.NewInt(123), // Simulado
+		Owner:     walletAddress,
+		Tier:      tiers[1], // Pro tier
+		MintedAt:  1700000000,
 		ExpiresAt: 0, // Never expires
-		IsActive: true,
-		Metadata: "ipfs://QmExample...",
+		IsActive:  true,
+		Metadata:  "ipfs://QmExample...",
 	}, nil
 }
 
@@ -172,8 +191,8 @@ func (nam *NFTAccessManager) MintAccessNFT(ctx context.Context, walletAddress st
 		return nil, fmt.Errorf("tier %d não está ativo", tierID)
 	}
 
-	nam.logger.Info("Mintando NFT de acesso", 
-		"wallet", walletAddress, 
+	nam.logger.Info("Mintando NFT de acesso",
+		"wallet", walletAddress,
 		"tier", selectedTier.Name,
 		"price", selectedTier.Price.String())
 
@@ -187,13 +206,13 @@ func (nam *NFTAccessManager) MintAccessNFT(ctx context.Context, walletAddress st
 	// 4. Retornar NFT mintado
 
 	nft := &NFTAccess{
-		TokenID:  big.NewInt(12345), // Seria retornado pelo contrato
-		Owner:    walletAddress,
-		Tier:     *selectedTier,
-		MintedAt: uint64(1700000000), // timestamp atual
-		ExpiresAt: 0, // Never expires
-		IsActive: true,
-		Metadata: "ipfs://QmExample...",
+		TokenID:   big.NewInt(12345), // Seria retornado pelo contrato
+		Owner:     walletAddress,
+		Tier:      *selectedTier,
+		MintedAt:  uint64(1700000000), // timestamp atual
+		ExpiresAt: 0,                  // Never expires
+		IsActive:  true,
+		Metadata:  "ipfs://QmExample...",
 	}
 
 	nam.logger.Info("NFT de acesso mintado com sucesso", "token_id", nft.TokenID.String())
@@ -232,13 +251,13 @@ func (nam *NFTAccessManager) GetAccessByTokenID(ctx context.Context, tokenID *bi
 
 	tiers, _ := nam.GetAccessTiers(ctx)
 	return &NFTAccess{
-		TokenID:  tokenID,
-		Owner:    "0x...",
-		Tier:     tiers[0],
-		MintedAt: 1700000000,
+		TokenID:   tokenID,
+		Owner:     "0x...",
+		Tier:      tiers[0],
+		MintedAt:  1700000000,
 		ExpiresAt: 0,
-		IsActive: true,
-		Metadata: "ipfs://QmExample...",
+		IsActive:  true,
+		Metadata:  "ipfs://QmExample...",
 	}, nil
 }
 
@@ -264,13 +283,13 @@ func (nam *NFTAccessManager) ListAccessNFTs(ctx context.Context, walletAddress s
 	tiers, _ := nam.GetAccessTiers(ctx)
 	return []*NFTAccess{
 		{
-			TokenID:  big.NewInt(123),
-			Owner:    walletAddress,
-			Tier:     tiers[1],
-			MintedAt: 1700000000,
+			TokenID:   big.NewInt(123),
+			Owner:     walletAddress,
+			Tier:      tiers[1],
+			MintedAt:  1700000000,
 			ExpiresAt: 0,
-			IsActive: true,
-			Metadata: "ipfs://QmExample...",
+			IsActive:  true,
+			Metadata:  "ipfs://QmExample...",
 		},
 	}, nil
 }
@@ -358,11 +377,11 @@ func (nam *NFTAccessManager) GetContractAddress() string {
 func (nam *NFTAccessManager) EstimateMintGas(ctx context.Context, walletAddress string, tierID uint8) (uint64, error) {
 	// TODO: Estimar gas real do contrato
 	// Em Base Network, transações são muito baratas
-	
+
 	// Estimativa conservadora
 	gasEstimate := uint64(150000) // ~150k gas
 
-	nam.logger.Info("Gas estimado para mint", 
+	nam.logger.Info("Gas estimado para mint",
 		"wallet", walletAddress,
 		"tier", tierID,
 		"gas", gasEstimate)

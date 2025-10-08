@@ -11,6 +11,7 @@ import (
 	"github.com/govinda777/iac-ai-agent/internal/agent/scorer"
 	"github.com/govinda777/iac-ai-agent/internal/agent/suggester"
 	"github.com/govinda777/iac-ai-agent/internal/services"
+	"github.com/govinda777/iac-ai-agent/pkg/config"
 	"github.com/govinda777/iac-ai-agent/pkg/logger"
 	"github.com/govinda777/iac-ai-agent/test/mocks"
 )
@@ -24,6 +25,15 @@ var _ = Describe("AnalysisService Integration", func() {
 
 	BeforeEach(func() {
 		log = logger.New("debug", "text")
+
+		// Create a test config
+		cfg := &config.Config{
+			LLM: config.LLMConfig{
+				Provider: "openai",
+				Model:    "gpt-4",
+				APIKey:   "test-key",
+			},
+		}
 
 		// Instantiate concrete analyzers and the mock
 		tfAnalyzer := analyzer.NewTerraformAnalyzer()
@@ -47,6 +57,7 @@ var _ = Describe("AnalysisService Integration", func() {
 			prScorer,
 			costOptimizer,
 			securityAdvisor,
+			cfg,
 		)
 
 		var err error

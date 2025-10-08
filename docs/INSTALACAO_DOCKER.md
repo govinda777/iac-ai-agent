@@ -38,10 +38,10 @@ WALLET_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb...
 NATION_NFT_CONTRACT=0x1234567890123456789012345678901234567890
 NATION_NFT_REQUIRED=true
 
-# LLM (OpenAI)
-LLM_PROVIDER=openai
-LLM_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxx
-LLM_MODEL=gpt-4
+# LLM (Nation.fun)
+LLM_PROVIDER=nation.fun
+LLM_MODEL=nation-1
+# Não é necessária chave de API - acesso via NFT Nation.fun
 
 # BASE NETWORK
 BASE_RPC_URL=https://mainnet.base.org

@@ -79,10 +79,10 @@ WALLET_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb... # ← Private key 
 NATION_NFT_CONTRACT=0x1234567890123456789012345678901234567890 # ← Contrato da Nation
 NATION_NFT_REQUIRED=true                                       # ← Deixe true
 
-# 3. LLM (OpenAI)
-LLM_PROVIDER=openai                          # ← openai ou anthropic
-LLM_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxx   # ← Sua OpenAI API key
-LLM_MODEL=gpt-4                              # ← Modelo (gpt-4 recomendado)
+# 3. LLM (Nation.fun)
+LLM_PROVIDER=nation.fun
+LLM_MODEL=nation-1
+# Não é necessária chave de API - acesso via NFT Nation.fun
 
 # ============================================
 # 🟡 RECOMENDADAS

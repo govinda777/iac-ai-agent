@@ -6,8 +6,8 @@ import (
 
 // MockCheckovAnalyzer is a mock implementation of the CheckovAnalyzerInterface.
 type MockCheckovAnalyzer struct {
-	IsAvailableFunc          func() bool
-	AnalyzeDirectoryFunc     func(dir string, config *models.CheckovConfig) (*models.SecurityAnalysis, error)
+	IsAvailableFunc            func() bool
+	AnalyzeDirectoryFunc       func(dir string, config *models.CheckovConfig) (*models.SecurityAnalysis, error)
 	ValidateAndParseResultFunc func(jsonResult []byte) (*models.SecurityAnalysis, error)
 }
 

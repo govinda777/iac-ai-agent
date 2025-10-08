@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# Pre-commit hook: Executa testes unitários
+# Para pular os testes temporariamente: git commit --no-verify
+
+set -e
+
+echo ""
+echo "🔍 =================================="
+echo "🔍 PRE-COMMIT: Executando Testes Unitários"
+echo "🔍 =================================="
+echo ""
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Get current branch
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+echo -e "${BLUE}Branch: ${BRANCH}${NC}"
+echo ""
+
+# ============================================
+# 1. FORMAT CHECK
+# ============================================
+echo -e "${YELLOW}📋 [1/3] Verificando formatação do código...${NC}"
+if ! make fmt; then
+    echo -e "${RED}❌ Formatação do código falhou!${NC}"
+    echo ""
+    echo "💡 Dica: Execute 'make fmt' para corrigir automaticamente"
+    exit 1
+fi
+echo -e "${GREEN}✅ Formatação do código OK!${NC}"
+echo ""
+
+# ============================================
+# 2. TESTES UNITÁRIOS
+# ============================================
+echo -e "${YELLOW}🧪 [2/3] Executando Testes Unitários...${NC}"
+
+# Configurar PATH para incluir GOPATH/bin
+export PATH=$PATH:$(go env GOPATH)/bin
+
+if ! make test-unit; then
+    echo -e "${RED}❌ Testes unitários falharam!${NC}"
+    echo ""
+    echo "💡 Dica: Execute 'make test-unit' para ver detalhes"
+    exit 1
+fi
+echo -e "${GREEN}✅ Testes unitários passaram!${NC}"
+echo ""
+
+# ============================================
+# 3. BUILD CHECK
+# ============================================
+echo -e "${YELLOW}🏗️  [3/4] Verificando Build...${NC}"
+if ! make build; then
+    echo -e "${RED}❌ Build falhou!${NC}"
+    echo ""
+    echo "💡 Dica: Execute 'make build' para ver detalhes"
+    exit 1
+fi
+echo -e "${GREEN}✅ Build passou!${NC}"
+echo ""
+
+# ============================================
+# 4. GERAR RELATÓRIO DE QUALIDADE (TEMPORARIAMENTE DESABILITADO)
+# ============================================
+echo -e "${YELLOW}📊 [4/4] Gerando Relatório de Qualidade...${NC}"
+echo -e "${YELLOW}⚠️  Relatório HTML temporariamente desabilitado para evitar travamento${NC}"
+# if ! go run scripts/generate_report.go unit; then
+#     echo -e "${RED}❌ Geração de relatório falhou!${NC}"
+#     echo ""
+#     echo "💡 Dica: Execute 'go run scripts/generate_report.go unit' para ver detalhes"
+#     exit 1
+# fi
+echo -e "${GREEN}✅ Relatório de qualidade pulado (temporariamente)!${NC}"
+echo ""
+
+# ============================================
+# SUCCESS
+# ============================================
+echo -e "${GREEN}🎉 =================================="
+echo -e "🎉 TESTES UNITÁRIOS PASSARAM!"
+echo -e "🎉 ==================================${NC}"
+echo ""
+echo -e "${BLUE}📦 Prosseguindo com commit...${NC}"
+echo ""
+
+exit 0

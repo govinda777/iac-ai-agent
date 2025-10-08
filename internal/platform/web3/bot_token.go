@@ -10,6 +10,27 @@ import (
 	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
+// TokenMintResult representa o resultado de um mint de token
+type TokenMintResult struct {
+	Amount          string `json:"amount"`
+	TransactionHash string `json:"transaction_hash"`
+	Status          string `json:"status"`
+	NewBalance      string `json:"new_balance"`
+	BlockNumber     uint64 `json:"block_number,omitempty"`
+	GasUsed         uint64 `json:"gas_used,omitempty"`
+}
+
+// TokenTransferResult representa o resultado de uma transferência de token
+type TokenTransferResult struct {
+	Amount          string `json:"amount"`
+	TransactionHash string `json:"transaction_hash"`
+	Status          string `json:"status"`
+	FromBalance     string `json:"from_balance"`
+	ToBalance       string `json:"to_balance,omitempty"`
+	BlockNumber     uint64 `json:"block_number,omitempty"`
+	GasUsed         uint64 `json:"gas_used,omitempty"`
+}
+
 // BotTokenManager gerencia o token do bot (ERC-20)
 type BotTokenManager struct {
 	config       *config.Config

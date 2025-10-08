@@ -33,8 +33,8 @@ Para executar o IaC AI Agent, você precisa:
 - PRIVY_APP_ID
 - PRIVY_APP_SECRET
 
-### 4. **LLM API Key**
-- OpenAI ou Anthropic API key funcional
+### 4. **Nation.fun Access**
+- Acesso via NFT Nation.fun (sem necessidade de chave de API externa)
 
 ---
 
@@ -82,9 +82,9 @@ PRIVY_APP_SECRET=your-privy-app-secret
 # LLM CONFIGURATION (REQUIRED)
 # =====================================
 
-LLM_PROVIDER=openai
-LLM_API_KEY=sk-...
-LLM_MODEL=gpt-4
+LLM_PROVIDER=nation.fun
+LLM_MODEL=nation-1
+# Não é necessária chave de API - acesso via NFT Nation.fun
 
 # =====================================
 # BASE NETWORK CONFIGURATION
@@ -128,14 +128,14 @@ Quando a aplicação inicia, ela executa as seguintes validações **obrigatóri
 ### 1. ✅ Validação de LLM
 
 ```
-🤖 Validando conexão com LLM...
-- Provider: openai
-- Model: gpt-4
+🤖 Validando conexão com Nation.fun LLM...
+- Provider: nation.fun
+- Model: nation-1
 - Status: Enviando mensagem de teste...
 - Resposta recebida: OK
 - Latência: 2.3s
 - Tokens usados: 8
-✅ LLM validado com sucesso
+✅ Nation.fun LLM validado com sucesso
 ```
 
 **Se falhar**: Aplicação NÃO inicia
@@ -224,18 +224,16 @@ Press Ctrl+C to shutdown gracefully
 4. Verifique no Basescan: https://basescan.org/address/YOUR_WALLET
 ```
 
-### Erro: LLM não responde
+### Erro: Nation.fun LLM não responde
 
 ```
-❌ LLM validation failed: request timeout
+❌ Nation.fun LLM validation failed: request timeout
 
 💡 Solução:
-1. Verifique sua API key: echo $LLM_API_KEY
-2. Verifique seu saldo de créditos na OpenAI/Anthropic
-3. Teste manualmente:
-   curl https://api.openai.com/v1/chat/completions \
-     -H "Authorization: Bearer $LLM_API_KEY" \
-     -d '{"model":"gpt-4","messages":[{"role":"user","content":"test"}]}'
+1. Verifique sua conexão com internet
+2. Verifique se o NFT Nation.fun está válido
+3. Confirme que NATION_NFT_CONTRACT está correto
+4. Teste manualmente no site: https://nation.fun
 ```
 
 ### Erro: Privy credentials inválidas
@@ -321,8 +319,8 @@ services:
       - PRIVY_APP_ID=${PRIVY_APP_ID}
       
       # LLM
-      - LLM_API_KEY=${LLM_API_KEY}
-      - LLM_PROVIDER=openai
+      - LLM_PROVIDER=nation.fun
+      # Não é necessária chave de API - acesso via NFT
       
       # Base Network
       - BASE_RPC_URL=https://mainnet.base.org

@@ -6,12 +6,11 @@ import (
 	"math/big"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/govinda777/iac-ai-agent/internal/agent/llm"
-	"github.com/govinda777/iac-ai-agent/internal/models"
+	"github.com/govinda777/iac-ai-agent/internal/platform/web3"
+	"github.com/govinda777/iac-ai-agent/internal/services"
 	"github.com/govinda777/iac-ai-agent/pkg/config"
 	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
@@ -37,9 +36,12 @@ type ValidationResult struct {
 	NationNFTValidated   bool
 	PrivyValidated       bool
 	BaseNetworkValidated bool
+	NotionValidated      bool
 	AgentCreated         bool
 	AgentID              string
 	AgentName            string
+	NotionAgentID        string
+	NotionAgentName      string
 	Errors               []string
 	Warnings             []string
 }
@@ -100,7 +102,17 @@ func (v *Validator) ValidateAll(ctx context.Context) (*ValidationResult, error) 
 	result.NationNFTValidated = true
 	v.logger.Info("✅ NFT Nation.fun validado com sucesso")
 
-	// 6. Criar ou obter agente padrão (OBRIGATÓRIO)
+	// 6. Validar Notion (OPCIONAL)
+	v.logger.Info("📝 Validando integração com Notion...")
+	if err := v.validateNotion(ctx, result); err != nil {
+		result.Warnings = append(result.Warnings, fmt.Sprintf("⚠️ Notion validation failed: %v", err))
+		v.logger.Warn("Notion não validado, continuando...", "error", err)
+	} else {
+		result.NotionValidated = true
+		v.logger.Info("✅ Notion validado com sucesso")
+	}
+
+	// 7. Criar ou obter agente padrão (OBRIGATÓRIO)
 	v.logger.Info("🤖 Verificando agente padrão...")
 	agentID, agentName, err := v.getOrCreateDefaultAgent(ctx, result)
 	if err != nil {
@@ -125,9 +137,8 @@ func (v *Validator) ValidateAll(ctx context.Context) (*ValidationResult, error) 
 
 // validateBasicConfig valida configurações básicas
 func (v *Validator) validateBasicConfig(result *ValidationResult) error {
-	// Verifica variáveis obrigatórias
+	// Verifica variáveis obrigatórias (sem LLM_API_KEY - autenticação via NFT Pass do Nation)
 	required := map[string]string{
-		"LLM_API_KEY":    v.config.LLM.APIKey,
 		"PRIVY_APP_ID":   v.config.Web3.PrivyAppID,
 		"WALLET_ADDRESS": os.Getenv("WALLET_ADDRESS"),
 	}
@@ -141,44 +152,43 @@ func (v *Validator) validateBasicConfig(result *ValidationResult) error {
 	return nil
 }
 
-// validateLLM valida conexão e autenticação com LLM
+// validateLLM valida conexão e autenticação com LLM via NFT Pass do Nation
 func (v *Validator) validateLLM(ctx context.Context, result *ValidationResult) error {
-	v.logger.Info("Testando conexão com LLM...", "provider", v.config.LLM.Provider, "model", v.config.LLM.Model)
+	v.logger.Info("Testando conexão com LLM via NFT Pass do Nation...",
+		"provider", v.config.LLM.Provider,
+		"model", v.config.LLM.Model,
+		"wallet", v.config.Web3.WalletAddress)
 
-	// Criar cliente LLM
-	llmClient := llm.NewClient(v.config, v.logger)
-
-	// Teste simples: gerar resposta
-	testPrompt := `Responda apenas "OK" se você está funcionando corretamente.`
-
-	req := &models.LLMRequest{
-		Prompt:      testPrompt,
-		Temperature: 0.1,
-		MaxTokens:   10,
+	// Verificar se temos NFT Pass do Nation válido
+	if !v.config.Web3.NationNFTRequired {
+		v.logger.Info("Validação de NFT Pass do Nation desabilitada - pulando teste LLM")
+		return nil
 	}
 
-	startTime := time.Now()
-	resp, err := llmClient.Generate(req)
-	latency := time.Since(startTime)
+	// Criar validador de NFT do Nation para teste
+	nationValidator := web3.NewNationNFTValidator(v.config, v.logger)
 
+	// Validar NFT Pass do Nation
+	nftResponse, err := nationValidator.ValidateWalletNFT(ctx, v.config.Web3.WalletAddress)
 	if err != nil {
-		return fmt.Errorf("falha ao comunicar com LLM: %w", err)
+		return fmt.Errorf("falha na validação de NFT Pass do Nation para LLM: %w", err)
 	}
 
-	v.logger.Info("LLM respondeu com sucesso",
-		"latency", latency,
-		"tokens_used", resp.TokensUsed,
-		"model", resp.Model)
+	v.logger.Info("LLM autenticado via NFT Pass do Nation",
+		"wallet", v.config.Web3.WalletAddress,
+		"token_id", nftResponse.Data.TokenID,
+		"tier", nftResponse.Data.Tier,
+		"provider", v.config.LLM.Provider)
 
-	// Validar resposta
-	if resp.Content == "" {
-		return fmt.Errorf("LLM retornou resposta vazia")
-	}
-
-	// Se latência muito alta, avisar
-	if latency > 10*time.Second {
-		result.Warnings = append(result.Warnings,
-			fmt.Sprintf("⚠️ LLM latency alta: %v (esperado < 10s)", latency))
+	// Enviar teste de conectividade para o agente Nation.fun
+	testResponse, err := nationValidator.SendTestToNation(ctx, "Teste de conectividade LLM via NFT Pass")
+	if err != nil {
+		v.logger.Warn("Falha no teste de conectividade LLM", "error", err)
+		// Não falha a validação por causa do teste, apenas loga
+	} else {
+		v.logger.Info("Teste de conectividade LLM bem-sucedido",
+			"test_id", testResponse.Data.TestID,
+			"status", testResponse.Data.Status)
 	}
 
 	return nil
@@ -235,9 +245,15 @@ func (v *Validator) validateBaseNetwork(ctx context.Context, result *ValidationR
 	return nil
 }
 
-// validateNationNFT valida que a wallet possui NFT da Nation.fun
+// validateNationNFT valida que a wallet possui NFT da Nation.fun usando o novo validador
 func (v *Validator) validateNationNFT(ctx context.Context, result *ValidationResult) error {
-	walletAddress := os.Getenv("WALLET_ADDRESS")
+	// Verificar se validação de NFT é obrigatória
+	if !v.config.Web3.NationNFTRequired {
+		v.logger.Info("Validação de NFT Pass do Nation é opcional - pulada")
+		return nil
+	}
+
+	walletAddress := v.config.Web3.WalletAddress
 	if walletAddress == "" {
 		return fmt.Errorf("WALLET_ADDRESS não configurado")
 	}
@@ -247,39 +263,59 @@ func (v *Validator) validateNationNFT(ctx context.Context, result *ValidationRes
 		return fmt.Errorf("WALLET_ADDRESS inválido: %s", walletAddress)
 	}
 
-	nationNFTContract := os.Getenv("NATION_NFT_CONTRACT")
-	if nationNFTContract == "" {
-		// Endereço do contrato Nation.fun na Base Network
-		// TODO: Obter endereço real do contrato Nation.fun
-		result.Warnings = append(result.Warnings,
-			"⚠️ NATION_NFT_CONTRACT não configurado, validação de NFT pulada")
-		v.logger.Warn("Endereço do contrato Nation.fun não configurado")
+	// Criar validador de NFT do Nation
+	nationValidator := web3.NewNationNFTValidator(v.config, v.logger)
 
-		// Se NATION_NFT_REQUIRED=true, falha
-		if os.Getenv("NATION_NFT_REQUIRED") == "true" {
-			return fmt.Errorf("NATION_NFT_CONTRACT é obrigatório quando NATION_NFT_REQUIRED=true")
-		}
+	// Executar validação completa (NFT + teste de conectividade)
+	if err := nationValidator.ValidateAtStartup(ctx); err != nil {
+		return fmt.Errorf("validação de NFT Pass do Nation falhou: %w", err)
+	}
 
+	v.logger.Info("✅ NFT Pass do Nation validado com sucesso",
+		"wallet", walletAddress,
+		"contract", v.config.Web3.NationNFTContract)
+
+	return nil
+}
+
+// validateNotion valida integração com Notion
+func (v *Validator) validateNotion(ctx context.Context, result *ValidationResult) error {
+	// Verifica se Notion está habilitado
+	if !v.config.Notion.EnableAgentCreation {
+		v.logger.Info("Notion desabilitado na configuração")
 		return nil
 	}
 
-	// Conectar ao Base Network
-	client, err := ethclient.Dial(v.config.Web3.BaseRPCURL)
-	if err != nil {
-		return fmt.Errorf("falha ao conectar com Base Network: %w", err)
+	// Verifica se API key está configurada
+	if v.config.Notion.APIKey == "" {
+		return fmt.Errorf("NOTION_API_KEY não configurado")
 	}
-	defer client.Close()
 
-	// TODO: Implementar verificação real de balance do NFT
-	// Por ora, apenas valida que a configuração está correta
+	// Cria serviço Notion
+	notionService, err := services.NewNotionAgentService(v.config, v.logger)
+	if err != nil {
+		return fmt.Errorf("erro ao criar serviço Notion: %w", err)
+	}
 
-	v.logger.Info("Validação de NFT Nation.fun configurada",
-		"wallet", walletAddress,
-		"nft_contract", nationNFTContract)
+	// Verifica se serviço está disponível
+	if !notionService.IsServiceAvailable(ctx) {
+		return fmt.Errorf("serviço Notion não está disponível")
+	}
 
-	// Adicionar aviso para implementar verificação real
-	result.Warnings = append(result.Warnings,
-		"⚠️ Verificação real de NFT Nation.fun será implementada na integração com contrato")
+	// Se auto-create está habilitado, cria/obtém agente
+	if v.config.Notion.AutoCreateOnStartup {
+		agent, err := notionService.GetOrCreateDefaultAgent(ctx)
+		if err != nil {
+			return fmt.Errorf("erro ao obter/criar agente Notion: %w", err)
+		}
+
+		result.NotionAgentID = agent.ID
+		result.NotionAgentName = agent.Name
+		v.logger.Info("Agente Notion configurado",
+			"id", agent.ID,
+			"name", agent.Name,
+			"status", agent.Status)
+	}
 
 	return nil
 }
@@ -334,6 +370,7 @@ func (v *Validator) PrintValidationReport(result *ValidationResult) {
 	v.printCheckItem("Privy.io Credentials", result.PrivyValidated)
 	v.printCheckItem("Base Network", result.BaseNetworkValidated)
 	v.printCheckItem("Nation.fun NFT", result.NationNFTValidated)
+	v.printCheckItem("Notion Integration", result.NotionValidated)
 	v.printCheckItem("Default Agent", result.AgentCreated)
 
 	if result.AgentCreated {
@@ -341,6 +378,13 @@ func (v *Validator) PrintValidationReport(result *ValidationResult) {
 		v.logger.Info("🤖 Agent Details:")
 		v.logger.Info(fmt.Sprintf("  ID: %s", result.AgentID))
 		v.logger.Info(fmt.Sprintf("  Name: %s", result.AgentName))
+	}
+
+	if result.NotionValidated && result.NotionAgentID != "" {
+		v.logger.Info("")
+		v.logger.Info("📝 Notion Agent Details:")
+		v.logger.Info(fmt.Sprintf("  ID: %s", result.NotionAgentID))
+		v.logger.Info(fmt.Sprintf("  Name: %s", result.NotionAgentName))
 	}
 
 	v.logger.Info("")

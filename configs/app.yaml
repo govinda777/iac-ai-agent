@@ -7,8 +7,8 @@ server:
 
 # LLM Configuration
 llm:
-  provider: "openai"        # Provedor LLM (openai)
-  model: "gpt-3.5-turbo"    # Modelo a ser usado
+  provider: "nation.fun"    # Provedor LLM (nation.fun)
+  model: "nation-1"         # Modelo a ser usado
   temperature: 0.2          # Temperatura (0.0-1.0)
   max_tokens: 4000          # Máximo de tokens por resposta
   # api_key: ""             # Definir via env var LLM_API_KEY
@@ -45,8 +45,8 @@ web3:
   base_chain_id: 84531                     # Base Goerli Chain ID
 
   # Smart Contract Addresses
-  nft_access_contract_address: "0x123456789abcdef123456789abcdef12345678"  # Temporário até deploy
-  bot_token_contract_address: "0x987654321abcdef987654321abcdef98765432"   # Temporário até deploy
+  nft_access_contract_address: "0x147e832418Cc06A501047019E956714271098b89"  # NFT Contract Address
+  # bot_token_contract_address: ""   # Definir via env var TOKEN_CONTRACT_ADDRESS
 
   # Token Configuration
   token_symbol: "IACAI"
@@ -63,5 +63,25 @@ web3:
   
   # Nation.fun Configuration
   # wallet_token: ""        # Definir via env var WALLET_TOKEN
-  # wallet_address: ""      # Definir via env var WALLET_ADDRESS
+  wallet_address: "0x17eDfB8a794ec4f13190401EF7aF1c17f3cc90c5"  # Wallet padrão autorizada
   default_agent_address: "0x147e832418Cc06A501047019E956714271098b89"  # Agente padrão Nation.fun
+  
+  # Nation NFT Validation Configuration
+  nation_nft_required: true
+  nation_nft_contract: "0x1234567890123456789012345678901234567890"  # Endereço do contrato NFT do Nation
+
+# Notion Configuration
+notion:
+  # api_key: ""             # Definir via env var NOTION_API_KEY
+  base_url: "https://api.notion.com/v1"  # URL base da API Notion
+  
+  # Agent Configuration
+  agent_name: "IaC AI Agent"  # Nome do agente no Notion
+  agent_description: "Intelligent Infrastructure as Code Analysis Agent"
+  
+  # Features
+  enable_agent_creation: true    # Habilitar criação automática de agente
+  auto_create_on_startup: true    # Criar agente automaticamente na inicialização
+  
+  # Rate Limiting
+  max_requests_per_minute: 60     # Limite de requisições por minuto

@@ -12,6 +12,10 @@ func RegisterAllSteps(ctx *godog.ScenarioContext, cfg *config.Config, log *logge
 	criticalPathCtx := NewCriticalPathContext(cfg, log)
 	RegisterCriticalPathSteps(ctx, criticalPathCtx)
 
+	// Contexto de mock e integração
+	mockIntegrationCtx := NewMockIntegrationContext(cfg, log)
+	RegisterMockIntegrationSteps(ctx, mockIntegrationCtx)
+
 	// Contexto de onboarding
 	onboardingCtx := NewOnboardingContext(cfg, log)
 	RegisterOnboardingSteps(ctx, onboardingCtx)
@@ -27,6 +31,10 @@ func RegisterAllSteps(ctx *godog.ScenarioContext, cfg *config.Config, log *logge
 	// Contexto de análise
 	analysisCtx := NewBotAnalysisContext(cfg, log)
 	RegisterBotAnalysisSteps(ctx, analysisCtx)
+
+	// Contexto de fluxo de UI
+	uiFlowCtx := NewUIFlowContext(cfg, log)
+	RegisterUIFlowSteps(ctx, uiFlowCtx)
 }
 
 // NewOnboardingContext cria contexto para testes de onboarding

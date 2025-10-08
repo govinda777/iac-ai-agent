@@ -136,6 +136,28 @@ type Message struct {
 	Content string `json:"content"`
 }
 
+// SecretFinding representa um secret detectado
+type SecretFinding struct {
+	Type        string `json:"type"` // aws_key, password, private_key, api_key
+	File        string `json:"file"`
+	Line        int    `json:"line"`
+	Value       string `json:"value"`
+	Severity    string `json:"severity"`
+	Description string `json:"description"`
+	Suggestion  string `json:"suggestion"`
+}
+
+// SecretsReport representa relatório de secrets encontrados
+type SecretsReport struct {
+	TotalFindings int             `json:"total_findings"`
+	CriticalCount int             `json:"critical_count"`
+	HighCount     int             `json:"high_count"`
+	MediumCount   int             `json:"medium_count"`
+	LowCount      int             `json:"low_count"`
+	Findings      []SecretFinding `json:"findings"`
+	RiskLevel     string          `json:"risk_level"`
+}
+
 // ErrorResponse representa uma resposta de erro
 type ErrorResponse struct {
 	Error   string `json:"error"`

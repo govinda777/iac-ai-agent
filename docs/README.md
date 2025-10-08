@@ -1,267 +1,99 @@
-# IaC AI Agent
+# 📚 Documentação - IaC AI Agent
 
-> **⚠️ STATUS:** Versão 1.0.0 - Fundação técnica completa, features AI em desenvolvimento  
-> **📊 Conformidade com Objetivo:** 24% (ver [Análise Completa](PROJECT_ANALYSIS.md))
+Bem-vindo à documentação completa do IaC AI Agent! Este diretório contém todos os guias, tutoriais e referências técnicas necessárias para usar, configurar e desenvolver com o sistema.
 
-Um agente para análise, revisão e otimização de código Infrastructure as Code (IaC) com foco em Terraform.
+## 🚀 Começar Aqui
 
-## 🎯 Objetivo
+### Para Iniciantes
+- **[QUICKSTART_CONSOLIDADO.md](QUICKSTART_CONSOLIDADO.md)** - 🆕 **Guia consolidado de início rápido** (RECOMENDADO)
+- **[README.md](../README.md)** - Visão geral e quick start em 5 minutos
+- **[QUICKSTART_ATUALIZADO.md](QUICKSTART_ATUALIZADO.md)** - Setup detalhado passo-a-passo
 
-Analisar resultados de **IAC Preview** (terraform plan) e **Checkov Policies** para propor sugestões de melhorias baseadas em knowledge base. Ver [OBJECTIVE.md](OBJECTIVE.md) para detalhes completos.
+### Para Desenvolvedores
+- **[GUIA_INSTALACAO.md](GUIA_INSTALACAO.md)** - Instalação completa com troubleshooting
+- **[EXEMPLOS_PRATICOS.md](EXEMPLOS_PRATICOS.md)** - Casos de uso reais com comandos curl
+- **[AGENT_SYSTEM.md](AGENT_SYSTEM.md)** - Como funciona o sistema de agentes inteligentes
 
-## 📊 Status Atual
+## 📋 Índice Completo
 
-### ✅ Features Implementadas (v1.0.0)
+Para navegar por toda a documentação organizada por categoria, consulte:
 
-- ✅ **Análise de Terraform**: Parse e validação de código HCL
-- ✅ **Segurança (Checkov)**: Integração completa com Checkov
-- ✅ **IAM Analysis**: Análise básica de políticas e permissões
-- ✅ **PR Scoring**: Sistema de scoring multi-dimensional
-- ✅ **Cost Optimizer**: Estimativas básicas de custo
-- ✅ **GitHub Integration**: Webhooks prontos
-- ✅ **Validation Mode**: Análise de resultados pré-existentes
+**[INDEX.md](INDEX.md)** - Índice completo da documentação
 
-### 🚧 Features Planejadas (v1.5.0 - Sprint 1)
+## 🎯 Por Tipo de Usuário
 
-- 🚧 **AI-Powered com LLM**: Integração do LLM ao fluxo de análise
-- 🚧 **Knowledge Base Ativa**: Consulta automática durante análises
-- 🚧 **Preview Analyzer**: Parse de terraform plan output
-- 🚧 **Secrets Scanner**: Detecção de dados sensíveis expostos
+### 👨‍💻 Desenvolvedor Individual
+1. [QUICKSTART_CONSOLIDADO.md](QUICKSTART_CONSOLIDADO.md) - Guia consolidado de início rápido
+2. [EXEMPLOS_PRATICOS.md](EXEMPLOS_PRATICOS.md) - Exemplos de uso
+3. [AGENT_SYSTEM.md](AGENT_SYSTEM.md) - Sistema de agentes
+4. [TESTING.md](TESTING.md) - Como testar
 
-### 📋 Roadmap Completo (v2.0.0)
+### 🏢 Time DevOps
+1. [GUIA_INSTALACAO.md](GUIA_INSTALACAO.md) - Instalação completa
+2. [WEB3_INTEGRATION_GUIDE.md](WEB3_INTEGRATION_GUIDE.md) - Integração Web3
+3. [ARCHITECTURE.md](ARCHITECTURE.md) - Arquitetura
+4. [DEPLOYMENT.md](DEPLOYMENT.md) - Deploy (se disponível)
 
-- 📋 Drift Detection
-- 📋 Module Suggester (community modules)
-- 📋 Architecture Advisor
-- 📋 Timeout/Stuck Resources Detection
-- 📋 Best Practices Validator completo
+### 🏭 Empresa/Enterprise
+1. [EXECUTIVE_SUMMARY.md](EXECUTIVE_SUMMARY.md) - Resumo executivo
+2. [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) - Roadmap
+3. [SECURE_TOKEN_USAGE.md](SECURE_TOKEN_USAGE.md) - Segurança
+4. [ARCHITECTURE.md](ARCHITECTURE.md) - Arquitetura técnica
 
-**Ver:** [Roadmap Completo](IMPLEMENTATION_ROADMAP.md) | [Análise do Projeto](PROJECT_ANALYSIS.md)
+## 📈 Por Nível de Experiência
 
-## 🏗️ Arquitetura
+### 🟢 Iniciante (0-6 meses)
+1. [QUICKSTART_CONSOLIDADO.md](QUICKSTART_CONSOLIDADO.md) - Guia consolidado de início rápido
+2. [README.md](../README.md) - Visão geral
+3. [QUICKSTART_ATUALIZADO.md](QUICKSTART_ATUALIZADO.md) - Setup básico
+4. [EXEMPLOS_PRATICOS.md](EXEMPLOS_PRATICOS.md) - Exemplos simples
 
-Consulte [ARCHITECTURE.md](./ARCHITECTURE.md) para detalhes completos da arquitetura.
+### 🟡 Intermediário (6 meses - 2 anos)
+1. [AGENT_SYSTEM.md](AGENT_SYSTEM.md) - Sistema de agentes
+2. [WEB3_INTEGRATION_GUIDE.md](WEB3_INTEGRATION_GUIDE.md) - Integração Web3
+3. [TESTING.md](TESTING.md) - Testes avançados
 
-```
-┌─────────────┐
-│   GitHub    │
-│   Webhook   │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────────────┐
-│    REST API         │
-│  (handlers.go)      │
-└──────┬──────────────┘
-       │
-       ▼
-┌─────────────────────┐
-│   Services Layer    │
-│ analysis.go         │
-│ review.go           │
-└──────┬──────────────┘
-       │
-       ├──────────────────┐
-       │                  │
-       ▼                  ▼
-┌─────────────┐    ┌──────────────┐
-│  Analyzers  │    │     LLM      │
-│  terraform  │    │    client    │
-│  checkov    │    │prompt_builder│
-│  iam        │    └──────────────┘
-└─────────────┘
-       │
-       ▼
-┌─────────────────────┐
-│  Scorer/Suggester   │
-│  pr_scorer.go       │
-│  cost_optimizer.go  │
-│  security_advisor.go│
-└─────────────────────┘
-```
+### 🔴 Avançado (2+ anos)
+1. [ARCHITECTURE.md](ARCHITECTURE.md) - Arquitetura técnica
+2. [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) - Implementação
+3. [WEB3_IMPLEMENTATION_PLAN.md](WEB3_IMPLEMENTATION_PLAN.md) - Plano Web3
 
-## 🛠️ Instalação
+## 🔍 Por Problema
 
-### Pré-requisitos
+### ❌ Problemas de Instalação
+- [GUIA_INSTALACAO.md](GUIA_INSTALACAO.md) - Troubleshooting completo
+- [CONFIGURACAO_VARIAVEIS.md](CONFIGURACAO_VARIAVEIS.md) - Problemas de configuração
+- [ENVIRONMENT_VARIABLES.md](ENVIRONMENT_VARIABLES.md) - Variáveis de ambiente
 
-- Go 1.21+
-- Docker (opcional)
-- Checkov instalado (`pip install checkov`)
-- Terraform instalado
-- Token GitHub
-- API Key de LLM (OpenAI ou Anthropic)
+### 🔧 Problemas de Configuração
+- [CONFIGURACAO_VARIAVEIS.md](CONFIGURACAO_VARIAVEIS.md) - Configuração detalhada
+- [NATION_AGENT_CONFIG.md](NATION_AGENT_CONFIG.md) - Configuração Nation.fun
+- [WHATSAPP_API_KEY_CONFIG.md](WHATSAPP_API_KEY_CONFIG.md) - Configuração WhatsApp
 
-### Setup Local
+### 🧪 Problemas de Testes
+- [TESTING.md](TESTING.md) - Estratégia de testes
+- [VALIDATION_MODE.md](VALIDATION_MODE.md) - Modo de validação
+- [BDD_TEST_REPORT.md](BDD_TEST_REPORT.md) - Relatório de testes
 
-```bash
-# Clone o repositório
-git clone <repo-url>
-cd iac-ai-agent
+### 🔐 Problemas de Segurança
+- [SECURE_TOKEN_USAGE.md](SECURE_TOKEN_USAGE.md) - Uso seguro de tokens
+- [GIT_SECRETS_SETUP.md](GIT_SECRETS_SETUP.md) - Secrets no Git
+- [WHATSAPP_SECURITY_PROTOCOL.md](WHATSAPP_SECURITY_PROTOCOL.md) - Protocolo de segurança WhatsApp
 
-# Instale dependências
-go mod download
+## 🆘 Suporte
 
-# Configure variáveis de ambiente
-cp .env.example .env
-# Edite .env com suas credenciais
+- **Issues**: [GitHub Issues](https://github.com/gosouza/iac-ai-agent/issues)
+- **Email**: support@iacai.com
+- **Discord**: (em breve)
+- **Twitter**: [@iacaiagent](https://twitter.com/iacaiagent)
 
-# Execute setup
-make setup
+---
 
-# Execute o agente
-make run
-```
-
-### Docker
-
-```bash
-# Build
-docker build -t iac-ai-agent .
-
-# Run
-docker run -p 8080:8080 --env-file .env iac-ai-agent
-```
-
-### Docker Compose
-
-```bash
-docker-compose up -d
-```
-
-## 📝 Configuração
-
-### Variáveis de Ambiente
-
-```bash
-# LLM Configuration
-LLM_PROVIDER=openai          # openai ou anthropic
-LLM_API_KEY=sk-xxx...        # Sua API key
-LLM_MODEL=gpt-4              # Modelo a usar
-
-# GitHub Configuration
-GITHUB_TOKEN=ghp_xxx...      # Token do GitHub
-GITHUB_WEBHOOK_SECRET=xxx    # Secret do webhook
-
-# Analysis Configuration
-CHECKOV_ENABLED=true
-IAM_ANALYSIS_ENABLED=true
-COST_OPTIMIZATION_ENABLED=true
-
-# Server Configuration
-PORT=8080
-LOG_LEVEL=info
-```
-
-### app.yaml
-
-Ver exemplo em `configs/app.yaml`
-
-## 🚦 Uso
-
-### Como API REST
-
-```bash
-# Health check
-curl http://localhost:8080/health
-
-# Analisar código Terraform
-curl -X POST http://localhost:8080/analyze \
-  -H "Content-Type: application/json" \
-  -d '{
-    "repository": "org/repo",
-    "path": "infrastructure/",
-    "content": "<terraform-code>"
-  }'
-
-# Review de PR
-curl -X POST http://localhost:8080/review \
-  -H "Content-Type: application/json" \
-  -d '{
-    "repository": "org/repo",
-    "pr_number": 123
-  }'
-```
-
-### Integração com GitHub
-
-1. Vá em Settings → Webhooks → Add webhook
-2. **Payload URL**: `https://your-domain.com/webhook/github`
-3. **Content type**: `application/json`
-4. **Secret**: Seu webhook secret
-5. **Events**: Pull request, Push
-6. Save
-
-O agente comentará automaticamente nos PRs com análises e sugestões.
-
-## 🧪 Testes
-
-```bash
-# Unit tests
-make test
-
-# Integration tests
-make test-integration
-
-# Com coverage
-make test-coverage
-```
-
-## 📊 Exemplo de Saída
-
-```json
-{
-  "score": 85,
-  "analysis": {
-    "terraform": {
-      "resources": 12,
-      "modules": 3,
-      "valid": true
-    },
-    "security": {
-      "critical": 0,
-      "high": 1,
-      "medium": 3,
-      "low": 5
-    },
-    "iam": {
-      "overly_permissive": false,
-      "recommendations": [...]
-    }
-  },
-  "suggestions": [
-    {
-      "type": "security",
-      "severity": "high",
-      "message": "S3 bucket is publicly accessible",
-      "recommendation": "Add bucket_acl = \"private\"",
-      "file": "main.tf",
-      "line": 45
-    },
-    {
-      "type": "cost",
-      "severity": "medium",
-      "message": "Consider using spot instances",
-      "recommendation": "Add spot_price parameter",
-      "estimated_savings": "$450/month"
-    }
-  ]
-}
-```
-
-## 🤝 Contribuindo
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -am 'Adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-MIT License - veja [LICENSE](../LICENSE) para detalhes.
-
-## 🙏 Agradecimentos
-
-- [Checkov](https://www.checkov.io/) - Security scanning
-- [Terraform](https://www.terraform.io/) - IaC platform
-- [OpenAI](https://openai.com/) - LLM capabilities
+<div align="center">
+  <p>📚 <strong>Documentação Completa</strong> - IaC AI Agent</p>
+  <p>
+    <strong>Status</strong>: ✅ Atualizada e organizada<br>
+    <strong>Versão</strong>: 1.3.0<br>
+    <strong>Total de documentos</strong>: 30+
+  </p>
+</div>

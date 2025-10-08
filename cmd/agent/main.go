@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -10,184 +11,301 @@ import (
 	"time"
 
 	"github.com/govinda777/iac-ai-agent/api/rest"
-	_ "github.com/govinda777/iac-ai-agent/docs" // Swagger docs
-	"github.com/govinda777/iac-ai-agent/internal/platform/web3"
-	"github.com/govinda777/iac-ai-agent/internal/services"
-	"github.com/govinda777/iac-ai-agent/internal/startup"
+	"github.com/govinda777/iac-ai-agent/internal/agent/capabilities"
+	"github.com/govinda777/iac-ai-agent/internal/agent/core"
 	"github.com/govinda777/iac-ai-agent/pkg/config"
 	"github.com/govinda777/iac-ai-agent/pkg/logger"
-	httpSwagger "github.com/swaggo/http-swagger"
-)
-
-const (
-	version = "1.0.0"
-	banner  = `
-	██╗ █████╗  ██████╗     █████╗ ██╗     █████╗  ██████╗ ███████╗███╗   ██╗████████╗
-	██║██╔══██╗██╔════╝    ██╔══██╗██║    ██╔══██╗██╔════╝ ██╔════╝████╗  ██║╚══██╔══╝
-	██║███████║██║         ███████║██║    ███████║██║  ███╗█████╗  ██╔██╗ ██║   ██║   
-	██║██╔══██║██║         ██╔══██║██║    ██╔══██║██║   ██║██╔══╝  ██║╚██╗██║   ██║   
-	██║██║  ██║╚██████╗    ██║  ██║██║    ██║  ██║╚██████╔╝███████╗██║ ╚████║   ██║   
-	╚═╝╚═╝  ╚═╝ ╚═════╝    ╚═╝  ╚═╝╚═╝    ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝   
-	
-	Infrastructure as Code AI Agent v%s
-	Powered by LLM | Secured by Privy.io | Running on Base Network
-	`
 )
 
 func main() {
-	// Print banner
-	fmt.Printf(banner, version)
-	fmt.Println()
-
-	// Load configuration
-	cfg, err := config.Load("configs/app.yaml")
+	// Carregar configuração
+	agentConfig, err := loadConfig()
 	if err != nil {
-		fmt.Printf("❌ Failed to load configuration: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	// Initialize logger
-	log := logger.New(cfg.Logging.Level, cfg.Logging.Format)
-	log.Info("🚀 Starting IaC AI Agent", "version", version)
+	// Criar agente principal
+	agent := core.NewAgent(agentConfig)
 
-	// Context with cancellation
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// ============================================================
-	// STARTUP VALIDATION (OBRIGATÓRIO)
-	// ============================================================
-	log.Info("🔍 Executando validações de startup...")
-
-	// Verificar se estamos no modo de desenvolvimento sem validação
-	if os.Getenv("ENABLE_STARTUP_VALIDATION") == "false" {
-		log.Info("⚠️ Validações desabilitadas - modo desenvolvimento")
-		log.Info("✅ Pulando validação de startup")
-	} else {
-		validator := startup.NewValidator(cfg, log)
-
-		// Validar tudo - panic se falhar
-		validator.MustValidate(ctx)
-
-		log.Info("✅ Todas as validações passaram!")
-	}
-	log.Info("")
-
-	// ============================================================
-	// INITIALIZE SERVICES
-	// ============================================================
-	log.Info("📦 Inicializando serviços...")
-
-	// Inicializar cliente Base Network
-	baseClient, err := web3.NewBaseClient(cfg, log)
-	if err != nil {
-		log.Error("❌ Falha ao inicializar cliente Base Network", "error", err)
-		os.Exit(1)
+	// Registrar habilidades
+	if err := registerCapabilities(agent); err != nil {
+		log.Fatalf("Failed to register capabilities: %v", err)
 	}
 
-	// Inicializar serviço de agentes
-	agentService := services.NewAgentService(cfg, log, baseClient)
-
-	// Verificar se já existe um agente para a wallet ou criar um novo
-	log.Info("🤖 Verificando agente para wallet", "address", cfg.Web3.WalletAddress)
-	agent, err := agentService.EnsureAgentExists(ctx)
-	if err != nil {
-		log.Warn("⚠️ Não foi possível verificar/criar agente", "error", err)
-		log.Warn("⚠️ Algumas funcionalidades podem estar limitadas")
-	} else {
-		log.Info("✅ Agente configurado com sucesso",
-			"agent_id", agent.ID,
-			"template", agent.TemplateID,
-			"contract", agent.ContractAddress)
-
-		// Verificar se o agente tem chave do WhatsApp
-		if agent.HasWhatsAppKey {
-			log.Info("✅ Agente possui chave de API do WhatsApp configurada")
-		} else {
-			log.Info("ℹ️ Agente não possui chave de API do WhatsApp configurada")
-			log.Info("ℹ️ Use a API para configurar a chave do WhatsApp usando Lit Protocol")
-		}
+	// Inicializar agente
+	ctx := context.Background()
+	if err := agent.Initialize(ctx); err != nil {
+		log.Fatalf("Failed to initialize agent: %v", err)
 	}
 
-	log.Info("✅ Serviços inicializados com sucesso")
+	// Iniciar agente
+	if err := agent.Start(ctx); err != nil {
+		log.Fatalf("Failed to start agent: %v", err)
+	}
 
-	// ============================================================
-	// SETUP HTTP SERVER
-	// ============================================================
-	log.Info("🌐 Configurando servidor HTTP...")
+	log.Printf("Agent started successfully: %s", agent.ID)
 
-	// API Handlers
-	apiHandlers := rest.NewHandler(cfg, log)
-	router := apiHandlers.SetupRoutes()
+	// Criar configuração e logger para o handler REST
+	restConfig := &config.Config{
+		Server: config.ServerConfig{
+			Port: "8080",
+			Host: "localhost",
+		},
+		Logging: config.LoggingConfig{
+			Level:  "info",
+			Format: "json",
+		},
+	}
+	restLogger := logger.New("info", "json")
 
-	// Swagger UI
-	router.PathPrefix("/swagger/").Handler(httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:"+cfg.Server.Port+"/swagger/doc.json"),
-		httpSwagger.DeepLinking(true),
-		httpSwagger.DocExpansion("none"),
-		httpSwagger.DomID("swagger-ui"),
-	)).Methods(http.MethodGet)
+	// Criar handler REST com Swagger
+	handler := rest.NewHandler(restConfig, restLogger)
 
-	// HTTP Server
+	// Configurar rotas com Swagger UI
+	router := handler.SetupRoutes()
+
+	// Middleware (comentado temporariamente para teste)
+	// router.Use(rest.LoggingMiddleware)
+	// router.Use(rest.TokenValidationMiddleware("your_verify_token_here"))
+
+	// Registrar rotas do agente também
+	agentHandler := rest.NewAgentHandler(agent)
+	agentHandler.RegisterRoutes(router)
+
+	// Configurar servidor HTTP
 	server := &http.Server{
-		Addr:         cfg.GetAddress(),
+		Addr:         ":8080",
 		Handler:      router,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
 		IdleTimeout:  60 * time.Second,
 	}
 
-	// ============================================================
-	// START SERVER
-	// ============================================================
-	// Channel to listen for errors coming from the listener
-	serverErrors := make(chan error, 1)
-
-	// Start the server
+	// Iniciar servidor em goroutine
 	go func() {
-		log.Info("🚀 Servidor HTTP iniciado",
-			"address", cfg.GetAddress(),
-			"environment", os.Getenv("ENVIRONMENT"))
-		log.Info("📚 Swagger UI: http://localhost:" + cfg.Server.Port + "/swagger/")
-		log.Info("❤️  Health Check: http://localhost:" + cfg.Server.Port + "/health")
-		log.Info("")
-		log.Info("✨ Aplicação pronta para receber requisições!")
-		log.Info("Press Ctrl+C to shutdown gracefully")
-		log.Info("")
-
-		serverErrors <- server.ListenAndServe()
+		log.Printf("Starting agent server on :8080")
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Failed to start server: %v", err)
+		}
 	}()
 
-	// ============================================================
-	// GRACEFUL SHUTDOWN
-	// ============================================================
-	// Channel to listen for interrupt signal
-	shutdown := make(chan os.Signal, 1)
-	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
+	// Aguardar sinal de interrupção
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
 
-	// Blocking main and waiting for shutdown
-	select {
-	case err := <-serverErrors:
-		log.Error("❌ Erro ao iniciar servidor", "error", err)
-		os.Exit(1)
+	log.Println("Shutting down agent...")
 
-	case sig := <-shutdown:
-		log.Info("🛑 Shutdown signal recebido", "signal", sig)
+	// Graceful shutdown
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 
-		// Give outstanding requests a deadline for completion
-		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-		defer cancel()
-
-		// Asking listener to shutdown
-		if err := server.Shutdown(ctx); err != nil {
-			log.Error("❌ Erro no graceful shutdown", "error", err)
-
-			// Force close
-			if err := server.Close(); err != nil {
-				log.Error("❌ Erro ao forçar fechamento", "error", err)
-			}
-		}
-
-		log.Info("👋 Aplicação encerrada com sucesso")
+	// Parar agente
+	if err := agent.Stop(ctx); err != nil {
+		log.Printf("Failed to stop agent: %v", err)
 	}
+
+	// Parar servidor
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatalf("Server forced to shutdown: %v", err)
+	}
+
+	log.Println("Agent stopped successfully")
+}
+
+// loadConfig carrega configuração do agente
+func loadConfig() (*core.Config, error) {
+	// Configuração padrão
+	config := &core.Config{
+		AgentID:     "iac-ai-agent",
+		AgentName:   "IaC AI Agent",
+		Description: "Agente inteligente para análise de Infrastructure as Code",
+		Version:     "1.0.0",
+		Capabilities: map[string]interface{}{
+			"whatsapp": map[string]interface{}{
+				"webhook_url":  getEnv("WHATSAPP_WEBHOOK_URL", ""),
+				"verify_token": getEnv("WHATSAPP_VERIFY_TOKEN", "your_verify_token_here"),
+				"api_key":      getEnv("WHATSAPP_API_KEY", ""),
+			},
+			"iac-analysis": map[string]interface{}{
+				"terraform_enabled": true,
+				"security_enabled":  true,
+				"cost_enabled":      true,
+			},
+		},
+		Logging: core.LoggingConfig{
+			Level:      getEnv("LOG_LEVEL", "info"),
+			File:       getEnv("LOG_FILE", "/var/log/iac-ai-agent.log"),
+			MaxSize:    "100MB",
+			MaxBackups: 3,
+			MaxAge:     28,
+		},
+		Web3: core.Web3Config{
+			WalletAddress: getEnv("WALLET_ADDRESS", "0x17eDfB8a794ec4f13190401EF7aF1c17f3cc90c5"),
+			NFTContract:   getEnv("NFT_CONTRACT", "nation.fun"),
+			LitProtocol:   true,
+		},
+		Billing: core.BillingConfig{
+			Enabled: true,
+			TokenCosts: map[string]int{
+				"analyze":  1,
+				"security": 1,
+				"cost":     1,
+			},
+			FreeCommands: []string{"help", "status", "ping"},
+		},
+	}
+
+	return config, nil
+}
+
+// registerCapabilities registra todas as habilidades do agente
+func registerCapabilities(agent *core.Agent) error {
+	// Registrar habilidade WhatsApp
+	whatsappCapability := capabilities.NewWhatsAppCapability()
+	if err := agent.RegisterCapability(whatsappCapability); err != nil {
+		return fmt.Errorf("failed to register WhatsApp capability: %w", err)
+	}
+
+	// Registrar habilidade de análise IaC
+	iacCapability := capabilities.NewIACAnalysisCapability()
+	if err := agent.RegisterCapability(iacCapability); err != nil {
+		return fmt.Errorf("failed to register IaC Analysis capability: %w", err)
+	}
+
+	// Conectar habilidades (WhatsApp pode usar IaC Analysis)
+	whatsappCapability.SetIACCapability(iacCapability)
+
+	log.Printf("Capabilities registered successfully")
+	return nil
+}
+
+// getEnv obtém variável de ambiente com valor padrão
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+// Exemplo de uso do agente
+func exampleUsage() {
+	// Criar configuração
+	config := &core.Config{
+		AgentID:     "example-agent",
+		AgentName:   "Example Agent",
+		Description: "Agente de exemplo",
+		Version:     "1.0.0",
+		Capabilities: map[string]interface{}{
+			"whatsapp": map[string]interface{}{
+				"webhook_url":  "https://example.com/webhook/whatsapp",
+				"verify_token": "example_token",
+				"api_key":      "example_api_key",
+			},
+		},
+		Logging: core.LoggingConfig{
+			Level: "info",
+		},
+	}
+
+	// Criar agente
+	agent := core.NewAgent(config)
+
+	// Registrar habilidades
+	whatsappCapability := capabilities.NewWhatsAppCapability()
+	iacCapability := capabilities.NewIACAnalysisCapability()
+
+	agent.RegisterCapability(whatsappCapability)
+	agent.RegisterCapability(iacCapability)
+	whatsappCapability.SetIACCapability(iacCapability)
+
+	// Inicializar e iniciar
+	ctx := context.Background()
+	agent.Initialize(ctx)
+	agent.Start(ctx)
+
+	// Exemplo de mensagem
+	message := &core.Message{
+		ID:        "msg_123",
+		Source:    "whatsapp",
+		Channel:   "whatsapp",
+		From:      "5511999999999",
+		Text:      "/analyze\n```hcl\nresource \"aws_instance\" \"web\" {\n  instance_type = \"t3.micro\"\n}\n```",
+		Type:      "text",
+		Timestamp: time.Now(),
+	}
+
+	// Processar mensagem
+	response, err := agent.ProcessMessage(ctx, message)
+	if err != nil {
+		log.Printf("Erro ao processar mensagem: %v", err)
+		return
+	}
+
+	// Exibir resposta
+	fmt.Printf("Resposta: %s\n", response.Text)
+
+	// Obter status das habilidades
+	capabilities := agent.GetCapabilities()
+	fmt.Printf("Habilidades: %+v\n", capabilities)
+
+	// Parar agente
+	agent.Stop(ctx)
+}
+
+// Exemplo de configuração avançada
+func exampleAdvancedConfig() {
+	config := &core.Config{
+		AgentID:     "advanced-agent",
+		AgentName:   "Advanced IaC AI Agent",
+		Description: "Agente avançado com múltiplas habilidades",
+		Version:     "1.0.0",
+		Capabilities: map[string]interface{}{
+			"whatsapp": map[string]interface{}{
+				"webhook_url":  "https://advanced.example.com/webhook/whatsapp",
+				"verify_token": "advanced_token",
+				"api_key":      "advanced_api_key",
+				"rate_limit": map[string]interface{}{
+					"enabled":           true,
+					"requests_per_hour": 100,
+					"burst_size":        10,
+				},
+			},
+			"iac-analysis": map[string]interface{}{
+				"terraform_enabled": true,
+				"security_enabled":  true,
+				"cost_enabled":      true,
+				"providers": []string{
+					"aws",
+					"azure",
+					"gcp",
+				},
+				"analysis_depth": "deep",
+			},
+		},
+		Logging: core.LoggingConfig{
+			Level:      "debug",
+			File:       "/var/log/advanced-agent.log",
+			MaxSize:    "500MB",
+			MaxBackups: 5,
+			MaxAge:     30,
+		},
+		Web3: core.Web3Config{
+			WalletAddress: "0x17eDfB8a794ec4f13190401EF7aF1c17f3cc90c5",
+			NFTContract:   "nation.fun",
+			LitProtocol:   true,
+		},
+		Billing: core.BillingConfig{
+			Enabled: true,
+			TokenCosts: map[string]int{
+				"analyze":  1,
+				"security": 2,
+				"cost":     1,
+				"deep":     3,
+			},
+			FreeCommands: []string{"help", "status", "ping", "health"},
+		},
+	}
+
+	fmt.Printf("Configuração avançada: %+v\n", config)
 }

@@ -27,6 +27,14 @@ go.work.sum
 # env file
 .env
 
+# Test reports (temporary)
+reports/html/
+reports/assets/
+
+# Keep versioned reports for Git tracking
+!reports/versioned/
+!reports/templates/
+
 # Editor/IDE
 # .idea/
 # .vscode/
