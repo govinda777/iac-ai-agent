@@ -46,7 +46,6 @@ func NewWebhookHandler(cfg *config.Config, log *logger.Logger) *WebhookHandler {
 		prScorer,
 		costOptimizer,
 		securityAdvisor,
-		cfg,
 	)
 	return &WebhookHandler{
 		config:        cfg,
