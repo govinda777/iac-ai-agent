@@ -4,49 +4,49 @@ import "time"
 
 // LLMStructuredResponse é o template principal de resposta estruturada da LLM
 type LLMStructuredResponse struct {
-	ID               string                   `json:"id"`
-	Timestamp        time.Time                `json:"timestamp"`
-	ModelUsed        string                   `json:"model_used"`
-	TokensUsed       int                      `json:"tokens_used"`
-	AnalysisType     string                   `json:"analysis_type"` // full, preview, security, cost, etc
-	ExecutiveSummary ExecutiveSummary         `json:"executive_summary"`
-	CriticalIssues   []EnrichedIssue          `json:"critical_issues"`
-	Improvements     []EnrichedImprovement    `json:"improvements"`
-	BestPractices    []BestPracticeCheck      `json:"best_practices"`
+	ID                    string                `json:"id"`
+	Timestamp             time.Time             `json:"timestamp"`
+	ModelUsed             string                `json:"model_used"`
+	TokensUsed            int                   `json:"tokens_used"`
+	AnalysisType          string                `json:"analysis_type"` // full, preview, security, cost, etc
+	ExecutiveSummary      ExecutiveSummary      `json:"executive_summary"`
+	CriticalIssues        []EnrichedIssue       `json:"critical_issues"`
+	Improvements          []EnrichedImprovement `json:"improvements"`
+	BestPractices         []BestPracticeCheck   `json:"best_practices"`
 	ArchitecturalInsights ArchitecturalInsights `json:"architectural_insights"`
-	PriorityActions  []PriorityAction         `json:"priority_actions"`
-	QuickWins        []QuickWin               `json:"quick_wins"`
-	Metadata         ResponseMetadata         `json:"metadata"`
+	PriorityActions       []PriorityAction      `json:"priority_actions"`
+	QuickWins             []QuickWin            `json:"quick_wins"`
+	Metadata              ResponseMetadata      `json:"metadata"`
 }
 
 // ExecutiveSummary é o resumo executivo da análise
 type ExecutiveSummary struct {
-	OverallScore     int      `json:"overall_score"` // 0-100
-	ScoreLevel       string   `json:"score_level"` // excellent, good, fair, poor, critical
-	Summary          string   `json:"summary"` // 2-3 sentences
-	MainConcerns     []string `json:"main_concerns"` // Top 3-5 concerns
-	KeyStrengths     []string `json:"key_strengths"` // What's good
-	Recommendation   string   `json:"recommendation"` // approve, request_changes, needs_review
-	EstimatedRiskLevel string `json:"estimated_risk_level"` // low, medium, high, critical
+	OverallScore       int      `json:"overall_score"`        // 0-100
+	ScoreLevel         string   `json:"score_level"`          // excellent, good, fair, poor, critical
+	Summary            string   `json:"summary"`              // 2-3 sentences
+	MainConcerns       []string `json:"main_concerns"`        // Top 3-5 concerns
+	KeyStrengths       []string `json:"key_strengths"`        // What's good
+	Recommendation     string   `json:"recommendation"`       // approve, request_changes, needs_review
+	EstimatedRiskLevel string   `json:"estimated_risk_level"` // low, medium, high, critical
 }
 
 // EnrichedIssue é um problema identificado com contexto da LLM
 type EnrichedIssue struct {
-	ID                   string                 `json:"id"`
-	Title                string                 `json:"title"`
-	Category             string                 `json:"category"` // security, preview_error, iam, drift, timeout
-	Severity             string                 `json:"severity"` // critical, high, medium, low
-	Resource             string                 `json:"resource,omitempty"`
-	File                 string                 `json:"file,omitempty"`
-	Line                 int                    `json:"line,omitempty"`
-	Description          string                 `json:"description"`
-	BusinessImpact       string                 `json:"business_impact"` // Why it matters
-	TechnicalExplanation string                 `json:"technical_explanation"`
-	HowToFix             HowToFix               `json:"how_to_fix"`
-	EstimatedEffort      string                 `json:"estimated_effort"` // easy, medium, hard
-	References           []Reference            `json:"references"`
-	ComplianceImpact     []string               `json:"compliance_impact,omitempty"` // GDPR, SOC2, HIPAA, etc
-	RelatedIssues        []string               `json:"related_issues,omitempty"` // IDs of related issues
+	ID                   string      `json:"id"`
+	Title                string      `json:"title"`
+	Category             string      `json:"category"` // security, preview_error, iam, drift, timeout
+	Severity             string      `json:"severity"` // critical, high, medium, low
+	Resource             string      `json:"resource,omitempty"`
+	File                 string      `json:"file,omitempty"`
+	Line                 int         `json:"line,omitempty"`
+	Description          string      `json:"description"`
+	BusinessImpact       string      `json:"business_impact"` // Why it matters
+	TechnicalExplanation string      `json:"technical_explanation"`
+	HowToFix             HowToFix    `json:"how_to_fix"`
+	EstimatedEffort      string      `json:"estimated_effort"` // easy, medium, hard
+	References           []Reference `json:"references"`
+	ComplianceImpact     []string    `json:"compliance_impact,omitempty"` // GDPR, SOC2, HIPAA, etc
+	RelatedIssues        []string    `json:"related_issues,omitempty"`    // IDs of related issues
 }
 
 // EnrichedImprovement é uma melhoria sugerida com contexto da LLM
@@ -60,46 +60,46 @@ type EnrichedImprovement struct {
 	Benefits                 []string    `json:"benefits"`
 	Implementation           HowToFix    `json:"implementation"`
 	EstimatedSavings         *Savings    `json:"estimated_savings,omitempty"`
-	EstimatedEffort          string      `json:"estimated_effort"` // easy, medium, hard
+	EstimatedEffort          string      `json:"estimated_effort"`            // easy, medium, hard
 	EstimatedTimeToImplement string      `json:"estimated_time_to_implement"` // 1h, 1d, 1w, etc
-	ROI                      string      `json:"roi,omitempty"` // Return on Investment description
+	ROI                      string      `json:"roi,omitempty"`               // Return on Investment description
 	References               []Reference `json:"references"`
 }
 
 // BestPracticeCheck é uma verificação de boa prática
 type BestPracticeCheck struct {
-	ID            string   `json:"id"`
-	Title         string   `json:"title"`
-	Category      string   `json:"category"` // structure, documentation, testing, size, etc
-	Status        string   `json:"status"` // passed, warning, failed
-	CurrentValue  string   `json:"current_value,omitempty"`
-	ExpectedValue string   `json:"expected_value,omitempty"`
-	Message       string   `json:"message"`
-	Recommendation string  `json:"recommendation,omitempty"`
-	Priority      string   `json:"priority"` // high, medium, low
-	References    []Reference `json:"references,omitempty"`
+	ID             string      `json:"id"`
+	Title          string      `json:"title"`
+	Category       string      `json:"category"` // structure, documentation, testing, size, etc
+	Status         string      `json:"status"`   // passed, warning, failed
+	CurrentValue   string      `json:"current_value,omitempty"`
+	ExpectedValue  string      `json:"expected_value,omitempty"`
+	Message        string      `json:"message"`
+	Recommendation string      `json:"recommendation,omitempty"`
+	Priority       string      `json:"priority"` // high, medium, low
+	References     []Reference `json:"references,omitempty"`
 }
 
 // ArchitecturalInsights são insights sobre a arquitetura
 type ArchitecturalInsights struct {
-	DetectedPattern      string            `json:"detected_pattern"` // 3-tier, serverless, microservices, etc
-	Confidence           float64           `json:"confidence"` // 0.0 - 1.0
-	Strengths            []string          `json:"strengths"`
-	Weaknesses           []string          `json:"weaknesses"`
-	AreasForImprovement  []string          `json:"areas_for_improvement"`
-	RecommendedPatterns  []RecommendedPattern `json:"recommended_patterns"`
-	ScalabilityConcerns  []string          `json:"scalability_concerns,omitempty"`
-	ResilienceConcerns   []string          `json:"resilience_concerns,omitempty"`
+	DetectedPattern     string               `json:"detected_pattern"` // 3-tier, serverless, microservices, etc
+	Confidence          float64              `json:"confidence"`       // 0.0 - 1.0
+	Strengths           []string             `json:"strengths"`
+	Weaknesses          []string             `json:"weaknesses"`
+	AreasForImprovement []string             `json:"areas_for_improvement"`
+	RecommendedPatterns []RecommendedPattern `json:"recommended_patterns"`
+	ScalabilityConcerns []string             `json:"scalability_concerns,omitempty"`
+	ResilienceConcerns  []string             `json:"resilience_concerns,omitempty"`
 }
 
 // RecommendedPattern é um padrão arquitetural recomendado
 type RecommendedPattern struct {
-	Name        string   `json:"name"`
-	Reason      string   `json:"reason"`
-	Benefits    []string `json:"benefits"`
-	Tradeoffs   []string `json:"tradeoffs,omitempty"`
-	Effort      string   `json:"effort"` // easy, medium, hard
-	Reference   string   `json:"reference,omitempty"`
+	Name      string   `json:"name"`
+	Reason    string   `json:"reason"`
+	Benefits  []string `json:"benefits"`
+	Tradeoffs []string `json:"tradeoffs,omitempty"`
+	Effort    string   `json:"effort"` // easy, medium, hard
+	Reference string   `json:"reference,omitempty"`
 }
 
 // PriorityAction é uma ação prioritária
@@ -108,8 +108,8 @@ type PriorityAction struct {
 	Action      string   `json:"action"`
 	Reason      string   `json:"reason"`
 	IssuesFixed []string `json:"issues_fixed"` // IDs of issues this fixes
-	Effort      string   `json:"effort"` // easy, medium, hard
-	Impact      string   `json:"impact"` // high, medium, low
+	Effort      string   `json:"effort"`       // easy, medium, hard
+	Impact      string   `json:"impact"`       // high, medium, low
 }
 
 // QuickWin é uma vitória rápida (high impact, low effort)
@@ -119,17 +119,17 @@ type QuickWin struct {
 	Implementation HowToFix `json:"implementation"`
 	Benefit        string   `json:"benefit"`
 	EstimatedTime  string   `json:"estimated_time"` // 5m, 15m, 1h, etc
-	ROI            string   `json:"roi"` // Very High, High, Medium
+	ROI            string   `json:"roi"`            // Very High, High, Medium
 }
 
 // HowToFix descreve como corrigir um problema
 type HowToFix struct {
-	Steps            []string          `json:"steps"`
-	CodeExample      *CodeExample      `json:"code_example,omitempty"`
-	CommandsToRun    []string          `json:"commands_to_run,omitempty"`
-	ConfigChanges    []ConfigChange    `json:"config_changes,omitempty"`
-	ValidationSteps  []string          `json:"validation_steps,omitempty"`
-	RollbackPlan     string            `json:"rollback_plan,omitempty"`
+	Steps           []string       `json:"steps"`
+	CodeExample     *CodeExample   `json:"code_example,omitempty"`
+	CommandsToRun   []string       `json:"commands_to_run,omitempty"`
+	ConfigChanges   []ConfigChange `json:"config_changes,omitempty"`
+	ValidationSteps []string       `json:"validation_steps,omitempty"`
+	RollbackPlan    string         `json:"rollback_plan,omitempty"`
 }
 
 // CodeExample é um exemplo de código
@@ -161,9 +161,9 @@ type Reference struct {
 type Savings struct {
 	Amount      float64 `json:"amount"`
 	Currency    string  `json:"currency"`
-	Period      string  `json:"period"` // monthly, yearly
+	Period      string  `json:"period"`               // monthly, yearly
 	Percentage  float64 `json:"percentage,omitempty"` // % of current cost
-	Confidence  string  `json:"confidence"` // low, medium, high
+	Confidence  string  `json:"confidence"`           // low, medium, high
 	Description string  `json:"description"`
 }
 
@@ -173,7 +173,7 @@ type ResponseMetadata struct {
 	LLMCallCount         int                    `json:"llm_call_count"`
 	KnowledgeBaseEntries int                    `json:"knowledge_base_entries"`
 	RulesApplied         int                    `json:"rules_applied"`
-	Platform             string                 `json:"platform,omitempty"` // Nation.fun
+	Platform             string                 `json:"platform,omitempty"`    // Nation.fun
 	Environment          string                 `json:"environment,omitempty"` // prod, staging, dev
 	CustomData           map[string]interface{} `json:"custom_data,omitempty"`
 }
@@ -184,6 +184,15 @@ type ResponseMetadata struct {
 type PreviewAnalysisResponse struct {
 	LLMStructuredResponse
 	PreviewDetails PreviewDetails `json:"preview_details"`
+}
+
+// DangerousOperation representa uma operação perigosa detectada
+type DangerousOperation struct {
+	Resource    string `json:"resource"`
+	Action      string `json:"action"`
+	Severity    string `json:"severity"`
+	Description string `json:"description"`
+	Mitigation  string `json:"mitigation"`
 }
 
 // PreviewDetails contém detalhes do preview analisado
@@ -200,26 +209,6 @@ type PreviewDetails struct {
 	RecommendedApprovals []string             `json:"recommended_approvals,omitempty"`
 }
 
-// PlannedChange representa uma mudança planejada
-type PlannedChange struct {
-	Resource       string                 `json:"resource"`
-	Action         string                 `json:"action"` // create, update, destroy, replace
-	Changes        map[string]interface{} `json:"changes"`
-	RiskScore      int                    `json:"risk_score"` // 0-100
-	Impact         string                 `json:"impact"` // Description of impact
-	RequiresReview bool                   `json:"requires_review"`
-	Warnings       []string               `json:"warnings,omitempty"`
-}
-
-// DangerousOperation representa uma operação perigosa
-type DangerousOperation struct {
-	Resource    string   `json:"resource"`
-	Action      string   `json:"action"`
-	Reason      string   `json:"reason"`
-	Mitigation  []string `json:"mitigation"`
-	RequiresBackup bool  `json:"requires_backup"`
-}
-
 // SecurityAuditResponse é a resposta específica para auditoria de segurança
 type SecurityAuditResponse struct {
 	LLMStructuredResponse
@@ -228,41 +217,41 @@ type SecurityAuditResponse struct {
 
 // SecurityAuditDetails contém detalhes da auditoria de segurança
 type SecurityAuditDetails struct {
-	OverallRiskLevel      string              `json:"overall_risk_level"` // low, medium, high, critical
-	ComplianceStatus      ComplianceStatus    `json:"compliance_status"`
+	OverallRiskLevel       string                 `json:"overall_risk_level"` // low, medium, high, critical
+	ComplianceStatus       ComplianceStatus       `json:"compliance_status"`
 	VulnerabilityBreakdown VulnerabilityBreakdown `json:"vulnerability_breakdown"`
-	Top5Vulnerabilities   []EnrichedIssue     `json:"top5_vulnerabilities"`
-	SecurityRoadmap       SecurityRoadmap     `json:"security_roadmap"`
-	SecretsDetected       []SecretDetection   `json:"secrets_detected,omitempty"`
+	Top5Vulnerabilities    []EnrichedIssue        `json:"top5_vulnerabilities"`
+	SecurityRoadmap        SecurityRoadmap        `json:"security_roadmap"`
+	SecretsDetected        []SecretDetection      `json:"secrets_detected,omitempty"`
 }
 
 // ComplianceStatus representa o status de conformidade
 type ComplianceStatus struct {
-	Frameworks map[string]FrameworkCompliance `json:"frameworks"` // GDPR, SOC2, HIPAA, PCI-DSS
-	OverallCompliance float64 `json:"overall_compliance"` // 0-100%
+	Frameworks        map[string]FrameworkCompliance `json:"frameworks"`         // GDPR, SOC2, HIPAA, PCI-DSS
+	OverallCompliance float64                        `json:"overall_compliance"` // 0-100%
 }
 
 // FrameworkCompliance representa conformidade com um framework
 type FrameworkCompliance struct {
 	Name            string   `json:"name"`
 	ComplianceLevel float64  `json:"compliance_level"` // 0-100%
-	Status          string   `json:"status"` // compliant, partial, non_compliant
+	Status          string   `json:"status"`           // compliant, partial, non_compliant
 	Gaps            []string `json:"gaps"`
 	Recommendations []string `json:"recommendations"`
 }
 
 // VulnerabilityBreakdown é o breakdown de vulnerabilidades
 type VulnerabilityBreakdown struct {
-	BySeverity map[string]int `json:"by_severity"` // critical, high, medium, low
-	ByCategory map[string]int `json:"by_category"` // network, iam, encryption, etc
-	ByResource map[string]int `json:"by_resource"` // aws_s3_bucket, aws_iam_role, etc
-	TrendAnalysis string        `json:"trend_analysis,omitempty"` // Better/Worse than previous
+	BySeverity    map[string]int `json:"by_severity"`              // critical, high, medium, low
+	ByCategory    map[string]int `json:"by_category"`              // network, iam, encryption, etc
+	ByResource    map[string]int `json:"by_resource"`              // aws_s3_bucket, aws_iam_role, etc
+	TrendAnalysis string         `json:"trend_analysis,omitempty"` // Better/Worse than previous
 }
 
 // SecurityRoadmap é o roadmap de segurança
 type SecurityRoadmap struct {
-	UrgentActions    []PriorityAction `json:"urgent_actions"` // Fix now
-	ShortTermActions []PriorityAction `json:"short_term_actions"` // Fix in 1-2 weeks
+	UrgentActions     []PriorityAction `json:"urgent_actions"`      // Fix now
+	ShortTermActions  []PriorityAction `json:"short_term_actions"`  // Fix in 1-2 weeks
 	MediumTermActions []PriorityAction `json:"medium_term_actions"` // Fix in 1-3 months
 }
 
@@ -284,51 +273,51 @@ type CostOptimizationResponse struct {
 
 // CostOptimizationDetails contém detalhes da otimização de custo
 type CostOptimizationDetails struct {
-	CurrentMonthlyCost    float64                  `json:"current_monthly_cost"`
-	OptimizedMonthlyCost  float64                  `json:"optimized_monthly_cost"`
-	TotalSavingsPotential float64                  `json:"total_savings_potential"`
-	Currency              string                   `json:"currency"`
-	OptimizationsByCategory map[string]CategoryOptimization `json:"optimizations_by_category"`
-	ReservedInstanceOpportunities []ReservedInstanceSuggestion `json:"reserved_instance_opportunities,omitempty"`
-	UnusedResources       []UnusedResource         `json:"unused_resources,omitempty"`
-	RightsizingOpportunities []RightsizingSuggestion `json:"rightsizing_opportunities,omitempty"`
+	CurrentMonthlyCost            float64                         `json:"current_monthly_cost"`
+	OptimizedMonthlyCost          float64                         `json:"optimized_monthly_cost"`
+	TotalSavingsPotential         float64                         `json:"total_savings_potential"`
+	Currency                      string                          `json:"currency"`
+	OptimizationsByCategory       map[string]CategoryOptimization `json:"optimizations_by_category"`
+	ReservedInstanceOpportunities []ReservedInstanceSuggestion    `json:"reserved_instance_opportunities,omitempty"`
+	UnusedResources               []UnusedResource                `json:"unused_resources,omitempty"`
+	RightsizingOpportunities      []RightsizingSuggestion         `json:"rightsizing_opportunities,omitempty"`
 }
 
 // CategoryOptimization é otimização por categoria
 type CategoryOptimization struct {
-	Category        string  `json:"category"` // compute, storage, network, database
-	CurrentCost     float64 `json:"current_cost"`
+	Category         string  `json:"category"` // compute, storage, network, database
+	CurrentCost      float64 `json:"current_cost"`
 	PotentialSavings float64 `json:"potential_savings"`
-	Opportunities   int     `json:"opportunities"`
+	Opportunities    int     `json:"opportunities"`
 }
 
 // ReservedInstanceSuggestion sugere Reserved Instances
 type ReservedInstanceSuggestion struct {
-	ResourceType     string  `json:"resource_type"`
-	CurrentOnDemandCost float64 `json:"current_on_demand_cost"`
+	ResourceType         string  `json:"resource_type"`
+	CurrentOnDemandCost  float64 `json:"current_on_demand_cost"`
 	ReservedInstanceCost float64 `json:"reserved_instance_cost"`
-	AnnualSavings    float64 `json:"annual_savings"`
-	Term             string  `json:"term"` // 1yr, 3yr
-	PaymentOption    string  `json:"payment_option"` // all_upfront, partial_upfront, no_upfront
+	AnnualSavings        float64 `json:"annual_savings"`
+	Term                 string  `json:"term"`           // 1yr, 3yr
+	PaymentOption        string  `json:"payment_option"` // all_upfront, partial_upfront, no_upfront
 }
 
 // UnusedResource representa um recurso não utilizado
 type UnusedResource struct {
-	Resource      string  `json:"resource"`
-	Type          string  `json:"type"`
-	MonthlyCost   float64 `json:"monthly_cost"`
-	LastUsed      string  `json:"last_used,omitempty"`
-	Recommendation string `json:"recommendation"`
+	Resource       string  `json:"resource"`
+	Type           string  `json:"type"`
+	MonthlyCost    float64 `json:"monthly_cost"`
+	LastUsed       string  `json:"last_used,omitempty"`
+	Recommendation string  `json:"recommendation"`
 }
 
 // RightsizingSuggestion sugere ajuste de tamanho de recurso
 type RightsizingSuggestion struct {
-	Resource         string  `json:"resource"`
-	CurrentType      string  `json:"current_type"`
-	SuggestedType    string  `json:"suggested_type"`
-	CurrentCost      float64 `json:"current_cost"`
-	NewCost          float64 `json:"new_cost"`
-	MonthlySavings   float64 `json:"monthly_savings"`
-	PerformanceImpact string `json:"performance_impact"`
-	Utilization      string  `json:"utilization"` // CPU/Memory usage stats
+	Resource          string  `json:"resource"`
+	CurrentType       string  `json:"current_type"`
+	SuggestedType     string  `json:"suggested_type"`
+	CurrentCost       float64 `json:"current_cost"`
+	NewCost           float64 `json:"new_cost"`
+	MonthlySavings    float64 `json:"monthly_savings"`
+	PerformanceImpact string  `json:"performance_impact"`
+	Utilization       string  `json:"utilization"` // CPU/Memory usage stats
 }

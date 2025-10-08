@@ -161,6 +161,18 @@ if [ "$MODE" = "integration" ] || [ "$MODE" = "real" ]; then
         print_message $YELLOW "AVISO: TEST_REAL_NATION_API_KEY não configurado"
         print_message $YELLOW "Alguns testes de integração podem falhar"
     fi
+    
+    if [ -z "$TEST_REAL_PRIVY_APP_ID" ]; then
+        print_message $YELLOW "AVISO: TEST_REAL_PRIVY_APP_ID não configurado"
+        print_message $YELLOW "Usando app ID padrão para testes"
+        export TEST_REAL_PRIVY_APP_ID="cmgh6un8w007bl10ci0tgitwp"
+    fi
+    
+    if [ -z "$TEST_REAL_BASE_RPC_URL" ]; then
+        print_message $YELLOW "AVISO: TEST_REAL_BASE_RPC_URL não configurado"
+        print_message $YELLOW "Usando Base Goerli para testes"
+        export TEST_REAL_BASE_RPC_URL="https://goerli.base.org"
+    fi
 fi
 
 # Verificar se estamos no diretório correto

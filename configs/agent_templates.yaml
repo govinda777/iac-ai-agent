@@ -33,6 +33,9 @@ templates:
       - "Detecção de problemas de segurança"
       - "Sugestões de otimização"
       - "Best practices"
+      - "Preview analysis de mudanças"
+      - "Secrets scanning"
+      - "Análise de risco de deploy"
     tags:
       - terraform
       - aws
@@ -40,23 +43,30 @@ templates:
       - gcp
       - security
       - cost
+      - preview
+      - secrets
+      - risk-analysis
 
   - id: security-specialist
     name: "Security Specialist Agent"
     description: "Agente especializado em análise de segurança e compliance"
     category: security
-    is_recommended: false
+    is_recommended: true
     use_cases:
       - "Auditoria de segurança profunda"
       - "Compliance validation"
       - "Secrets detection"
       - "IAM policy review"
+      - "Preview analysis com foco em segurança"
+      - "Análise de risco de mudanças"
     tags:
       - security
       - compliance
       - checkov
       - secrets
       - iam
+      - preview
+      - risk-analysis
 
   - id: cost-optimizer
     name: "Cost Optimizer Agent"
@@ -111,6 +121,8 @@ default_config:
   enable_drift_detection: true
   enable_preview_analysis: true
   enable_secrets_scanning: true
+  enable_llm_integration: true
+  enable_knowledge_base: true
 
   # Response Configuration
   response_format: json
@@ -132,6 +144,8 @@ default_capabilities:
   can_detect_drift: true
   can_analyze_preview: true
   can_scan_secrets: true
+  can_use_llm: true
+  can_use_knowledge_base: true
 
   # Generation
   can_generate_code: true

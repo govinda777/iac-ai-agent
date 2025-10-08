@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - Relatório de Qualidade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        
+        .metadata {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .metadata-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .metadata-label {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .metadata-value {
+            color: #34495e;
+            font-size: 1.1em;
+            margin-top: 5px;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .summary-card.success {
+            border-top: 5px solid #27ae60;
+        }
+        
+        .summary-card.warning {
+            border-top: 5px solid #f39c12;
+        }
+        
+        .summary-card.error {
+            border-top: 5px solid #e74c3c;
+        }
+        
+        .summary-card.info {
+            border-top: 5px solid #3498db;
+        }
+        
+        .summary-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .summary-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .summary-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .summary-description {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        .test-results {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .test-results h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .test-suite {
+            margin-bottom: 25px;
+            border: 1px solid #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .test-suite-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .test-suite-content {
+            padding: 20px;
+        }
+        
+        .test-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .test-stat {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .test-stat.passed {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+        
+        .test-stat.failed {
+            background: #fadbd8;
+            color: #e74c3c;
+        }
+        
+        .test-stat.skipped {
+            background: #fef9e7;
+            color: #f39c12;
+        }
+        
+        .test-stat.total {
+            background: #e8f4fd;
+            color: #3498db;
+        }
+        
+        .coverage-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .coverage-bar {
+            background: #ecf0f1;
+            border-radius: 10px;
+            height: 30px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .coverage-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .footer p {
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+        
+        .footer .version {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .badge.success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .badge.warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .badge.error {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .badge.info {
+            background: #3498db;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .metadata {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .print-button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+        
+        @media print {
+            .print-button {
+                display: none;
+            }
+            
+            body {
+                background: white;
+            }
+            
+            .container {
+                max-width: none;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button" onclick="window.print()">🖨️ Imprimir</button>
+    
+    <div class="container">
+        <div class="header">
+            <h1>📊 Relatório de Qualidade</h1>
+            <div class="subtitle">{{.Title}}</div>
+            
+            <div class="metadata">
+                <div class="metadata-item">
+                    <div class="metadata-label">Data/Hora</div>
+                    <div class="metadata-value">{{.Timestamp}}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">Branch</div>
+                    <div class="metadata-value">{{.Branch}}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">Commit</div>
+                    <div class="metadata-value">{{.Commit}}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">Autor</div>
+                    <div class="metadata-value">{{.Author}}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">Duração Total</div>
+                    <div class="metadata-value">{{.Duration}}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">Status Geral</div>
+                    <div class="metadata-value">
+                        <span class="badge {{.OverallStatus}}">{{.OverallStatusText}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="summary-cards">
+            <div class="summary-card success">
+                <div class="summary-icon">✅</div>
+                <div class="summary-title">Testes Passaram</div>
+                <div class="summary-value">{{.Summary.Passed}}</div>
+                <div class="summary-description">de {{.Summary.Total}} testes</div>
+            </div>
+            
+            <div class="summary-card error">
+                <div class="summary-icon">❌</div>
+                <div class="summary-title">Testes Falharam</div>
+                <div class="summary-value">{{.Summary.Failed}}</div>
+                <div class="summary-description">precisam correção</div>
+            </div>
+            
+            <div class="summary-card info">
+                <div class="summary-icon">📈</div>
+                <div class="summary-title">Cobertura</div>
+                <div class="summary-value">{{.Summary.Coverage}}%</div>
+                <div class="summary-description">do código testado</div>
+            </div>
+            
+            <div class="summary-card warning">
+                <div class="summary-icon">⚡</div>
+                <div class="summary-title">Tempo</div>
+                <div class="summary-value">{{.Summary.Duration}}</div>
+                <div class="summary-description">de execução</div>
+            </div>
+        </div>
+        
+        <div class="test-results">
+            <h2>🧪 Resultados dos Testes</h2>
+            {{range .TestSuites}}
+            <div class="test-suite">
+                <div class="test-suite-header">
+                    {{.Name}} - {{.Type}}
+                </div>
+                <div class="test-suite-content">
+                    <div class="test-stats">
+                        <div class="test-stat passed">
+                            <div style="font-size: 1.5em; font-weight: bold;">{{.Passed}}</div>
+                            <div>Passaram</div>
+                        </div>
+                        <div class="test-stat failed">
+                            <div style="font-size: 1.5em; font-weight: bold;">{{.Failed}}</div>
+                            <div>Falharam</div>
+                        </div>
+                        <div class="test-stat skipped">
+                            <div style="font-size: 1.5em; font-weight: bold;">{{.Skipped}}</div>
+                            <div>Pulados</div>
+                        </div>
+                        <div class="test-stat total">
+                            <div style="font-size: 1.5em; font-weight: bold;">{{.Total}}</div>
+                            <div>Total</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <strong>Duração:</strong> {{.Duration}} | 
+                        <strong>Status:</strong> 
+                        {{if eq .Status "success"}}
+                        <span class="badge success">✅ Sucesso</span>
+                        {{else}}
+                        <span class="badge error">❌ Falhou</span>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+            {{end}}
+        </div>
+        
+        {{if .Coverage}}
+        <div class="coverage-section">
+            <h2>📊 Cobertura de Código</h2>
+            <div class="coverage-bar">
+                <div class="coverage-fill" style="width: {{.Coverage.Percentage}}%;">
+                    {{.Coverage.Percentage}}%
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                <div class="metadata-item">
+                    <div class="metadata-label">Linhas Testadas</div>
+                    <div class="metadata-value">{{.Coverage.Covered}}/{{.Coverage.Total}}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">Funções Testadas</div>
+                    <div class="metadata-value">{{.Coverage.FunctionsCovered}}/{{.Coverage.FunctionsTotal}}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">Pacotes Testados</div>
+                    <div class="metadata-value">{{.Coverage.PackagesCovered}}/{{.Coverage.PackagesTotal}}</div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+        
+        <div class="footer">
+            <p><strong>IaC AI Agent</strong> - Relatório de Qualidade Automático</p>
+            <p class="version">Versão {{.Version}} | Gerado em {{.GeneratedAt}}</p>
+            <p>Este relatório serve como evidência de qualidade e conformidade dos testes.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-refresh se estiver em modo de desenvolvimento
+        if (window.location.search.includes('auto-refresh')) {
+            setTimeout(() => {
+                window.location.reload();
+            }, 30000); // Refresh a cada 30 segundos
+        }
+        
+        // Adicionar timestamp dinâmico
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const timestamp = now.toLocaleString('pt-BR');
+            console.log('Relatório gerado em:', timestamp);
+        });
+    </script>
+</body>
+</html>

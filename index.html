@@ -218,6 +218,129 @@
         </div>
     </section>
 
+    <section id="user-flow" class="user-flow">
+        <div class="container">
+            <h2 class="section-title">Seu Caminho para Análises Inteligentes</h2>
+            <p class="section-subtitle">Siga estes passos simples para começar a analisar seu código Terraform</p>
+            
+            <div class="flow-steps">
+                <div class="flow-step" data-step="1">
+                    <div class="step-icon">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
+                    <div class="step-content">
+                        <h3 class="step-title">1. Conecte sua Wallet</h3>
+                        <p class="step-description">Faça login com MetaMask, Coinbase ou email usando Privy.io</p>
+                        <div class="step-status" id="step-1-status">
+                            <span class="status-text">Não conectado</span>
+                            <button class="btn btn-outline btn-sm connect-wallet-btn">
+                                <i class="fa-solid fa-wallet"></i>
+                                Conectar Wallet
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flow-step" data-step="2">
+                    <div class="step-icon">
+                        <i class="fa-solid fa-ticket"></i>
+                    </div>
+                    <div class="step-content">
+                        <h3 class="step-title">2. Adquira um NFT de Acesso</h3>
+                        <p class="step-description">Escolha entre Basic (0.01 ETH), Pro (0.05 ETH) ou Enterprise (0.2 ETH)</p>
+                        <div class="step-status" id="step-2-status">
+                            <span class="status-text">NFT necessário</span>
+                            <a href="#pricing" class="btn btn-outline btn-sm">
+                                <i class="fa-solid fa-ticket"></i>
+                                Ver Planos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flow-step" data-step="3">
+                    <div class="step-icon">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                    <div class="step-content">
+                        <h3 class="step-title">3. Compre Tokens IACAI</h3>
+                        <p class="step-description">Adquira tokens para pagar pelas análises (1 token = 1 análise básica)</p>
+                        <div class="step-status" id="step-3-status">
+                            <span class="status-text">Tokens necessários</span>
+                            <button class="btn btn-outline btn-sm" onclick="showTokenPurchase()">
+                                <i class="fa-solid fa-coins"></i>
+                                Comprar Tokens
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flow-step" data-step="4">
+                    <div class="step-icon">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <div class="step-content">
+                        <h3 class="step-title">4. Submeta seu Código</h3>
+                        <p class="step-description">Cole seu código Terraform ou resultados de Checkov para análise</p>
+                        <div class="step-status" id="step-4-status">
+                            <span class="status-text">Pronto para análise</span>
+                            <button class="btn btn-primary btn-sm" onclick="scrollToAnalysis()">
+                                <i class="fa-solid fa-code"></i>
+                                Analisar Código
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flow-step" data-step="5">
+                    <div class="step-icon">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <div class="step-content">
+                        <h3 class="step-title">5. Receba Sugestões</h3>
+                        <p class="step-description">Obtenha análise detalhada, correções e melhorias para seu código</p>
+                        <div class="step-status" id="step-5-status">
+                            <span class="status-text">Aguardando análise</span>
+                            <div class="token-cost">
+                                <i class="fa-solid fa-coins"></i>
+                                <span>Custo: <span id="analysis-cost">1</span> token</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flow-summary">
+                <div class="summary-card">
+                    <h3>Status Atual</h3>
+                    <div class="status-items">
+                        <div class="status-item">
+                            <i class="fa-solid fa-wallet"></i>
+                            <span>Wallet: <span id="wallet-status">Não conectada</span></span>
+                        </div>
+                        <div class="status-item">
+                            <i class="fa-solid fa-ticket"></i>
+                            <span>NFT: <span id="nft-status">Não adquirido</span></span>
+                        </div>
+                        <div class="status-item">
+                            <i class="fa-solid fa-coins"></i>
+                            <span>Tokens: <span id="tokens-status">0 IACAI</span></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="next-action">
+                    <h3>Próximo Passo</h3>
+                    <p id="next-step-text">Conecte sua wallet para começar</p>
+                    <button id="next-action-btn" class="btn btn-primary">
+                        <i class="fa-solid fa-wallet"></i>
+                        Conectar Wallet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section id="pricing" class="pricing">
         <div class="container">
             <h2 class="section-title">Planos e Preços</h2>
@@ -317,6 +440,61 @@
                         <p class="token-price">0.1875 ETH (~$375)</p>
                         <p class="token-discount">25% de desconto</p>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="analysis" class="analysis-section">
+        <div class="container">
+            <h2 class="section-title">Analise seu Código Terraform</h2>
+            <p class="section-subtitle">Cole seu código abaixo e receba sugestões inteligentes</p>
+            
+            <div class="analysis-form-container">
+                <form id="analysis-form" class="analysis-form">
+                    <div class="form-group">
+                        <label for="analysis-type">Tipo de Análise</label>
+                        <select id="analysis-type" name="analysis-type">
+                            <option value="basic">Análise Básica (1 token)</option>
+                            <option value="security">Análise de Segurança (2 tokens)</option>
+                            <option value="llm">Análise com LLM (5 tokens)</option>
+                            <option value="preview">Preview Analysis (3 tokens)</option>
+                            <option value="cost">Otimização de Custos (5 tokens)</option>
+                            <option value="full">Full Review (15 tokens)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="terraform-code">Código Terraform</label>
+                        <textarea 
+                            id="terraform-code" 
+                            name="terraform-code" 
+                            placeholder="Cole seu código Terraform aqui..."
+                            rows="10"
+                        ></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <div class="cost-info">
+                            <span>Custo: <span id="token-cost">1</span> token</span>
+                            <span class="balance-info">Saldo: <span id="current-balance">0</span> IACAI</span>
+                        </div>
+                        <button type="submit" id="submit-analysis" class="btn btn-primary btn-lg">
+                            <i class="fa-solid fa-play"></i>
+                            <span class="button-text">Analisar Código</span>
+                        </button>
+                    </div>
+                </form>
+                
+                <div id="analysis-status" class="analysis-status" style="display: none;">
+                    <div class="status-content">
+                        <div class="loading-spinner"></div>
+                        <span id="status-text">Processando análise...</span>
+                    </div>
+                </div>
+                
+                <div id="results-container" class="results-container" style="display: none;">
+                    <!-- Results will be populated here -->
                 </div>
             </div>
         </div>

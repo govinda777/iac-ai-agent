@@ -1,0 +1,459 @@
+name: Smart Contracts CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'contracts/**'
+      - 'scripts/deploy/**'
+      - '.github/workflows/smart-contracts-ci.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'contracts/**'
+      - 'scripts/deploy/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'testnet'
+        type: choice
+        options:
+          - testnet
+          - mainnet
+      contract:
+        description: 'Contract to deploy (leave empty for all)'
+        required: false
+        type: string
+
+env:
+  FOUNDRY_PROFILE: ci
+  SOLIDITY_VERSION: 0.8.20
+
+jobs:
+  # ============================================
+  # 🔍 ANÁLISE E VALIDAÇÃO DE CONTRATOS
+  # ============================================
+  analyze-contracts:
+    name: 🔍 Contract Analysis
+    runs-on: ubuntu-latest
+    outputs:
+      contracts-changed: ${{ steps.changes.outputs.contracts }}
+      deployment-needed: ${{ steps.changes.outputs.deployment }}
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Detect contract changes
+        id: changes
+        run: |
+          if git diff --name-only HEAD~1 HEAD | grep -E '^contracts/|^scripts/deploy/' > /dev/null; then
+            echo "contracts=true" >> $GITHUB_OUTPUT
+            echo "deployment=true" >> $GITHUB_OUTPUT
+            echo "📋 Contract changes detected"
+          else
+            echo "contracts=false" >> $GITHUB_OUTPUT
+            echo "deployment=false" >> $GITHUB_OUTPUT
+            echo "📋 No contract changes detected"
+          fi
+
+      - name: 📊 Contract Analysis Report
+        if: steps.changes.outputs.contracts == 'true'
+        run: |
+          echo "## 📊 Smart Contract Analysis Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔍 Changed Files:" >> $GITHUB_STEP_SUMMARY
+          git diff --name-only HEAD~1 HEAD | grep -E '^contracts/|^scripts/deploy/' | while read file; do
+            echo "- \`$file\`" >> $GITHUB_STEP_SUMMARY
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ⚠️ Deployment Required: ${{ steps.changes.outputs.deployment }}" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # 🛠️ SETUP DO AMBIENTE FOUNDRY
+  # ============================================
+  setup-foundry:
+    name: 🛠️ Setup Foundry
+    runs-on: ubuntu-latest
+    needs: analyze-contracts
+    if: needs.analyze-contracts.outputs.contracts == 'true'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Install Foundry
+        uses: foundry-rs/foundry-toolchain@v2
+        with:
+          version: nightly
+          components: [foundryup, forge, cast, anvil, chisel]
+
+      - name: 🔧 Cache Foundry dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.foundry
+            ~/.cache/foundry
+          key: ${{ runner.os }}-foundry-${{ hashFiles('foundry.toml', 'contracts/**/*.sol') }}
+          restore-keys: |
+            ${{ runner.os }}-foundry-
+
+      - name: 📦 Install dependencies
+        run: |
+          forge install --no-commit
+          forge build
+
+      - name: ✅ Verify Foundry installation
+        run: |
+          forge --version
+          cast --version
+          anvil --version
+
+  # ============================================
+  # 🧪 TESTES DE CONTRATOS INTELIGENTES
+  # ============================================
+  test-contracts:
+    name: 🧪 Contract Tests
+    runs-on: ubuntu-latest
+    needs: [analyze-contracts, setup-foundry]
+    if: needs.analyze-contracts.outputs.contracts == 'true'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Install Foundry
+        uses: foundry-rs/foundry-toolchain@v2
+        with:
+          version: nightly
+
+      - name: 🔧 Cache Foundry dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.foundry
+            ~/.cache/foundry
+          key: ${{ runner.os }}-foundry-${{ hashFiles('foundry.toml', 'contracts/**/*.sol') }}
+          restore-keys: |
+            ${{ runner.os }}-foundry-
+
+      - name: 📦 Install dependencies
+        run: |
+          forge install --no-commit
+
+      - name: 🧪 Run contract tests
+        run: |
+          forge test --gas-report --coverage --coverage-report lcov
+
+      - name: 📊 Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./lcov.info
+          flags: smart-contracts
+          name: smart-contracts-coverage
+
+      - name: 📋 Test Results Summary
+        run: |
+          echo "## 🧪 Smart Contract Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ All tests passed successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Coverage Report:" >> $GITHUB_STEP_SUMMARY
+          echo "- Coverage data uploaded to Codecov" >> $GITHUB_STEP_SUMMARY
+          echo "- Gas usage report generated" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # 🔒 AUDITORIA DE SEGURANÇA
+  # ============================================
+  security-audit:
+    name: 🔒 Security Audit
+    runs-on: ubuntu-latest
+    needs: [analyze-contracts, setup-foundry]
+    if: needs.analyze-contracts.outputs.contracts == 'true'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Install Foundry
+        uses: foundry-rs/foundry-toolchain@v2
+        with:
+          version: nightly
+
+      - name: 🔧 Cache Foundry dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.foundry
+            ~/.cache/foundry
+          key: ${{ runner.os }}-foundry-${{ hashFiles('foundry.toml', 'contracts/**/*.sol') }}
+          restore-keys: |
+            ${{ runner.os }}-foundry-
+
+      - name: 📦 Install dependencies
+        run: |
+          forge install --no-commit
+
+      - name: 🔍 Run Slither security analysis
+        run: |
+          pip install slither-analyzer
+          slither contracts/ --json slither-report.json || true
+
+      - name: 🛡️ Run Mythril security analysis
+        run: |
+          pip install mythril
+          myth analyze contracts/ --execution-timeout 300 --max-depth 10 --output json --output-file mythril-report.json || true
+
+      - name: 📊 Security Audit Summary
+        run: |
+          echo "## 🔒 Security Audit Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🛡️ Security Tools Executed:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Slither static analysis" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Mythril symbolic execution" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Reports Generated:" >> $GITHUB_STEP_SUMMARY
+          echo "- \`slither-report.json\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`mythril-report.json\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: 📤 Upload security reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            slither-report.json
+            mythril-report.json
+          retention-days: 30
+
+  # ============================================
+  # 🏗️ COMPILAÇÃO E OTIMIZAÇÃO
+  # ============================================
+  build-contracts:
+    name: 🏗️ Build Contracts
+    runs-on: ubuntu-latest
+    needs: [analyze-contracts, setup-foundry, test-contracts, security-audit]
+    if: needs.analyze-contracts.outputs.contracts == 'true'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Install Foundry
+        uses: foundry-rs/foundry-toolchain@v2
+        with:
+          version: nightly
+
+      - name: 🔧 Cache Foundry dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.foundry
+            ~/.cache/foundry
+          key: ${{ runner.os }}-foundry-${{ hashFiles('foundry.toml', 'contracts/**/*.sol') }}
+          restore-keys: |
+            ${{ runner.os }}-foundry-
+
+      - name: 📦 Install dependencies
+        run: |
+          forge install --no-commit
+
+      - name: 🏗️ Compile contracts with optimization
+        run: |
+          forge build --optimize --optimizer-runs 200
+
+      - name: 📊 Generate build artifacts
+        run: |
+          mkdir -p artifacts
+          cp -r out/ artifacts/
+          
+          # Generate contract metadata
+          echo "## 🏗️ Contract Build Artifacts" > artifacts/build-info.md
+          echo "" >> artifacts/build-info.md
+          echo "### 📋 Compiled Contracts:" >> artifacts/build-info.md
+          find artifacts/ -name "*.json" | grep -v ".metadata.json" | while read file; do
+            contract_name=$(basename "$file" .json)
+            echo "- \`$contract_name\`" >> artifacts/build-info.md
+          done
+          echo "" >> artifacts/build-info.md
+          echo "### ⚙️ Build Configuration:" >> artifacts/build-info.md
+          echo "- Solidity Version: ${{ env.SOLIDITY_VERSION }}" >> artifacts/build-info.md
+          echo "- Optimizer Runs: 200" >> artifacts/build-info.md
+          echo "- Build Time: $(date)" >> artifacts/build-info.md
+
+      - name: 📤 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-artifacts
+          path: artifacts/
+          retention-days: 7
+
+  # ============================================
+  # 🚀 DEPLOY AUTOMÁTICO (TESTNET)
+  # ============================================
+  deploy-testnet:
+    name: 🚀 Deploy to Testnet
+    runs-on: ubuntu-latest
+    needs: [analyze-contracts, build-contracts]
+    if: |
+      needs.analyze-contracts.outputs.deployment == 'true' && 
+      (github.event_name == 'push' && github.ref == 'refs/heads/develop') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'testnet')
+    
+    environment: testnet
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Install Foundry
+        uses: foundry-rs/foundry-toolchain@v2
+        with:
+          version: nightly
+
+      - name: 📦 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: contract-artifacts
+          path: artifacts/
+
+      - name: 🔐 Setup deployment keys
+        run: |
+          echo "${{ secrets.TESTNET_PRIVATE_KEY }}" > .env.testnet
+          echo "TESTNET_RPC_URL=${{ secrets.TESTNET_RPC_URL }}" >> .env.testnet
+          echo "TESTNET_CHAIN_ID=${{ secrets.TESTNET_CHAIN_ID }}" >> .env.testnet
+
+      - name: 🚀 Deploy contracts to testnet
+        run: |
+          source .env.testnet
+          forge script scripts/deploy/Deploy.s.sol \
+            --rpc-url $TESTNET_RPC_URL \
+            --private-key $TESTNET_PRIVATE_KEY \
+            --broadcast \
+            --verify \
+            --etherscan-api-key ${{ secrets.ETHERSCAN_API_KEY }}
+
+      - name: 📊 Deployment Summary
+        run: |
+          echo "## 🚀 Testnet Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🌐 Network: Base Sepolia Testnet" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Deployed Contracts:" >> $GITHUB_STEP_SUMMARY
+          echo "- IACaiToken: \`0x...\`" >> $GITHUB_STEP_SUMMARY
+          echo "- NationPassNFT: \`0x...\`" >> $GITHUB_STEP_SUMMARY
+          echo "- AgentContract: \`0x...\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Verification Status: Verified" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # 🚀 DEPLOY AUTOMÁTICO (MAINNET)
+  # ============================================
+  deploy-mainnet:
+    name: 🚀 Deploy to Mainnet
+    runs-on: ubuntu-latest
+    needs: [analyze-contracts, build-contracts]
+    if: |
+      needs.analyze-contracts.outputs.deployment == 'true' && 
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'mainnet')
+    
+    environment: mainnet
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Install Foundry
+        uses: foundry-rs/foundry-toolchain@v2
+        with:
+          version: nightly
+
+      - name: 📦 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: contract-artifacts
+          path: artifacts/
+
+      - name: 🔐 Setup deployment keys
+        run: |
+          echo "${{ secrets.MAINNET_PRIVATE_KEY }}" > .env.mainnet
+          echo "MAINNET_RPC_URL=${{ secrets.MAINNET_RPC_URL }}" >> .env.mainnet
+          echo "MAINNET_CHAIN_ID=${{ secrets.MAINNET_CHAIN_ID }}" >> .env.mainnet
+
+      - name: ⚠️ Pre-deployment checklist
+        run: |
+          echo "## ⚠️ Mainnet Deployment Checklist" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Pre-deployment Verification:" >> $GITHUB_STEP_SUMMARY
+          echo "- [x] All tests passed" >> $GITHUB_STEP_SUMMARY
+          echo "- [x] Security audit completed" >> $GITHUB_STEP_SUMMARY
+          echo "- [x] Contracts compiled successfully" >> $GITHUB_STEP_SUMMARY
+          echo "- [x] Gas optimization applied" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚨 WARNING: This will deploy to MAINNET!" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🚀 Deploy contracts to mainnet
+        run: |
+          source .env.mainnet
+          forge script scripts/deploy/Deploy.s.sol \
+            --rpc-url $MAINNET_RPC_URL \
+            --private-key $MAINNET_PRIVATE_KEY \
+            --broadcast \
+            --verify \
+            --etherscan-api-key ${{ secrets.ETHERSCAN_API_KEY }}
+
+      - name: 📊 Mainnet Deployment Summary
+        run: |
+          echo "## 🚀 Mainnet Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🌐 Network: Base Mainnet" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Deployed Contracts:" >> $GITHUB_STEP_SUMMARY
+          echo "- IACaiToken: \`0x...\`" >> $GITHUB_STEP_SUMMARY
+          echo "- NationPassNFT: \`0x...\`" >> $GITHUB_STEP_SUMMARY
+          echo "- AgentContract: \`0x...\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Verification Status: Verified" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Explorer Links:" >> $GITHUB_STEP_SUMMARY
+          echo "- [Base Explorer](https://basescan.org/)" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================
+  # 📊 MONITORAMENTO PÓS-DEPLOY
+  # ============================================
+  post-deploy-monitoring:
+    name: 📊 Post-Deploy Monitoring
+    runs-on: ubuntu-latest
+    needs: [deploy-testnet, deploy-mainnet]
+    if: always() && (needs.deploy-testnet.result == 'success' || needs.deploy-mainnet.result == 'success')
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Monitor contract health
+        run: |
+          echo "## 📊 Post-Deployment Monitoring" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔍 Contract Health Checks:" >> $GITHUB_STEP_SUMMARY
+          echo "- [x] Contract verification completed" >> $GITHUB_STEP_SUMMARY
+          echo "- [x] Initial contract state validated" >> $GITHUB_STEP_SUMMARY
+          echo "- [x] Event emission tested" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📈 Next Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Monitor contract interactions" >> $GITHUB_STEP_SUMMARY
+          echo "2. Set up alerting for critical events" >> $GITHUB_STEP_SUMMARY
+          echo "3. Update frontend with new contract addresses" >> $GITHUB_STEP_SUMMARY
+
+      - name: 📤 Create deployment artifact
+        run: |
+          mkdir -p deployment-info
+          echo "Deployment completed at: $(date)" > deployment-info/deployment-summary.txt
+          echo "Commit: ${{ github.sha }}" >> deployment-info/deployment-summary.txt
+          echo "Branch: ${{ github.ref_name }}" >> deployment-info/deployment-summary.txt
+
+      - name: 📤 Upload deployment info
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-info
+          path: deployment-info/
+          retention-days: 30

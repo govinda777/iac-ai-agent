@@ -3,6 +3,7 @@ package rest
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/govinda777/iac-ai-agent/internal/agent/analyzer"
@@ -29,6 +30,9 @@ import (
 
 // @host localhost:8080
 // @BasePath /
+
+// Variável global para tracking de uptime
+var startTime = time.Now()
 
 // Handler gerencia requisições HTTP
 type Handler struct {
@@ -58,6 +62,7 @@ func NewHandler(cfg *config.Config, log *logger.Logger) *Handler {
 		prScorer,
 		costOptimizer,
 		securityAdvisor,
+		cfg,
 	)
 	// Web3 handler será inicializado posteriormente quando tivermos os serviços Web3
 	return &Handler{
@@ -106,11 +111,65 @@ func (h *Handler) SetupRoutes() *mux.Router {
 // @Success 200 {object} map[string]interface{} "Status do serviço"
 // @Router /health [get]
 func (h *Handler) HandleHealth(w http.ResponseWriter, r *http.Request) {
-	h.respondJSON(w, http.StatusOK, map[string]interface{}{
-		"status":  "healthy",
-		"service": "iac-ai-agent",
-		"version": "1.0.0",
-	})
+	// Verificações básicas de saúde
+	healthStatus := map[string]interface{}{
+		"status":    "healthy",
+		"service":   "iac-ai-agent",
+		"version":   "1.0.0",
+		"timestamp": time.Now().UTC().Format(time.RFC3339),
+		"uptime":    time.Since(startTime).String(),
+	}
+
+	// Verificações de dependências
+	checks := make(map[string]string)
+
+	// Verificar configuração
+	if h.config != nil {
+		checks["config"] = "ok"
+	} else {
+		checks["config"] = "error"
+		healthStatus["status"] = "unhealthy"
+	}
+
+	// Verificar logger
+	if h.logger != nil {
+		checks["logger"] = "ok"
+	} else {
+		checks["logger"] = "error"
+		healthStatus["status"] = "unhealthy"
+	}
+
+	// Verificar serviços principais
+	if h.analysisService != nil {
+		checks["analysis_service"] = "ok"
+	} else {
+		checks["analysis_service"] = "error"
+		healthStatus["status"] = "unhealthy"
+	}
+
+	if h.reviewService != nil {
+		checks["review_service"] = "ok"
+	} else {
+		checks["review_service"] = "error"
+		healthStatus["status"] = "unhealthy"
+	}
+
+	// Verificar Web3 handler se configurado
+	if h.web3Handler != nil {
+		checks["web3_handler"] = "ok"
+	} else {
+		checks["web3_handler"] = "not_configured"
+	}
+
+	healthStatus["checks"] = checks
+
+	// Determinar status HTTP
+	statusCode := http.StatusOK
+	if healthStatus["status"] == "unhealthy" {
+		statusCode = http.StatusServiceUnavailable
+	}
+
+	h.respondJSON(w, statusCode, healthStatus)
 }
 
 // HandleRoot retorna informações sobre a API

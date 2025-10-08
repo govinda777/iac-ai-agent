@@ -1,0 +1,70 @@
+# Dockerfile para WhatsApp Agent
+FROM golang:1.21-alpine AS builder
+
+# Instalar dependências necessárias
+RUN apk add --no-cache git ca-certificates tzdata
+
+# Definir diretório de trabalho
+WORKDIR /app
+
+# Copiar arquivos de dependências
+COPY go.mod go.sum ./
+
+# Baixar dependências
+RUN go mod download
+
+# Copiar código fonte
+COPY . .
+
+# Compilar aplicação
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o whatsapp-agent ./cmd/whatsapp-agent
+
+# Estágio de produção
+FROM alpine:latest
+
+# Instalar certificados CA e timezone data
+RUN apk --no-cache add ca-certificates tzdata
+
+# Criar usuário não-root
+RUN adduser -D -s /bin/sh whatsapp
+
+# Definir diretório de trabalho
+WORKDIR /home/whatsapp
+
+# Copiar binário compilado
+COPY --from=builder /app/whatsapp-agent .
+
+# Copiar arquivos de configuração
+COPY --from=builder /app/configs ./configs
+
+# Copiar templates
+COPY --from=builder /app/internal/agent/whatsapp/templates.go ./templates/
+
+# Definir permissões
+RUN chown -R whatsapp:whatsapp /home/whatsapp
+RUN chmod +x whatsapp-agent
+
+# Mudar para usuário não-root
+USER whatsapp
+
+# Expor porta
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/webhook/whatsapp/health || exit 1
+
+# Comando de inicialização
+CMD ["./whatsapp-agent"]
+
+# Labels para metadados
+LABEL maintainer="IaC AI Agent Team"
+LABEL version="1.0.0"
+LABEL description="WhatsApp Agent for Infrastructure Analysis"
+LABEL org.opencontainers.image.title="WhatsApp Agent"
+LABEL org.opencontainers.image.description="AI Agent for WhatsApp infrastructure analysis"
+LABEL org.opencontainers.image.version="1.0.0"
+LABEL org.opencontainers.image.authors="IaC AI Agent Team"
+LABEL org.opencontainers.image.url="https://github.com/iac-ai-agent"
+LABEL org.opencontainers.image.source="https://github.com/iac-ai-agent"
+LABEL org.opencontainers.image.licenses="MIT"

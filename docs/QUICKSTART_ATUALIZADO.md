@@ -2,66 +2,66 @@
 
 Este guia contém os passos essenciais para começar a usar o IaC AI Agent rapidamente.
 
-## 📋 Passo 1: Pré-requisitos
+## 🚀 Setup em 5 Minutos
 
-Você vai precisar de:
-
-- Go 1.21+ instalado
-- Git instalado
-- NFT da Nation.fun
-- Conta no Privy.io
-- API key da OpenAI
-
-## 📋 Passo 2: Clone e Prepare o Projeto
+### 1️⃣ Clone e Prepare
 
 ```bash
 # Clone o repositório
 git clone https://github.com/gosouza/iac-ai-agent.git
 cd iac-ai-agent
 
-# Configure as variáveis de ambiente
-touch .env
-```
+# Setup automático (instala dependências)
+make setup
 
-## 📋 Passo 3: Configure as Variáveis Obrigatórias
-
-Edite o arquivo `.env` e adicione (substitua pelos seus valores reais):
-
-```bash
-# PRIVY.IO
-PRIVY_APP_ID=app_xxxxxxxxxxxxxx
-PRIVY_APP_SECRET=privy_secret_xxxxxxxxxxxxxx
-
-# NATION.FUN NFT
-WALLET_ADDRESS=0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb
-WALLET_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb...
-NATION_NFT_CONTRACT=0x1234567890123456789012345678901234567890
-NATION_NFT_REQUIRED=true
-
-# LLM (OpenAI)
-LLM_PROVIDER=openai
-LLM_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxx
-LLM_MODEL=gpt-4
-```
-
-## 📋 Passo 4: Configure o Arquivo YAML
-
-```bash
-# Copie o arquivo de configuração exemplo
+# Copie o arquivo de configuração
 cp configs/app.yaml.example configs/app.yaml
 ```
 
-## 📋 Passo 5: Execute a Aplicação
+### 2️⃣ Configure suas Credenciais
+
+Crie o arquivo `.env` com suas credenciais:
 
 ```bash
-# Instale dependências
-go mod download
+# Copie o arquivo de exemplo
+cp env.example .env
 
+# Edite com suas credenciais reais
+nano .env
+```
+
+**Variáveis obrigatórias no `.env`:**
+
+```bash
+# ============================================
+# 🔴 ÚNICA VARIÁVEL OBRIGATÓRIA
+# ============================================
+
+# LLM (OpenAI)
+LLM_PROVIDER=openai                          # ← openai ou anthropic
+LLM_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxx   # ← Sua OpenAI API key
+LLM_MODEL=gpt-4                              # ← Modelo (gpt-4 recomendado)
+
+# ============================================
+# 🟢 JÁ CONFIGURADO AUTOMATICAMENTE
+# ============================================
+
+# ✅ Privy.io App ID: cmgh6un8w007bl10ci0tgitwp (hardcoded)
+# ✅ Wallet Address: 0x147e832418Cc06A501047019E956714271098b89 (hardcoded)
+# ✅ Secrets: Gerenciados via Git Secrets + Lit Protocol
+```
+
+### 3️⃣ Execute a Aplicação
+
+```bash
 # Execute
+make run
+
+# Ou diretamente com Go
 go run cmd/agent/main.go
 ```
 
-## 📋 Passo 6: Verifique o Funcionamento
+### 4️⃣ Verifique o Funcionamento
 
 ```bash
 # Teste o health check
@@ -89,14 +89,26 @@ A aplicação vai executar validações e mostrar:
 Address: 0.0.0.0:8080
 ```
 
+## 🧪 Teste Rápido
+
+```bash
+# Teste uma análise simples
+curl -X POST http://localhost:8080/api/v1/analyze \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "resource \"aws_s3_bucket\" \"example\" { bucket = \"my-bucket\" }",
+    "type": "terraform_analysis"
+  }'
+```
+
 ## ❌ Resolução Rápida de Problemas
 
 | Erro | Solução |
 |------|---------|
-| "Variável obrigatória não configurada" | Verifique todas as variáveis no `.env` |
 | "LLM validation failed" | Verifique sua API key e créditos da OpenAI |
-| "Nation.fun NFT not found" | Confirme que possui o NFT e o endereço do contrato |
-| "Privy validation failed" | Verifique suas credenciais no dashboard do Privy |
+| "Git secret não encontrado" | Execute `git secret reveal` para descriptografar secrets |
+| "Lit Protocol error" | Verifique se a wallet está conectada corretamente |
+| "Variável obrigatória não configurada" | Verifique se `LLM_API_KEY` está no `.env` |
 
 ## 🔒 Segurança
 

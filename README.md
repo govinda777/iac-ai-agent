@@ -35,6 +35,229 @@
 
 <br>
 
+## 🚀 Processo de Inicialização da Aplicação
+
+### O que acontece quando a aplicação sobe?
+
+Quando você executa `make run` ou `go run cmd/agent/main.go`, a aplicação executa uma sequência rigorosa de validações e inicializações:
+
+```mermaid
+flowchart TD
+    A[🚀 Aplicação Inicia] --> B[📋 Carregar Configuração]
+    B --> C[🔍 Validar Configuração Básica]
+    C --> D[🤖 Validar LLM Connection]
+    D --> E[🔐 Validar Privy.io Credentials]
+    E --> F[🌐 Validar Base Network]
+    F --> G[🎨 Validar NFT Pass Nation.fun]
+    G --> H[📝 Validar Notion Integration]
+    H --> I[🤖 Criar/Obter Agente Padrão]
+    I --> J[✅ Inicializar Agente Core]
+    J --> K[🔧 Registrar Capabilities]
+    K --> L[🌐 Iniciar Servidor HTTP]
+    L --> M[📡 Aguardar Conexões]
+    
+    style A fill:#ff9900,stroke:#333,stroke-width:2px
+    style M fill:#2da44e,stroke:#333,stroke-width:2px
+    style G fill:#ff6b6b,stroke:#333,stroke-width:2px
+```
+
+### 🔍 Validações Obrigatórias de Startup
+
+A aplicação **NÃO INICIA** sem estas validações:
+
+#### 1. 📋 Validação de Configuração Básica
+```bash
+📋 Validando configuração básica...
+✅ Verificando variáveis obrigatórias:
+  - PRIVY_APP_ID: cmgh6un8w007bl10ci0tgitwp
+  - WALLET_ADDRESS: 0x17eDfB8a794ec4f13190401EF7aF1c17f3cc90c5
+```
+
+#### 2. 🤖 Validação LLM (OBRIGATÓRIO)
+```bash
+🤖 Validando conexão com LLM...
+✅ Testando conexão com LLM via NFT Pass do Nation...
+✅ LLM autenticado via NFT Pass do Nation
+  - Wallet: 0x17eDfB8a794ec4f13190401EF7aF1c17f3cc90c5
+  - Token ID: 12345
+  - Tier: Pro
+  - Provider: nation.fun
+✅ Teste de conectividade LLM bem-sucedido
+```
+
+#### 3. 🔐 Validação Privy.io (OBRIGATÓRIO)
+```bash
+🔐 Validando credenciais Privy.io...
+✅ Privy credentials configuradas
+  - App ID: cmgh6un8w...
+```
+
+#### 4. 🌐 Validação Base Network (OPCIONAL)
+```bash
+🌐 Validando conexão com Base Network...
+✅ Base Network conectado
+  - Chain ID: 8453
+  - Latest Block: 12345678
+```
+
+#### 5. 🎨 Validação NFT Pass Nation.fun (OBRIGATÓRIO)
+```bash
+🎨 Validando posse do NFT Nation.fun...
+✅ Verificando carteira autorizada...
+✅ Consultando API Nation.fun...
+✅ NFT Pass válido encontrado
+✅ Enviando teste de conectividade...
+✅ Teste de conectividade bem-sucedido
+```
+
+#### 6. 📝 Validação Notion (OPCIONAL)
+```bash
+📝 Validando integração com Notion...
+✅ Notion API conectada
+✅ Agente Notion configurado
+  - ID: notion-agent-123
+  - Name: IaC AI Agent
+```
+
+#### 7. 🤖 Criação do Agente Padrão (OBRIGATÓRIO)
+```bash
+🤖 Verificando agente padrão...
+✅ Agente pronto
+  - ID: default-agent-123
+  - Name: Default Agent
+```
+
+### 📊 Relatório Final de Validação
+
+Após todas as validações, a aplicação exibe um relatório completo:
+
+```bash
+============================================================
+📊 RELATÓRIO DE VALIDAÇÃO DE STARTUP
+============================================================
+✅ Status: PASSOU
+
+📋 Checklist de Validações:
+  ✅ LLM Connection
+  ✅ Privy.io Credentials
+  ✅ Base Network
+  ✅ Nation.fun NFT
+  ✅ Notion Integration
+  ✅ Default Agent
+
+🤖 Agent Details:
+  ID: default-agent-123
+  Name: Default Agent
+
+📝 Notion Agent Details:
+  ID: notion-agent-123
+  Name: IaC AI Agent
+
+============================================================
+✅ Validação completa - Aplicação iniciando...
+```
+
+### 🔧 Inicialização dos Componentes
+
+Após as validações, a aplicação inicializa os componentes principais:
+
+#### 1. 🤖 Core Agent
+```bash
+🤖 Initializing agent
+  - Agent ID: iac-ai-agent
+  - Name: IaC AI Agent
+  - Version: 1.0.0
+  - Capabilities Count: 2
+```
+
+#### 2. 🔧 Capabilities Registration
+```bash
+✅ Capability registered
+  - capability_id: whatsapp
+  - name: WhatsApp Capability
+  - version: 1.0.0
+
+✅ Capability registered
+  - capability_id: iac-analysis
+  - name: IaC Analysis Capability
+  - version: 1.0.0
+```
+
+#### 3. 🌐 HTTP Server Startup
+```bash
+✅ Starting agent server on :8080
+✅ Agent started successfully: iac-ai-agent
+```
+
+### 🚨 Comportamento em Caso de Falha
+
+Se qualquer validação obrigatória falhar, a aplicação **NÃO INICIA**:
+
+```bash
+============================================================
+📊 RELATÓRIO DE VALIDAÇÃO DE STARTUP
+============================================================
+❌ Status: FALHOU
+
+📋 Checklist de Validações:
+  ✅ LLM Connection
+  ❌ Privy.io Credentials
+  ✅ Base Network
+  ❌ Nation.fun NFT
+  ✅ Notion Integration
+  ❌ Default Agent
+
+❌ Erros Encontrados:
+  ❌ Privy validation failed: PRIVY_APP_ID não configurado
+  ❌ Nation.fun NFT validation failed: WALLET_ADDRESS não configurado
+  ❌ Agent creation failed: WALLET_ADDRESS não configurado
+
+💥 APLICAÇÃO NÃO PODE INICIAR - Validação falhou
+Por favor, corrija os erros acima e tente novamente.
+
+Erros críticos:
+  - Privy validation failed: PRIVY_APP_ID não configurado
+  - Nation.fun NFT validation failed: WALLET_ADDRESS não configurado
+  - Agent creation failed: WALLET_ADDRESS não configurado
+
+panic: Startup validation failed
+```
+
+### ⚙️ Configuração Mínima para Inicialização
+
+Para a aplicação iniciar com sucesso, você precisa configurar:
+
+```bash
+# Arquivo .env mínimo obrigatório
+PRIVY_APP_ID=cmgh6un8w007bl10ci0tgitwp
+WALLET_ADDRESS=0x17eDfB8a794ec4f13190401EF7aF1c17f3cc90c5
+NATION_NFT_REQUIRED=true
+LLM_PROVIDER=nation.fun
+LLM_MODEL=nation-1
+```
+
+### 🔍 Logs de Debug
+
+Para ver logs detalhados do processo de inicialização:
+
+```bash
+# Executar com logs detalhados
+LOG_LEVEL=debug make run
+
+# Ou diretamente
+LOG_LEVEL=debug go run cmd/agent/main.go
+```
+
+### 🛠️ Troubleshooting de Startup
+
+| Problema | Causa | Solução |
+|----------|-------|---------|
+| **"LLM validation failed"** | NFT Pass inválido ou carteira não autorizada | Verificar `WALLET_ADDRESS` e posse do NFT |
+| **"Privy validation failed"** | `PRIVY_APP_ID` não configurado | Configurar variável de ambiente |
+| **"Nation.fun NFT validation failed"** | Carteira não possui NFT Pass válido | Verificar posse do NFT na carteira |
+| **"Base Network validation failed"** | Problema de conectividade | Verificar `BASE_RPC_URL` e conectividade |
+| **"Agent creation failed"** | Erro na criação do agente padrão | Verificar configurações de wallet |
+
 <div class="gradient-box">
   <h3>🚀 O que o IaC AI Agent faz?</h3>
 </div>
@@ -154,76 +377,417 @@ flowchart TB
     classDef node fill:#f9f9f9,stroke:#333,stroke-width:1px,rx:5px,ry:5px
 ```
 
-## 🔧 Guia de Instalação e Configuração
+## ⚡ Quick Start - Validação NFT Pass do Nation
 
-<div class="warning-box">
-  <h3>🚨 PRÉ-REQUISITOS OBRIGATÓRIOS</h3>
-  <p>A aplicação <strong>NÃO VAI INICIAR</strong> sem estas 3 coisas configuradas:</p>
-</div>
+### 🎨 Validação de NFT Pass do Nation em Tempo de Execução
 
-| Requisito | O que é | Onde obter | Como verificar |
-|-----------|---------|------------|----------------|
-| 🎨 **Nation.fun NFT** | NFT de membership | [nation.fun](https://nation.fun/) | `curl -X GET https://api.nation.fun/v1/verify/{WALLET_ADDRESS}` |
-| 🔐 **Privy.io Account** | Credenciais Web3 | [privy.io](https://privy.io) | Acessar dashboard em [console.privy.io](https://console.privy.io) |
-| 🤖 **OpenAI API Key** | Chave do LLM | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) | `curl https://api.openai.com/v1/chat/completions -H "Authorization: Bearer {API_KEY}"` |
+O sistema agora inclui validação automática da NFT Pass do Nation.fun para garantir que apenas a carteira padrão autorizada (`0x17eDfB8a794ec4f13190401EF7aF1c17f3cc90c5`) possa acessar funcionalidades críticas.
 
-### Instalação Passo-a-passo
+### 🚀 Setup Rápido (5 minutos)
 
 <div class="terminal">
 <pre>
-<span class="comment"># 1. Clone do repositório</span>
+<span class="comment"># 1. Clone e configure</span>
 git clone https://github.com/gosouza/iac-ai-agent
 cd iac-ai-agent
 
-<span class="comment"># 2. Instalação de dependências</span>
-go mod download
+<span class="comment"># 2. Setup automático</span>
+make setup
 
-<span class="comment"># 3. Instale o Checkov (scanner de segurança)</span>
-pip install checkov
-
-<span class="comment"># 4. Configure o ambiente</span>
+<span class="comment"># 3. Configure suas credenciais</span>
 cp .env-example .env
+nano .env  # ← Configure as variáveis obrigatórias
 
-<span class="comment"># 5. Edite .env e adicione AS VARIÁVEIS OBRIGATÓRIAS:</span>
-<span class="highlight"># - PRIVY_APP_ID=app_xxx</span>
-<span class="highlight"># - PRIVY_APP_SECRET=xxx</span>
-<span class="highlight"># - WALLET_ADDRESS=0x... (com Nation.fun NFT)</span>
-<span class="highlight"># - WALLET_PRIVATE_KEY=0x...</span>
-<span class="highlight"># - NATION_NFT_CONTRACT=0x...</span>
-<span class="highlight"># - LLM_API_KEY=sk-...</span>
-
-<span class="comment"># 6. Verifique a instalação</span>
+<span class="comment"># 4. Verifique se está tudo OK</span>
 make check-env
+
+<span class="comment"># 5. Execute com validação de NFT</span>
+make run
+
+<span class="comment"># 6. Teste a validação</span>
+curl http://localhost:8080/health
 </pre>
 </div>
 
-### Inicialização e Validação
+### 🔧 Configuração Obrigatória
+
+Crie o arquivo `.env` com as variáveis essenciais:
+
+```bash
+# =====================================================
+# VARIÁVEIS OBRIGATÓRIAS PARA VALIDAÇÃO NFT NATION
+# =====================================================
+
+# 1. PRIVY.IO (já configurado)
+PRIVY_APP_ID=cmgh6un8w007bl10ci0tgitwp
+
+# 2. NATION.FUN NFT (OBRIGATÓRIO)
+WALLET_ADDRESS=0x17eDfB8a794ec4f13190401EF7aF1c17f3cc90c5
+NATION_NFT_REQUIRED=true
+NATION_NFT_CONTRACT=0x1234567890123456789012345678901234567890
+
+# 3. LLM API (Nation.fun - autenticação via carteira Web3)
+LLM_PROVIDER=nation.fun
+LLM_MODEL=nation-1
+LLM_TEMPERATURE=0.2
+LLM_MAX_TOKENS=4000
+
+# =====================================================
+# VARIÁVEIS RECOMENDADAS
+# =====================================================
+
+# BASE NETWORK
+BASE_RPC_URL=https://mainnet.base.org
+BASE_CHAIN_ID=8453
+
+# FEATURES
+ENABLE_NFT_ACCESS=true
+ENABLE_TOKEN_PAYMENTS=true
+ENABLE_STARTUP_VALIDATION=true
+ENABLE_WEB3_AUTH=true
+
+# SERVER
+PORT=8080
+HOST=0.0.0.0
+ENVIRONMENT=development
+
+# LOGGING
+LOG_LEVEL=info
+LOG_FORMAT=json
+```
+
+### 🧪 Teste de Validação NFT
 
 <div class="terminal">
 <pre>
-<span class="comment"># 1. Modo desenvolvimento</span>
-make dev
-# ou
-go run cmd/agent/main.go
+<span class="comment"># 1. Executar testes BDD específicos de NFT Pass do Nation</span>
+./test/bdd/run_nation_nft_tests.sh
 
-<span class="comment"># 2. Build e execução</span>
-make build
-./bin/iac-ai-agent
+<span class="comment"># 2. Verificar logs de validação</span>
+make run 2>&1 | grep -E "(NFT|Nation|validação)"
 
-<span class="comment"># 3. A aplicação valida tudo antes de iniciar!</span>
-<span class="success"># ✅ LLM Connection</span>
-<span class="success"># ✅ Privy.io Credentials</span>
-<span class="success"># ✅ Base Network</span>
-<span class="success"># ✅ Nation.fun NFT Ownership</span>
+<span class="comment"># 3. Testar validação manual</span>
+curl -X POST http://localhost:8080/api/auth/web3/verify \
+  -H "Content-Type: application/json" \
+  -d '{"token": "test_token"}'
 
-<span class="comment"># 4. Verificar se a API está funcionando</span>
+<span class="comment"># 4. Verificar status da validação</span>
+curl http://localhost:8080/api/auth/web3/check-access \
+  -H "Content-Type: application/json" \
+  -d '{"wallet_address": "0x17eDfB8a794ec4f13190401EF7aF1c17f3cc90c5"}'
+</pre>
+</div>
+
+### 🔍 Comandos de Diagnóstico
+
+<div class="terminal">
+<pre>
+<span class="comment"># Verificar configuração de NFT</span>
+echo "WALLET_ADDRESS: $WALLET_ADDRESS"
+echo "NATION_NFT_REQUIRED: $NATION_NFT_REQUIRED"
+echo "NATION_NFT_CONTRACT: $NATION_NFT_CONTRACT"
+
+<span class="comment"># Testar conectividade com API do Nation.fun</span>
+curl -X GET "https://api.nation.fun/v1/nft/check/0x17eDfB8a794ec4f13190401EF7aF1c17f3cc90c5"
+
+<span class="comment"># Enviar teste de conectividade</span>
+curl -X POST "https://api.nation.fun/v1/test/send" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "teste de conectividade", "timestamp": '$(date +%s)'}'
+
+<span class="comment"># Verificar logs de validação em tempo real</span>
+docker logs -f iac-ai-agent | grep -E "(NFT|Nation|validação)"
+</pre>
+</div>
+
+### 🚨 Troubleshooting Rápido
+
+| Problema | Solução |
+|----------|---------|
+| **"wallet não autorizada"** | Verificar se `WALLET_ADDRESS` está correto |
+| **"carteira não possui NFT Pass"** | Confirmar que a carteira possui NFT ativo |
+| **"API retornou status 500"** | Verificar status da API do Nation.fun |
+| **"timeout na comunicação"** | Verificar conectividade de rede |
+
+### 📊 Fluxo de Validação
+
+```mermaid
+graph TD
+    A[Aplicação Inicia] --> B{NATION_NFT_REQUIRED=true?}
+    B -->|Não| C[Pular Validação]
+    B -->|Sim| D[Validar WALLET_ADDRESS]
+    D --> E{Carteira = Padrão?}
+    E -->|Não| F[❌ Erro: Wallet não autorizada]
+    E -->|Sim| G[Consultar API Nation.fun]
+    G --> H{NFT Válido?}
+    H -->|Não| I[❌ Erro: NFT não encontrado]
+    H -->|Sim| J[Enviar Teste de Conectividade]
+    J --> K{Teste OK?}
+    K -->|Não| L[⚠️ Aviso: Teste falhou]
+    K -->|Sim| M[✅ Validação Completa]
+    L --> M
+    M --> N[Aplicação Inicializa]
+```
+
+### 🎯 Primeiro Uso com Validação NFT
+
+<div class="terminal">
+<pre>
+<span class="comment"># Execute a aplicação</span>
+make run
+
+<span class="comment"># Você verá estas validações:</span>
+<span class="success">✅ LLM Connection</span>
+<span class="success">✅ Privy.io Credentials</span>
+<span class="success">✅ Base Network</span>
+<span class="success">✅ Nation.fun NFT Ownership</span>
+<span class="success">✅ NFT Pass Validation</span>
+<span class="success">✅ Nation.fun Connectivity Test</span>
+
+<span class="comment"># Teste a API</span>
 curl http://localhost:8080/health
-# Resposta esperada: {"status":"ok","version":"1.0.0"}
+<span class="comment"># Resposta: {"status":"ok","version":"1.0.0","nft_validated":true}</span>
 
-<span class="comment"># 5. Abra o navegador</span>
+<span class="comment"># Abra no navegador</span>
 open http://localhost:8080
 </pre>
 </div>
+
+### 🛠️ Comandos Makefile Disponíveis
+
+<div class="terminal">
+<pre>
+<span class="comment"># Comandos principais</span>
+make setup          # Setup inicial do projeto
+make run            # Executar aplicação com validação NFT
+make build          # Compilar binário
+make test           # Executar todos os testes
+make test-bdd       # Executar testes BDD
+make test-nation-nft # Executar testes específicos de NFT Pass do Nation
+
+<span class="comment"># Comandos de desenvolvimento</span>
+make dev            # Executar em modo desenvolvimento
+make check-env       # Verificar variáveis de ambiente
+make lint           # Executar linter
+make format         # Formatar código
+
+<span class="comment"># Comandos de Docker</span>
+make docker-build   # Construir imagem Docker
+make docker-run     # Executar container Docker
+make docker-logs    # Ver logs do container
+
+<span class="comment"># Comandos de teste específicos</span>
+make test-unit      # Testes unitários
+make test-integration # Testes de integração
+make test-nation-nft # Testes de validação NFT Pass do Nation
+make test-all       # Todos os testes com relatório
+
+<span class="comment"># Comandos de limpeza</span>
+make clean          # Limpar arquivos temporários
+make clean-docker   # Limpar containers e imagens Docker
+make clean-test     # Limpar arquivos de teste
+</pre>
+</div>
+
+### 📋 Checklist de Validação NFT
+
+<div class="checklist">
+  <h3>✅ Antes de Executar</h3>
+  <ul>
+    <li>✅ <code>WALLET_ADDRESS</code> configurado com carteira padrão</li>
+    <li>✅ <code>NATION_NFT_REQUIRED=true</code> definido</li>
+    <li>✅ <code>NATION_NFT_CONTRACT</code> configurado (opcional)</li>
+    <li>✅ Conectividade com internet para API do Nation.fun</li>
+    <li>✅ Arquivo <code>.env</code> criado e configurado</li>
+  </ul>
+  
+  <h3>✅ Durante a Execução</h3>
+  <ul>
+    <li>✅ Validação de carteira padrão autorizada</li>
+    <li>✅ Verificação de NFT Pass via API</li>
+    <li>✅ Teste de conectividade com Nation.fun</li>
+    <li>✅ Logs de validação exibidos no console</li>
+    <li>✅ Aplicação inicializa sem erros</li>
+  </ul>
+  
+  <h3>✅ Após a Execução</h3>
+  <ul>
+    <li>✅ API responde em <code>http://localhost:8080/health</code></li>
+    <li>✅ Endpoint de validação Web3 funcional</li>
+    <li>✅ Logs mostram validação bem-sucedida</li>
+    <li>✅ Testes BDD passam sem erros</li>
+  </ul>
+</div>
+
+### 📋 Pré-requisitos Obrigatórios
+
+<div class="warning-box">
+  <h3>🚨 Você precisa de apenas 2 coisas:</h3>
+  <p>A aplicação <strong>NÃO INICIA</strong> sem elas:</p>
+</div>
+
+| ✅ | O que você precisa | Como obter | Tempo |
+|----|-------------------|------------|-------|
+| 🎨 **NFT Pass do Nation** | NFT válido na carteira padrão | Já possui na carteira `0x17eDfB8a794ec4f13190401EF7aF1c17f3cc90c5` | 0 min |
+| 🔐 **Conectividade** | Acesso à API do Nation.fun | Internet funcionando | 0 min |
+
+### 🟢 Já Configurado Automaticamente
+
+| ✅ | Configuração | Status |
+|----|-------------|--------|
+| 🔐 **Privy.io** | App ID hardcoded | ✅ Pronto |
+| 🎨 **Wallet Address** | Endereço hardcoded | ✅ Pronto |
+| 🤖 **LLM Provider** | Nation.fun via NFT Pass | ✅ Autenticação automática |
+| 🔐 **Secrets** | Git Secrets + Lit Protocol | ✅ Gerenciado automaticamente |
+
+### 🔧 Configuração das Credenciais
+
+Crie o arquivo `.env` com as variáveis essenciais (sem necessidade de API keys externas):
+
+```bash
+# ============================================
+# 🔴 VARIÁVEIS OBRIGATÓRIAS
+# ============================================
+
+# Nation.fun NFT Pass (autenticação automática)
+WALLET_ADDRESS=0x17eDfB8a794ec4f13190401EF7aF1c17f3cc90c5
+NATION_NFT_REQUIRED=true
+
+# LLM (Nation.fun - sem API key necessária)
+LLM_PROVIDER=nation.fun
+LLM_MODEL=nation-1
+
+# ============================================
+# 🟢 JÁ CONFIGURADO AUTOMATICAMENTE
+# ============================================
+
+# ✅ Privy.io App ID: cmgh6un8w007bl10ci0tgitwp (hardcoded)
+# ✅ Wallet Address: 0x17eDfB8a794ec4f13190401EF7aF1c17f3cc90c5 (hardcoded)
+# ✅ LLM Authentication: Via NFT Pass do Nation (automático)
+# ✅ Secrets: Gerenciados via Git Secrets + Lit Protocol
+
+# ============================================
+# 🟡 RECOMENDADAS
+# ============================================
+
+# BASE NETWORK
+BASE_RPC_URL=https://mainnet.base.org        # ← Base Mainnet
+BASE_CHAIN_ID=8453                           # ← 8453 = Mainnet
+
+# FEATURES
+ENABLE_NFT_ACCESS=true
+ENABLE_TOKEN_PAYMENTS=true
+ENABLE_STARTUP_VALIDATION=true
+```
+
+### 🎯 Primeiro Uso
+
+<div class="terminal">
+<pre>
+<span class="comment"># Execute a aplicação</span>
+make run
+
+<span class="comment"># Você verá estas validações:</span>
+<span class="success">✅ LLM Connection</span>
+<span class="success">✅ Privy.io Credentials</span>
+<span class="success">✅ Base Network</span>
+<span class="success">✅ Nation.fun NFT Ownership</span>
+
+<span class="comment"># Teste a API</span>
+curl http://localhost:8080/health
+# Resposta: {"status":"ok","version":"1.0.0"}
+
+<span class="comment"># Abra no navegador</span>
+open http://localhost:8080
+</pre>
+</div>
+
+### 🧪 Teste Rápido
+
+```bash
+# Teste uma análise simples
+curl -X POST http://localhost:8080/api/v1/analyze \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "resource \"aws_s3_bucket\" \"example\" { bucket = \"my-bucket\" }",
+    "type": "terraform_analysis"
+  }'
+```
+
+### ❌ Problemas Comuns
+
+| Erro | Solução |
+|------|---------|
+| "wallet não autorizada" | Verificar se `WALLET_ADDRESS` está correto |
+| "carteira não possui NFT Pass" | Confirmar que a carteira possui NFT ativo |
+| "API retornou status 500" | Verificar status da API do Nation.fun |
+| "timeout na comunicação" | Verificar conectividade de rede |
+| "NATION_NFT_REQUIRED é obrigatório" | Definir `NATION_NFT_REQUIRED=true` no `.env` |
+| "WALLET_ADDRESS não configurado" | Adicionar `WALLET_ADDRESS` no `.env` |
+
+---
+
+## 📚 Documentação Completa
+
+Para informações detalhadas, consulte:
+
+- 📖 **[Índice da Documentação](docs/INDEX.md)** - Navegação completa por categoria
+- 📖 **[Estratégia de Configuração](docs/ESTRATEGIA_CONFIGURACAO.md)** - Como funciona a configuração simplificada
+- 📖 **[Guia de Instalação Completo](docs/GUIA_INSTALACAO.md)** - Setup detalhado passo-a-passo
+- 📖 **[Quick Start Atualizado](docs/QUICKSTART_ATUALIZADO.md)** - Versão expandida
+- 📖 **[Exemplos Práticos](docs/EXEMPLOS_PRATICOS.md)** - Casos de uso reais
+- 📖 **[Sistema de Agentes](docs/AGENT_SYSTEM.md)** - Como funciona o sistema de IA
+
+## 🎯 Exemplos Práticos de Uso
+
+### 1. Análise de Segurança
+
+```bash
+# Analise um recurso S3 para vulnerabilidades
+curl -X POST http://localhost:8080/api/v1/analyze \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "resource \"aws_s3_bucket\" \"example\" {\n  bucket = \"my-bucket\"\n  versioning {\n    enabled = true\n  }\n}",
+    "type": "security_analysis"
+  }'
+```
+
+### 2. Otimização de Custos
+
+```bash
+# Analise custos de instâncias EC2
+curl -X POST http://localhost:8080/api/v1/analyze \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "resource \"aws_instance\" \"web\" {\n  instance_type = \"t3.large\"\n  ami = \"ami-0c02fb55956c7d316\"\n}",
+    "type": "cost_optimization"
+  }'
+```
+
+### 3. Análise Completa com LLM
+
+```bash
+# Análise completa com sugestões inteligentes
+curl -X POST http://localhost:8080/api/v1/analyze \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "resource \"aws_s3_bucket\" \"example\" {\n  bucket = \"my-bucket\"\n}",
+    "type": "full_analysis",
+    "include_llm": true
+  }'
+```
+
+### 4. Geração de Código
+
+```bash
+# Peça para gerar código Terraform
+curl -X POST http://localhost:8080/api/v1/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "Crie um bucket S3 com versionamento e criptografia habilitados",
+    "type": "terraform_code"
+  }'
+```
 
 ## 🎫 Sistema de Acesso (NFTs)
 
@@ -793,6 +1357,39 @@ docker exec iacai-agent env | grep PRIVY
 
 .roadmap-item.pending .roadmap-text {
   color: #6e7781;
+}
+
+.checklist {
+  background-color: #f6f8fa;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.checklist h3 {
+  color: #24292e;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.checklist ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.checklist li {
+  margin-bottom: 8px;
+  color: #586069;
+}
+
+.checklist code {
+  background-color: #f1f8ff;
+  color: #0366d6;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
 }
 
 @media (max-width: 768px) {

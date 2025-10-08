@@ -14,13 +14,35 @@ import (
 	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
+// Web3Error representa um erro do sistema Web3
+type Web3Error struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+	Details string `json:"details,omitempty"`
+}
+
+func (e *Web3Error) Error() string {
+	return e.Message
+}
+
+// PrivyError representa um erro específico do Privy
+type PrivyError struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+	Details string `json:"details,omitempty"`
+}
+
+func (e *PrivyError) Error() string {
+	return e.Message
+}
+
 // BaseClient é o cliente para interagir com Base Network (L2 Ethereum)
 type BaseClient struct {
-	config     *config.Config
-	logger     *logger.Logger
-	ethClient  *ethclient.Client
-	chainID    *big.Int
-	rpcURL     string
+	config    *config.Config
+	logger    *logger.Logger
+	ethClient *ethclient.Client
+	chainID   *big.Int
+	rpcURL    string
 }
 
 // NewBaseClient cria um novo cliente Base Network
@@ -57,13 +79,13 @@ func NewBaseClient(cfg *config.Config, log *logger.Logger) (*BaseClient, error) 
 
 // NetworkInfo contém informações sobre a rede
 type NetworkInfo struct {
-	ChainID         *big.Int `json:"chain_id"`
-	NetworkName     string   `json:"network_name"`
-	IsTestnet       bool     `json:"is_testnet"`
-	LatestBlock     uint64   `json:"latest_block"`
-	GasPrice        *big.Int `json:"gas_price"`
+	ChainID           *big.Int `json:"chain_id"`
+	NetworkName       string   `json:"network_name"`
+	IsTestnet         bool     `json:"is_testnet"`
+	LatestBlock       uint64   `json:"latest_block"`
+	GasPrice          *big.Int `json:"gas_price"`
 	SuggestedGasPrice *big.Int `json:"suggested_gas_price"`
-	RPCURL          string   `json:"rpc_url"`
+	RPCURL            string   `json:"rpc_url"`
 }
 
 // GetNetworkInfo obtém informações sobre a rede Base
@@ -82,7 +104,7 @@ func (bc *BaseClient) GetNetworkInfo(ctx context.Context) (*NetworkInfo, error) 
 
 	networkName := "Base Mainnet"
 	isTestnet := false
-	
+
 	// Base Mainnet: Chain ID 8453
 	// Base Goerli: Chain ID 84531
 	// Base Sepolia: Chain ID 84532
@@ -107,11 +129,11 @@ func (bc *BaseClient) GetNetworkInfo(ctx context.Context) (*NetworkInfo, error) 
 
 // WalletBalance representa o saldo de uma wallet
 type WalletBalance struct {
-	Address      string   `json:"address"`
-	BalanceWei   *big.Int `json:"balance_wei"`
-	BalanceETH   string   `json:"balance_eth"`
-	Nonce        uint64   `json:"nonce"`
-	IsContract   bool     `json:"is_contract"`
+	Address    string   `json:"address"`
+	BalanceWei *big.Int `json:"balance_wei"`
+	BalanceETH string   `json:"balance_eth"`
+	Nonce      uint64   `json:"nonce"`
+	IsContract bool     `json:"is_contract"`
 }
 
 // GetBalance obtém o saldo de uma wallet
@@ -154,19 +176,19 @@ func (bc *BaseClient) GetBalance(ctx context.Context, address string) (*WalletBa
 
 // Transaction representa uma transação
 type Transaction struct {
-	Hash             string   `json:"hash"`
-	From             string   `json:"from"`
-	To               string   `json:"to"`
-	Value            *big.Int `json:"value"`
-	ValueETH         string   `json:"value_eth"`
-	Gas              uint64   `json:"gas"`
-	GasPrice         *big.Int `json:"gas_price"`
-	Nonce            uint64   `json:"nonce"`
-	Data             string   `json:"data"`
-	BlockNumber      uint64   `json:"block_number,omitempty"`
-	BlockHash        string   `json:"block_hash,omitempty"`
-	Status           uint64   `json:"status,omitempty"` // 1 = success, 0 = failed
-	Confirmations    uint64   `json:"confirmations"`
+	Hash          string   `json:"hash"`
+	From          string   `json:"from"`
+	To            string   `json:"to"`
+	Value         *big.Int `json:"value"`
+	ValueETH      string   `json:"value_eth"`
+	Gas           uint64   `json:"gas"`
+	GasPrice      *big.Int `json:"gas_price"`
+	Nonce         uint64   `json:"nonce"`
+	Data          string   `json:"data"`
+	BlockNumber   uint64   `json:"block_number,omitempty"`
+	BlockHash     string   `json:"block_hash,omitempty"`
+	Status        uint64   `json:"status,omitempty"` // 1 = success, 0 = failed
+	Confirmations uint64   `json:"confirmations"`
 }
 
 // GetTransaction obtém informações de uma transação

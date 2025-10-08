@@ -2,20 +2,20 @@ package models
 
 // CheckovResult representa o resultado completo do Checkov
 type CheckovResult struct {
-	Summary         CheckovSummary     `json:"summary"`
-	Results         CheckovResults     `json:"results"`
-	CheckType       string             `json:"check_type"`
-	ExecutionTime   float64            `json:"execution_time"`
+	Summary       CheckovSummary `json:"summary"`
+	Results       CheckovResults `json:"results"`
+	CheckType     string         `json:"check_type"`
+	ExecutionTime float64        `json:"execution_time"`
 }
 
 // CheckovSummary contém o resumo da análise Checkov
 type CheckovSummary struct {
-	Passed          int    `json:"passed"`
-	Failed          int    `json:"failed"`
-	Skipped         int    `json:"skipped"`
-	ParsingErrors   int    `json:"parsing_errors"`
-	ResourceCount   int    `json:"resource_count"`
-	CheckovVersion  string `json:"checkov_version"`
+	Passed         int    `json:"passed"`
+	Failed         int    `json:"failed"`
+	Skipped        int    `json:"skipped"`
+	ParsingErrors  int    `json:"parsing_errors"`
+	ResourceCount  int    `json:"resource_count"`
+	CheckovVersion string `json:"checkov_version"`
 }
 
 // CheckovResults contém os checks que passaram e falharam
@@ -43,11 +43,11 @@ type CheckovCheck struct {
 
 // CheckovConfig representa configuração para execução do Checkov
 type CheckovConfig struct {
-	Directory      string   `json:"directory"`
-	Framework      string   `json:"framework"` // terraform, cloudformation, etc
-	Checks         []string `json:"checks,omitempty"`
-	SkipChecks     []string `json:"skip_checks,omitempty"`
-	CompactOutput  bool     `json:"compact_output"`
-	Quiet          bool     `json:"quiet"`
-	ExternalChecksDir string `json:"external_checks_dir,omitempty"`
+	Directory         string   `json:"directory"`
+	Framework         string   `json:"framework"` // terraform, cloudformation, etc
+	Checks            []string `json:"checks,omitempty"`
+	SkipChecks        []string `json:"skip_checks,omitempty"`
+	CompactOutput     bool     `json:"compact_output"`
+	Quiet             bool     `json:"quiet"`
+	ExternalChecksDir string   `json:"external_checks_dir,omitempty"`
 }

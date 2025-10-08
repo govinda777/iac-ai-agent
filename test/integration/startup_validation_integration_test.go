@@ -378,4 +378,3 @@ func setupStartupValidationConfig(t *testing.T) *config.Config {
 
 	return cfg
 }
-

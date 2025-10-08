@@ -17,6 +17,7 @@ const (
 	MockMode        TestMode = "mock"
 	IntegrationMode TestMode = "integration"
 	RealMode        TestMode = "real"
+	HybridMode      TestMode = "hybrid"
 )
 
 // TestConfig contém configurações específicas para testes
@@ -143,6 +144,8 @@ func (tc *TestConfig) GetTestTags() []string {
 		return []string{"@integration", "@real"}
 	case RealMode:
 		return []string{"@integration", "@real", "@e2e"}
+	case HybridMode:
+		return []string{"@integration", "@mock", "@real"}
 	default:
 		return []string{"@mock"}
 	}
@@ -157,6 +160,8 @@ func (tc *TestConfig) GetExcludedTags() []string {
 		return []string{"@mock", "@unit"}
 	case RealMode:
 		return []string{"@mock", "@unit"}
+	case HybridMode:
+		return []string{"@unit"} // Híbrido permite todos exceto unitários
 	default:
 		return []string{"@integration", "@real", "@e2e"}
 	}
@@ -207,8 +212,12 @@ func (tc *TestConfig) PrintConfig() {
 func getTestMode() TestMode {
 	mode := strings.ToLower(getStringEnv("TEST_MODE", "mock"))
 	switch mode {
-	case "integration", "real":
+	case "integration":
 		return IntegrationMode
+	case "real":
+		return RealMode
+	case "hybrid":
+		return HybridMode
 	case "mock":
 		return MockMode
 	default:

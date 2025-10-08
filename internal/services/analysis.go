@@ -5,7 +5,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/govinda777/iac-ai-agent/internal/agent/llm"
 	"github.com/govinda777/iac-ai-agent/internal/models"
+	"github.com/govinda777/iac-ai-agent/internal/platform/cloudcontroller"
+	"github.com/govinda777/iac-ai-agent/pkg/config"
 	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
 
@@ -17,6 +20,8 @@ type AnalysisService struct {
 	prScorer        PRScorerInterface
 	costOptimizer   CostOptimizerInterface
 	securityAdvisor SecurityAdvisorInterface
+	llmClient       *llm.Client
+	knowledgeBase   *cloudcontroller.KnowledgeBase
 	logger          *logger.Logger
 	minPassScore    int
 }
@@ -31,7 +36,14 @@ func NewAnalysisService(
 	prScorer PRScorerInterface,
 	costOptimizer CostOptimizerInterface,
 	securityAdvisor SecurityAdvisorInterface,
+	cfg *config.Config,
 ) *AnalysisService {
+	// Inicializa LLM Client
+	llmClient := llm.NewClient(cfg, log)
+
+	// Inicializa Knowledge Base
+	knowledgeBase := cloudcontroller.NewKnowledgeBase(log)
+
 	return &AnalysisService{
 		tfAnalyzer:      tfAnalyzer,
 		checkovAnalyzer: checkovAnalyzer,
@@ -39,6 +51,8 @@ func NewAnalysisService(
 		prScorer:        prScorer,
 		costOptimizer:   costOptimizer,
 		securityAdvisor: securityAdvisor,
+		llmClient:       llmClient,
+		knowledgeBase:   knowledgeBase,
 		logger:          log,
 		minPassScore:    minPassScore,
 	}
@@ -206,7 +220,17 @@ func (as *AnalysisService) generateSuggestions(
 	securityAnalysis *models.SecurityAnalysis,
 	iamAnalysis *models.IAMAnalysis,
 ) []models.Suggestion {
-	// Apenas sugestões baseadas em regras (sem LLM por enquanto)
+	// Tenta usar LLM primeiro, fallback para regras
+	if as.llmClient != nil {
+		llmSuggestions, err := as.generateLLMSuggestions(tfAnalysis, securityAnalysis, iamAnalysis)
+		if err != nil {
+			as.logger.Warn("Erro ao gerar sugestões LLM, usando fallback", "error", err)
+		} else {
+			return llmSuggestions
+		}
+	}
+
+	// Fallback para sugestões baseadas em regras
 	return as.generateRuleBasedSuggestions(tfAnalysis, securityAnalysis, iamAnalysis)
 }
 
@@ -235,6 +259,156 @@ func (as *AnalysisService) generateRuleBasedSuggestions(
 	// Sugestões de custo
 	costSuggestions := as.costOptimizer.GenerateSuggestions(tfAnalysis)
 	suggestions = append(suggestions, costSuggestions...)
+
+	return suggestions
+}
+
+// generateLLMSuggestions gera sugestões usando LLM e Knowledge Base
+func (as *AnalysisService) generateLLMSuggestions(
+	tfAnalysis *models.TerraformAnalysis,
+	securityAnalysis *models.SecurityAnalysis,
+	iamAnalysis *models.IAMAnalysis,
+) ([]models.Suggestion, error) {
+	// Monta análise completa para Knowledge Base
+	analysisDetails := models.AnalysisDetails{
+		Terraform: *tfAnalysis,
+		Security:  *securityAnalysis,
+		IAM:       *iamAnalysis,
+	}
+
+	// Busca práticas relevantes na Knowledge Base
+	relevantPractices := as.knowledgeBase.GetRelevantPractices(&analysisDetails)
+
+	// Prepara contexto para LLM
+	context := as.buildAnalysisContext(tfAnalysis, securityAnalysis, iamAnalysis, relevantPractices)
+
+	// Cria requisição LLM
+	llmReq := &models.LLMRequest{
+		SystemPrompt: "Você é um especialista em Infrastructure as Code. Analise o código Terraform fornecido e gere sugestões práticas e acionáveis para melhorar segurança, custo e arquitetura. Use as melhores práticas fornecidas como referência.",
+		Prompt:       context,
+		MaxTokens:    2000,
+		Temperature:  0.2,
+	}
+
+	// Gera resposta estruturada
+	var structuredResponse models.LLMStructuredResponse
+	err := as.llmClient.GenerateStructured(llmReq, &structuredResponse)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao gerar resposta estruturada LLM: %w", err)
+	}
+
+	// Converte resposta LLM para sugestões
+	suggestions := as.convertLLMResponseToSuggestions(&structuredResponse)
+
+	as.logger.Info("Sugestões LLM geradas",
+		"total_suggestions", len(suggestions),
+		"critical_issues", len(structuredResponse.CriticalIssues),
+		"improvements", len(structuredResponse.Improvements))
+
+	return suggestions, nil
+}
+
+// buildAnalysisContext constrói contexto para análise LLM
+func (as *AnalysisService) buildAnalysisContext(
+	tfAnalysis *models.TerraformAnalysis,
+	securityAnalysis *models.SecurityAnalysis,
+	iamAnalysis *models.IAMAnalysis,
+	practices []models.BestPractice,
+) string {
+	context := fmt.Sprintf(`
+ANÁLISE TERRAFORM:
+- Total de recursos: %d
+- Total de módulos: %d
+- Providers: %v
+- Recursos principais: %v
+
+ANÁLISE DE SEGURANÇA:
+- Total de issues: %d
+- Issues críticas: %d
+- Issues altas: %d
+
+ANÁLISE IAM:
+- Total de políticas: %d
+- Políticas problemáticas: %d
+
+MELHORES PRÁTICAS RELEVANTES:
+`,
+		tfAnalysis.TotalResources,
+		tfAnalysis.TotalModules,
+		tfAnalysis.Providers,
+		as.getMainResourceTypes(tfAnalysis.Resources),
+		securityAnalysis.TotalIssues,
+		securityAnalysis.Critical,
+		securityAnalysis.High,
+		iamAnalysis.TotalPolicies,
+		len(iamAnalysis.PrincipalRisks),
+	)
+
+	// Adiciona práticas relevantes
+	for _, practice := range practices {
+		context += fmt.Sprintf("- %s: %s\n", practice.Title, practice.Description)
+	}
+
+	return context
+}
+
+// getMainResourceTypes retorna os tipos de recursos principais
+func (as *AnalysisService) getMainResourceTypes(resources []models.TerraformResource) []string {
+	typeCount := make(map[string]int)
+	for _, res := range resources {
+		typeCount[res.Type]++
+	}
+
+	// Retorna os 5 tipos mais comuns
+	var mainTypes []string
+	for resType, count := range typeCount {
+		if count > 0 {
+			mainTypes = append(mainTypes, fmt.Sprintf("%s(%d)", resType, count))
+		}
+	}
+
+	if len(mainTypes) > 5 {
+		return mainTypes[:5]
+	}
+	return mainTypes
+}
+
+// convertLLMResponseToSuggestions converte resposta LLM para sugestões
+func (as *AnalysisService) convertLLMResponseToSuggestions(response *models.LLMStructuredResponse) []models.Suggestion {
+	suggestions := []models.Suggestion{}
+
+	// Converte issues críticas
+	for _, issue := range response.CriticalIssues {
+		suggestions = append(suggestions, models.Suggestion{
+			Type:           issue.Category,
+			Severity:       issue.Severity,
+			Message:        issue.Description,
+			Recommendation: issue.HowToFix.Steps[0], // Primeiro passo
+			Resource:       issue.Resource,
+			File:           issue.File,
+			Line:           issue.Line,
+		})
+	}
+
+	// Converte melhorias
+	for _, improvement := range response.Improvements {
+		suggestions = append(suggestions, models.Suggestion{
+			Type:           improvement.Category,
+			Severity:       "medium", // Melhorias são geralmente medium
+			Message:        improvement.Title,
+			Recommendation: improvement.Implementation.Steps[0], // Primeiro passo
+		})
+	}
+
+	// Converte quick wins
+	for _, quickWin := range response.QuickWins {
+		suggestions = append(suggestions, models.Suggestion{
+			Type:           "quick_win",
+			Severity:       "low",
+			Message:        quickWin.Title,
+			Recommendation: quickWin.Implementation.Steps[0],
+		})
+	}
 
 	return suggestions
 }

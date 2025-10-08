@@ -24,10 +24,10 @@ func NewIAMAnalyzer(log *logger.Logger) *IAMAnalyzer {
 // AnalyzeTerraform analisa recursos IAM no código Terraform
 func (ia *IAMAnalyzer) AnalyzeTerraform(tfAnalysis *models.TerraformAnalysis) (*models.IAMAnalysis, error) {
 	analysis := &models.IAMAnalysis{
-		WildcardActions:     []string{},
-		PublicAccess:        []string{},
-		Recommendations:     []string{},
-		PrincipalRisks:      []models.PrincipalRisk{},
+		WildcardActions: []string{},
+		PublicAccess:    []string{},
+		Recommendations: []string{},
+		PrincipalRisks:  []models.PrincipalRisk{},
 	}
 
 	// Analisa cada recurso
@@ -195,7 +195,7 @@ func (ia *IAMAnalyzer) analyzePrincipal(principal map[string]interface{}, resour
 		if aws == "*" {
 			analysis.PublicAccess = append(analysis.PublicAccess,
 				fmt.Sprintf("Política %s permite acesso público (Principal: *)", resource.Name))
-			
+
 			risk := models.PrincipalRisk{
 				Principal:   "*",
 				Type:        "public",
@@ -222,10 +222,10 @@ func (ia *IAMAnalyzer) analyzeRoleResource(resource models.TerraformResource, an
 								// Verifica serviços de risco
 								if ia.isRiskyService(service) {
 									risk := models.PrincipalRisk{
-										Principal:   service,
-										Type:        "service",
-										RiskLevel:   "medium",
-										Reason:      fmt.Sprintf("Serviço %s pode assumir esta role", service),
+										Principal: service,
+										Type:      "service",
+										RiskLevel: "medium",
+										Reason:    fmt.Sprintf("Serviço %s pode assumir esta role", service),
 									}
 									analysis.PrincipalRisks = append(analysis.PrincipalRisks, risk)
 								}
@@ -241,11 +241,11 @@ func (ia *IAMAnalyzer) analyzeRoleResource(resource models.TerraformResource, an
 // hasPublicAccess verifica se recurso tem acesso público
 func (ia *IAMAnalyzer) hasPublicAccess(resource models.TerraformResource) bool {
 	publicResourceTypes := map[string][]string{
-		"aws_s3_bucket": {"acl"},
-		"aws_s3_bucket_acl": {"acl"},
+		"aws_s3_bucket":      {"acl"},
+		"aws_s3_bucket_acl":  {"acl"},
 		"aws_security_group": {"ingress"},
-		"aws_db_instance": {"publicly_accessible"},
-		"aws_rds_cluster": {"publicly_accessible"},
+		"aws_db_instance":    {"publicly_accessible"},
+		"aws_rds_cluster":    {"publicly_accessible"},
 	}
 
 	if attrs, ok := publicResourceTypes[resource.Type]; ok {
