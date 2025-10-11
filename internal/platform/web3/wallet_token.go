@@ -1,17 +1,12 @@
 package web3
 
 import (
-	"crypto/ecdsa"
-	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/govinda777/iac-ai-agent/pkg/config"
 	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
@@ -56,64 +51,6 @@ func (wtg *WalletTokenGenerator) GenerateToken() (string, error) {
 	wtg.logger.Warn("Este token é apenas para desenvolvimento! Em produção, use um token válido pré-gerado")
 
 	return token, nil
-}
-
-// createToken cria um token de autenticação assinado
-func (wtg *WalletTokenGenerator) createToken(privateKey *ecdsa.PrivateKey) (string, error) {
-	// Obtém o endereço público da wallet
-	publicKey := privateKey.Public()
-	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
-	if !ok {
-		return "", fmt.Errorf("erro ao converter chave pública")
-	}
-
-	address := crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
-
-	// Verifica se o endereço da chave privada corresponde ao endereço configurado
-	if !strings.EqualFold(address, wtg.config.Web3.WalletAddress) {
-		wtg.logger.Warn("O endereço derivado da chave privada não corresponde ao WALLET_ADDRESS configurado",
-			"derived_address", address,
-			"configured_address", wtg.config.Web3.WalletAddress)
-		return "", fmt.Errorf("chave privada não corresponde ao endereço da wallet")
-	}
-
-	// Timestamp atual como nonce
-	timestamp := fmt.Sprintf("%d", time.Now().Unix())
-
-	// Dados para assinatura (endereço + timestamp)
-	data := []byte(address + timestamp)
-
-	// Hash dos dados
-	hash := crypto.Keccak256Hash(data)
-
-	// Assinar o hash
-	signature, err := crypto.Sign(hash.Bytes(), privateKey)
-	if err != nil {
-		return "", fmt.Errorf("erro ao assinar mensagem: %w", err)
-	}
-
-	// Converter assinatura para hexadecimal
-	sigHex := hexutil.Encode(signature)
-
-	// Criar token no formato esperado pela Nation.fun
-	// Formato: address:timestamp:signature
-	token := fmt.Sprintf("%s:%s:%s", address, timestamp, sigHex)
-
-	// Aplica HMAC-SHA256 para finalizar o token
-	// Nota: Na prática, você precisaria de uma chave secreta da Nation.fun para este passo
-	// Este é um placeholder que simula esse processo
-	h := hmac.New(sha256.New, []byte("nation_fun_secret"))
-	h.Write([]byte(token))
-	tokenHash := hex.EncodeToString(h.Sum(nil))
-
-	// Formato final: prefixo_versão_tokenHash
-	finalToken := fmt.Sprintf("nft_v1_%s", tokenHash)
-
-	wtg.logger.Debug("Token gerado com sucesso",
-		"address", address,
-		"token_format", "nft_v1_*****")
-
-	return finalToken, nil
 }
 
 // generateTemporaryToken gera um token temporário para desenvolvimento

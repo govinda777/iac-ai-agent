@@ -65,12 +65,6 @@ func TestStartupValidationIntegration(t *testing.T) {
 
 	t.Run("NationPassValidationOnly", func(t *testing.T) {
 		// Testar apenas a validação de Nation Pass
-		result := &startup.ValidationResult{
-			Success:  true,
-			Errors:   []string{},
-			Warnings: []string{},
-		}
-
 		result, err := validator.ValidateAll(ctx)
 
 		if err != nil {

@@ -337,10 +337,8 @@ func (l *Logger) Warn(message string, fields map[string]interface{}) {
 func (l *Logger) log(level, message string, fields map[string]interface{}) {
 	// Implementação simplificada - em produção usar logger estruturado
 	fmt.Printf("[%s] [%s] %s", l.AgentID, level, message)
-	if fields != nil {
-		for key, value := range fields {
-			fmt.Printf(" %s=%v", key, value)
-		}
+	for key, value := range fields {
+		fmt.Printf(" %s=%v", key, value)
 	}
 	fmt.Println()
 }

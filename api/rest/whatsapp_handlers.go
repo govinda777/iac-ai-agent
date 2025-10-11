@@ -50,7 +50,7 @@ func (h *WhatsAppWebhookHandler) handleVerification(w http.ResponseWriter, r *ht
 	if mode == "subscribe" && token == h.agent.GetVerifyToken() {
 		log.Printf("Webhook verified successfully")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(challenge))
+		_, _ = w.Write([]byte(challenge))
 		return
 	}
 
@@ -157,7 +157,7 @@ func (h *WhatsAppWebhookHandler) HandleStatus(w http.ResponseWriter, r *http.Req
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(status)
+	_ = json.NewEncoder(w).Encode(status)
 }
 
 // HandleHealth verifica saúde do webhook
@@ -174,5 +174,5 @@ func (h *WhatsAppWebhookHandler) HandleHealth(w http.ResponseWriter, r *http.Req
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(health)
+	_ = json.NewEncoder(w).Encode(health)
 }

@@ -62,7 +62,7 @@ func (h *Web3Handler) VerifyToken(w http.ResponseWriter, r *http.Request) {
 
 	// Responder com dados do usuário
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(user)
+	_ = json.NewEncoder(w).Encode(user)
 }
 
 // CheckAccessRequest é a requisição para verificar acesso a uma operação
@@ -123,7 +123,7 @@ func (h *Web3Handler) CheckAccess(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 // TokenCostRequest é a requisição para obter o custo de uma operação em tokens
@@ -166,7 +166,7 @@ func (h *Web3Handler) GetTokenCost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 // SpendTokensRequest é a requisição para gastar tokens
@@ -241,5 +241,5 @@ func (h *Web3Handler) SpendTokens(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	_ = json.NewEncoder(w).Encode(response)
 }
