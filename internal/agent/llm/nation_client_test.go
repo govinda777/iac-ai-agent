@@ -21,8 +21,9 @@ func TestNewNationClient(t *testing.T) {
 			LLM:  config.LLMConfig{APIKey: ""},
 			Web3: config.Web3Config{NFTAccessContractAddress: "0x123", WalletToken: "abc"},
 		}
-		_, err := NewNationClient(cfg, log)
+		client, err := NewNationClient(cfg, log)
 		g.Expect(err).To(HaveOccurred())
+		g.Expect(client).To(BeNil())
 		g.Expect(err.Error()).To(Equal("Nation.fun API key não configurada"))
 	})
 
@@ -31,8 +32,9 @@ func TestNewNationClient(t *testing.T) {
 			LLM:  config.LLMConfig{APIKey: "test-key"},
 			Web3: config.Web3Config{NFTAccessContractAddress: "", WalletToken: "abc"},
 		}
-		_, err := NewNationClient(cfg, log)
+		client, err := NewNationClient(cfg, log)
 		g.Expect(err).To(HaveOccurred())
+		g.Expect(client).To(BeNil())
 		g.Expect(err.Error()).To(Equal("Nation.fun NFT contract address não configurado"))
 	})
 
@@ -41,8 +43,9 @@ func TestNewNationClient(t *testing.T) {
 			LLM:  config.LLMConfig{APIKey: "test-key"},
 			Web3: config.Web3Config{NFTAccessContractAddress: "0x123", WalletToken: ""},
 		}
-		_, err := NewNationClient(cfg, log)
+		client, err := NewNationClient(cfg, log)
 		g.Expect(err).To(HaveOccurred())
+		g.Expect(client).To(BeNil())
 		g.Expect(err.Error()).To(Equal("Nation.fun wallet token não configurado"))
 	})
 

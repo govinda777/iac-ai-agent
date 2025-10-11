@@ -88,7 +88,7 @@ func (h *AgentHandler) handleVerification(w http.ResponseWriter, r *http.Request
 	if mode == "subscribe" && token == "your_verify_token_here" {
 		log.Printf("Webhook verified successfully")
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(challenge))
+		_, _ = w.Write([]byte(challenge))
 		return
 	}
 
@@ -204,7 +204,7 @@ func (h *AgentHandler) HandleStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(status)
+	_ = json.NewEncoder(w).Encode(status)
 }
 
 // HandleHealth verifica saúde do agente
@@ -227,7 +227,7 @@ func (h *AgentHandler) HandleHealth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(health)
+	_ = json.NewEncoder(w).Encode(health)
 }
 
 // HandleCapabilities retorna lista de habilidades
@@ -241,7 +241,7 @@ func (h *AgentHandler) HandleCapabilities(w http.ResponseWriter, r *http.Request
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 // Middleware para logging de requisições
