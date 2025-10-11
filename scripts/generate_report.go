@@ -366,7 +366,7 @@ func parseTestOutput(output string) (passed, failed, skipped, total int) {
 
 func extractNumber(s string) int {
 	var num int
-	fmt.Sscanf(s, "%d", &num)
+	_, _ = fmt.Sscanf(s, "%d", &num)
 	return num
 }
 

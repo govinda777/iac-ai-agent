@@ -1,25 +1,32 @@
 package whatsapp
 
 import (
+	"context"
 	"time"
 )
 
-// WhatsAppMessage representa uma mensagem recebida do WhatsApp
-type WhatsAppMessage struct {
-	ID        string    `json:"id"`
-	From      string    `json:"from"`
-	To        string    `json:"to"`
-	Text      string    `json:"text"`
-	Timestamp time.Time `json:"timestamp"`
-	Type      string    `json:"type"` // text, image, document, etc.
+// WhatsAppAgentInterface defines the interface for the WhatsApp agent.
+type WhatsAppAgentInterface interface {
+	ProcessMessage(context.Context, *WhatsAppMessage) (*WhatsAppResponse, error)
+	GetVerifyToken() string
 }
 
-// WhatsAppResponse representa uma resposta a ser enviada via WhatsApp
+// WhatsAppMessage represents a message received from WhatsApp.
+type WhatsAppMessage struct {
+	ID        string
+	From      string
+	To        string
+	Text      string
+	Timestamp time.Time
+	Type      string
+}
+
+// WhatsAppResponse represents a message to be sent to WhatsApp.
 type WhatsAppResponse struct {
-	To      string `json:"to"`
-	Text    string `json:"text"`
-	Type    string `json:"type"` // text, image, document, etc.
-	ReplyTo string `json:"reply_to,omitempty"`
+	To      string
+	Text    string
+	Type    string
+	ReplyTo string
 }
 
 // WhatsAppAgentConfig configuração para criação de agente WhatsApp
@@ -56,22 +63,4 @@ type UsageStats struct {
 	LastRequest    time.Time `json:"last_request"`
 	RequestsToday  int       `json:"requests_today"`
 	AverageCost    float64   `json:"average_cost"`
-}
-
-// TokenTransaction representa uma transação de tokens
-type TokenTransaction struct {
-	UserAddress     string    `json:"user_address"`
-	AgentAddress    string    `json:"agent_address"`
-	Amount          int       `json:"amount"`
-	TransactionHash string    `json:"transaction_hash"`
-	Timestamp       time.Time `json:"timestamp"`
-	Service         string    `json:"service"`
-}
-
-// APIKeyStorage estrutura para armazenamento seguro de chaves API
-type APIKeyStorage struct {
-	EncryptedAPIKey []byte    `json:"encrypted_api_key"`
-	EncryptedAESKey []byte    `json:"encrypted_aes_key"`
-	WalletAddress   string    `json:"wallet_address"`
-	Timestamp       time.Time `json:"timestamp"`
 }

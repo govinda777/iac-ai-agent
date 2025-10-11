@@ -66,7 +66,14 @@ func TestWhatsAppAgent_ProcessMessage(t *testing.T) {
 			},
 			expected: "Análise concluída",
 			setupMocks: func() {
-				// No mocks needed for analyze command
+				agent.Service = &MockAgentService{
+					AnalyzeCodeFunc: func(code string) (*AnalysisResult, error) {
+						return &AnalysisResult{
+							Issues:      []Issue{{Description: "Test issue"}},
+							Suggestions: []string{"Test suggestion"},
+						}, nil
+					},
+				}
 			},
 		},
 	}
@@ -208,23 +215,26 @@ func TestWhatsAppAgent_GetUsageStats(t *testing.T) {
 		Logger:         SetupLogger("test_agent_123"),
 	}
 
-	expectedStats := &UsageStats{
-		TotalRequests:  10,
-		TokensConsumed: 8,
-		LastRequest:    time.Now(),
-		RequestsToday:  3,
-		AverageCost:    0.8,
+	fixedTime := time.Date(2025, 1, 1, 12, 0, 0, 0, time.UTC)
+	mockBillingService.GetUsageStatsFunc = func(ctx context.Context, userAddr string) (*UsageStats, error) {
+		return &UsageStats{
+			TotalRequests:  10,
+			TokensConsumed: 8,
+			LastRequest:    fixedTime,
+			RequestsToday:  3,
+			AverageCost:    0.8,
+		}, nil
 	}
-
-	// Test completed successfully
 
 	stats, err := agent.GetUsageStats(context.Background(), "test_user")
 
 	assert.NoError(t, err)
 	assert.NotNil(t, stats)
-	assert.Equal(t, expectedStats, stats)
-
-	// Test completed successfully
+	assert.Equal(t, 10, stats.TotalRequests)
+	assert.Equal(t, 8, stats.TokensConsumed)
+	assert.Equal(t, fixedTime, stats.LastRequest)
+	assert.Equal(t, 3, stats.RequestsToday)
+	assert.Equal(t, 0.8, stats.AverageCost)
 }
 
 func TestWhatsAppAgentConfig_Validate(t *testing.T) {

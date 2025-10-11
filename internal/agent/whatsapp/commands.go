@@ -11,7 +11,7 @@ func AvailableCommands() map[string]*Command {
 		"analyze": {
 			Name:            "analyze",
 			Description:     "Analisa código Terraform",
-			Pattern:         `^/analyze\s*(.*)`,
+			Pattern:         `(?s)^/analyze\s*(.*)`,
 			Handler:         handleAnalyzeCommand,
 			RequiresPayment: true,
 			TokenCost:       1,
@@ -19,7 +19,7 @@ func AvailableCommands() map[string]*Command {
 		"security": {
 			Name:            "security",
 			Description:     "Verifica segurança do código",
-			Pattern:         `^/security\s*(.*)`,
+			Pattern:         `(?s)^/security\s*(.*)`,
 			Handler:         handleSecurityCommand,
 			RequiresPayment: true,
 			TokenCost:       1,
@@ -27,7 +27,7 @@ func AvailableCommands() map[string]*Command {
 		"cost": {
 			Name:            "cost",
 			Description:     "Otimiza custos do código",
-			Pattern:         `^/cost\s*(.*)`,
+			Pattern:         `(?s)^/cost\s*(.*)`,
 			Handler:         handleCostCommand,
 			RequiresPayment: true,
 			TokenCost:       1,
@@ -86,7 +86,7 @@ func handleAnalyzeCommand(agent *WhatsAppAgent, ctx *CommandContext) (*WhatsAppR
 	}
 
 	// Gerar resposta
-	response := fmt.Sprintf("✅ Análise concluída!\n\n")
+	response := "✅ Análise concluída!\n\n"
 	response += fmt.Sprintf("🔍 Problemas encontrados: %d\n", len(analysis.Issues))
 
 	for _, issue := range analysis.Issues {
@@ -127,7 +127,7 @@ func handleSecurityCommand(agent *WhatsAppAgent, ctx *CommandContext) (*WhatsApp
 	}
 
 	// Gerar resposta
-	response := fmt.Sprintf("🔒 Análise de Segurança Concluída!\n\n")
+	response := "🔒 Análise de Segurança Concluída!\n\n"
 	response += fmt.Sprintf("⚠️ Vulnerabilidades encontradas: %d\n", len(securityAnalysis.Vulnerabilities))
 
 	for _, vuln := range securityAnalysis.Vulnerabilities {
@@ -168,7 +168,7 @@ func handleCostCommand(agent *WhatsAppAgent, ctx *CommandContext) (*WhatsAppResp
 	}
 
 	// Gerar resposta
-	response := fmt.Sprintf("💰 Análise de Custos Concluída!\n\n")
+	response := "💰 Análise de Custos Concluída!\n\n"
 	response += fmt.Sprintf("📊 Custo estimado mensal: $%.2f\n", costAnalysis.EstimatedMonthlyCost)
 	response += fmt.Sprintf("💡 Potencial de economia: $%.2f\n", costAnalysis.PotentialSavings)
 
@@ -210,12 +210,12 @@ func handleHelpCommand(agent *WhatsAppAgent, ctx *CommandContext) (*WhatsAppResp
 
 // handleStatusCommand processa comando de status
 func handleStatusCommand(agent *WhatsAppAgent, ctx *CommandContext) (*WhatsAppResponse, error) {
-	response := fmt.Sprintf("🤖 Status do Agente\n\n")
+	response := "🤖 Status do Agente\n\n"
 	response += fmt.Sprintf("Nome: %s\n", agent.Name)
 	response += fmt.Sprintf("ID: %s\n", agent.ID)
 	response += fmt.Sprintf("Descrição: %s\n", agent.Description)
 	response += fmt.Sprintf("Wallet: %s\n", agent.WalletAddr)
-	response += fmt.Sprintf("Status: ✅ Online\n")
+	response += "Status: ✅ Online\n"
 	response += fmt.Sprintf("Comandos disponíveis: %d\n", len(agent.Commands))
 
 	return &WhatsAppResponse{
@@ -228,11 +228,11 @@ func handleStatusCommand(agent *WhatsAppAgent, ctx *CommandContext) (*WhatsAppRe
 func handleBalanceCommand(agent *WhatsAppAgent, ctx *CommandContext) (*WhatsAppResponse, error) {
 	// Por enquanto, retorna saldo simulado
 	// Em produção, consultar blockchain
-	response := fmt.Sprintf("💰 Saldo de Tokens IACAI\n\n")
+	response := "💰 Saldo de Tokens IACAI\n\n"
 	response += fmt.Sprintf("Usuário: %s\n", ctx.Message.From)
-	response += fmt.Sprintf("Saldo atual: 100 tokens\n")
-	response += fmt.Sprintf("Última atualização: Agora\n\n")
-	response += fmt.Sprintf("💡 Use /usage para ver estatísticas detalhadas")
+	response += "Saldo atual: 100 tokens\n"
+	response += "Última atualização: Agora\n\n"
+	response += "💡 Use /usage para ver estatísticas detalhadas"
 
 	return &WhatsAppResponse{
 		Text: response,
@@ -250,7 +250,7 @@ func handleUsageCommand(agent *WhatsAppAgent, ctx *CommandContext) (*WhatsAppRes
 		}, nil
 	}
 
-	response := fmt.Sprintf("📊 Estatísticas de Uso\n\n")
+	response := "📊 Estatísticas de Uso\n\n"
 	response += fmt.Sprintf("Total de requisições: %d\n", stats.TotalRequests)
 	response += fmt.Sprintf("Tokens consumidos: %d\n", stats.TokensConsumed)
 	response += fmt.Sprintf("Requisições hoje: %d\n", stats.RequestsToday)

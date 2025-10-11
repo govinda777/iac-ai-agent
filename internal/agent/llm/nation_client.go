@@ -35,32 +35,11 @@ func NewNationClient(cfg *config.Config, log *logger.Logger) (*NationClient, err
 	}
 
 	if cfg.Web3.NFTAccessContractAddress == "" {
-		log.Warn("Nation.fun NFT contract address não configurado, usando endereço padrão")
-		// Usando endereço padrão do contrato NFT da Nation.fun
-		cfg.Web3.NFTAccessContractAddress = "0x147e832418Cc06A501047019E956714271098b89"
+		return nil, errors.New("Nation.fun NFT contract address não configurado")
 	}
 
-	// Tentar gerar o wallet token automaticamente se não estiver configurado
 	if cfg.Web3.WalletToken == "" {
-		log.Info("WALLET_TOKEN não configurado, verificando alternativas")
-
-		// Se tiver a chave privada, podemos gerar o token
-		if cfg.Web3.WalletToken != "" {
-			log.Info("WALLET_TOKEN encontrado, usando token existente")
-			tokenGenerator := web3.NewWalletTokenGenerator(cfg, log)
-			token, err := tokenGenerator.GenerateToken()
-			if err != nil {
-				log.Warn("Falha ao gerar WALLET_TOKEN, mas continuando", "error", err.Error())
-				// Não retornamos erro aqui, tentaremos conexão sem token
-			} else {
-				// Atualizar configuração com o token gerado
-				cfg.Web3.WalletToken = token
-				log.Info("WALLET_TOKEN gerado com sucesso")
-			}
-		} else {
-			log.Info("WALLET_PRIVATE_KEY não encontrada, tentando conexão direta")
-			// Continuamos sem o token, tentando conexão direta
-		}
+		return nil, errors.New("Nation.fun wallet token não configurado")
 	}
 
 	// Valida URL base
