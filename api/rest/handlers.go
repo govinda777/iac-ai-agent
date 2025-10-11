@@ -402,6 +402,8 @@ func (h *Handler) HandleAgentHealth(w http.ResponseWriter, r *http.Request) {
 
 	// Adicionar informações ao status
 	healthStatus["agent"] = agentInfo
+	health_checks := RunComprehensiveHealthCheck(ctx, h.config, h.logger)
+	healthStatus["health_checks"] = health_checks
 	healthStatus["config"] = agentConfig
 	healthStatus["checks"] = checks
 
