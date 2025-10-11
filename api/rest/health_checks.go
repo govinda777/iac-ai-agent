@@ -7,7 +7,7 @@ import (
 
 	"github.com/govinda777/iac-ai-agent/internal/agent/capabilities"
 	"github.com/govinda777/iac-ai-agent/internal/agent/core"
-	"github.com/govinda777/iac-ai-agent/internal/services"
+	"github.com/govinda777/iac-ai-agent/internal/platform/web3"
 	"github.com/govinda777/iac-ai-agent/pkg/config"
 	"github.com/govinda777/iac-ai-agent/pkg/logger"
 )
@@ -59,17 +59,19 @@ func runHealthCheckStep(ctx context.Context, stepFunc func(context.Context) Heal
 
 func findNationAgents(ctx context.Context, cfg *config.Config, log *logger.Logger) HealthCheckResult {
 	start := time.Now()
-	// In a real scenario, this would involve a call to the Nation API
-	// to find agents associated with the default wallet.
-	// For now, we'll simulate a successful response.
-	time.Sleep(100 * time.Millisecond) // Simulate network latency
+	nationValidator := web3.NewNationNFTValidator(cfg, log)
+	_, err := nationValidator.ValidateWalletNFT(ctx, cfg.Web3.WalletAddress)
+	if err != nil {
+		return HealthCheckResult{
+			Status:   "error",
+			Message:  fmt.Sprintf("Failed to find nation agents: %v", err),
+			Duration: time.Since(start),
+		}
+	}
+
 	return HealthCheckResult{
-		Status:  "success",
-		Message: "Successfully found Nation agents for the default wallet.",
-		Details: map[string]interface{}{
-			"agent_count": 2,
-			"agents":      []string{"agent-1", "agent-2"},
-		},
+		Status:   "success",
+		Message:  "Successfully found Nation agents for the default wallet.",
 		Duration: time.Since(start),
 	}
 }
@@ -86,32 +88,31 @@ func createTestAgent(cfg *config.Config, log *logger.Logger) (*core.Agent, error
 				"verify_token": "test_token",
 				"api_key":      "",
 			},
+			"iac-analysis": map[string]interface{}{
+				"terraform_enabled": true,
+				"security_enabled":  true,
+				"cost_enabled":      true,
+			},
 		},
 		Logging: core.LoggingConfig{
 			Level: "info",
 		},
 	}
 	agent := core.NewAgent(agentConfig)
+
+	// Register capabilities
 	whatsappCapability := capabilities.NewWhatsAppCapability()
+	iacAnalysisCapability := capabilities.NewIACAnalysisCapability()
+
 	if err := agent.RegisterCapability(whatsappCapability); err != nil {
 		return nil, fmt.Errorf("failed to register WhatsApp capability: %w", err)
 	}
+	if err := agent.RegisterCapability(iacAnalysisCapability); err != nil {
+		return nil, fmt.Errorf("failed to register IaC Analysis capability: %w", err)
+	}
 
-	// This is a simplified analysis service for the health check agent.
-	// In a real scenario, this would be a more complete service.
-	analysisService := services.NewAnalysisService(
-		log,
-		70, // minPassScore
-		analyzer.NewTerraformAnalyzer(),
-		analyzer.NewCheckovAnalyzer(log),
-		analyzer.NewIAMAnalyzer(log),
-		scorer.NewPRScorer(),
-		suggester.NewCostOptimizer(log),
-		suggester.NewSecurityAdvisor(log),
-		cfg,
-	)
-
-	whatsappCapability.SetAnalysisService(analysisService)
+	// Link capabilities
+	whatsappCapability.SetIACCapability(iacAnalysisCapability)
 
 	return agent, nil
 }
@@ -138,10 +139,11 @@ func testAgentResponse(ctx context.Context, agent *core.Agent) HealthCheckResult
 		}
 	}
 
-	if response.Text != "pong" {
+	expectedResponse := "🏓 Pong! Agente WhatsApp ativo e funcionando."
+	if response.Text != expectedResponse {
 		return HealthCheckResult{
 			Status:   "error",
-			Message:  fmt.Sprintf("Unexpected response from agent: got %q, want %q", response.Text, "pong"),
+			Message:  fmt.Sprintf("Unexpected response from agent: got %q, want %q", response.Text, expectedResponse),
 			Duration: time.Since(start),
 		}
 	}

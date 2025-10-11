@@ -21,6 +21,7 @@ type WhatsAppAgent struct {
 	Description    string
 	WalletAddr     string
 	APIKey         string
+	VerifyToken    string
 	Service        *MockAgentService
 	LLMService     *MockLLMService
 	AuthService    *MockAuthService
@@ -29,15 +30,25 @@ type WhatsAppAgent struct {
 	Commands       map[string]*Command
 }
 
+// GetVerifyToken retorna o token de verificação
+func (a *WhatsAppAgent) GetVerifyToken() string {
+	return a.VerifyToken
+}
+
 // WhatsAppLogger sistema de logging para WhatsApp
 type WhatsAppLogger struct {
 	AgentID string
 }
 
 // MockAgentService mock para AgentService
-type MockAgentService struct{}
+type MockAgentService struct {
+	AnalyzeCodeFunc func(code string) (*AnalysisResult, error)
+}
 
 func (m *MockAgentService) AnalyzeCode(code string) (*AnalysisResult, error) {
+	if m.AnalyzeCodeFunc != nil {
+		return m.AnalyzeCodeFunc(code)
+	}
 	return &AnalysisResult{
 		Issues: []Issue{
 			{Description: "Test issue"},
@@ -84,13 +95,18 @@ func (m *MockAuthService) RecoverAPIKey(ctx context.Context) (string, error) {
 }
 
 // MockBillingService mock para BillingService
-type MockBillingService struct{}
+type MockBillingService struct {
+	GetUsageStatsFunc func(ctx context.Context, userAddr string) (*UsageStats, error)
+}
 
 func (m *MockBillingService) ChargeTokens(ctx context.Context, userAddr string, amount int) error {
 	return nil
 }
 
 func (m *MockBillingService) GetUsageStats(ctx context.Context, userAddr string) (*UsageStats, error) {
+	if m.GetUsageStatsFunc != nil {
+		return m.GetUsageStatsFunc(ctx, userAddr)
+	}
 	return &UsageStats{
 		TotalRequests:  10,
 		TokensConsumed: 8,
@@ -167,6 +183,7 @@ func NewWhatsAppAgent(config *WhatsAppAgentConfig) (*WhatsAppAgent, error) {
 		Description:    config.Description,
 		WalletAddr:     config.WalletAddr,
 		APIKey:         apiKey,
+		VerifyToken:    config.VerifyToken,
 		Service:        agentService,
 		LLMService:     llmService,
 		AuthService:    authService,
@@ -257,24 +274,29 @@ func (a *WhatsAppAgent) executeCommand(ctx context.Context, cmd *Command, msg *W
 
 // extractCommandArgs extrai argumentos e blocos de código do comando
 func (a *WhatsAppAgent) extractCommandArgs(text, pattern string) ([]string, string) {
-	// Remover o comando do texto
-	re := regexp.MustCompile(pattern)
-	matches := re.FindStringSubmatch(text)
-	if len(matches) < 2 {
-		return []string{}, ""
-	}
-
-	remaining := strings.TrimSpace(matches[1])
-
-	// Procurar por blocos de código
-	codeBlockRegex := regexp.MustCompile("```(?s)(.*?)```")
-	codeMatches := codeBlockRegex.FindStringSubmatch(remaining)
-
+	// Extrair o bloco de código primeiro
+	codeBlockRegex := regexp.MustCompile("(?s)```[a-zA-Z]*\n?(.*?)```")
+	codeMatches := codeBlockRegex.FindStringSubmatch(text)
 	var codeBlock string
 	if len(codeMatches) > 1 {
 		codeBlock = strings.TrimSpace(codeMatches[1])
-		// Remover o bloco de código do texto restante
-		remaining = codeBlockRegex.ReplaceAllString(remaining, "")
+	}
+
+	// Remover o bloco de código do texto para extrair os argumentos
+	textWithoutCode := codeBlockRegex.ReplaceAllString(text, "")
+
+	// Remover o comando do texto
+	re := regexp.MustCompile(pattern)
+	matches := re.FindStringSubmatch(textWithoutCode)
+	if len(matches) < 1 {
+		return []string{}, codeBlock
+	}
+
+	// Extrair argumentos do texto restante
+	// O grupo 1 contém os argumentos após o comando
+	var remaining string
+	if len(matches) > 1 {
+		remaining = strings.TrimSpace(matches[1])
 	}
 
 	// Dividir argumentos

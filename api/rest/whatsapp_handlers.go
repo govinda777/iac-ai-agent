@@ -9,51 +9,16 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/govinda777/iac-ai-agent/internal/agent/whatsapp"
 )
 
 // WhatsAppWebhookHandler gerencia webhooks do WhatsApp
 type WhatsAppWebhookHandler struct {
-	agent *MockWhatsAppAgent
-}
-
-// MockWhatsAppAgent mock para WhatsAppAgent
-type MockWhatsAppAgent struct {
-	ID          string
-	Name        string
-	Description string
-	WalletAddr  string
-	APIKey      string
-	VerifyToken string
-}
-
-func (m *MockWhatsAppAgent) ProcessMessage(ctx context.Context, msg *MockWhatsAppMessage) (*MockWhatsAppResponse, error) {
-	return &MockWhatsAppResponse{
-		To:   msg.From,
-		Text: "Mock response",
-		Type: "text",
-	}, nil
-}
-
-// MockWhatsAppMessage mock para WhatsAppMessage
-type MockWhatsAppMessage struct {
-	ID        string
-	From      string
-	To        string
-	Text      string
-	Timestamp time.Time
-	Type      string
-}
-
-// MockWhatsAppResponse mock para WhatsAppResponse
-type MockWhatsAppResponse struct {
-	To      string
-	Text    string
-	Type    string
-	ReplyTo string
+	agent whatsapp.WhatsAppAgentInterface
 }
 
 // NewWhatsAppWebhookHandler cria novo handler de webhook
-func NewWhatsAppWebhookHandler(agent *MockWhatsAppAgent) *WhatsAppWebhookHandler {
+func NewWhatsAppWebhookHandler(agent whatsapp.WhatsAppAgentInterface) *WhatsAppWebhookHandler {
 	return &WhatsAppWebhookHandler{
 		agent: agent,
 	}
@@ -82,7 +47,7 @@ func (h *WhatsAppWebhookHandler) handleVerification(w http.ResponseWriter, r *ht
 	challenge := query.Get("hub.challenge")
 
 	// Verificar token de verificação
-	if mode == "subscribe" && token == h.agent.VerifyToken {
+	if mode == "subscribe" && token == h.agent.GetVerifyToken() {
 		log.Printf("Webhook verified successfully")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(challenge))
@@ -127,7 +92,7 @@ func (h *WhatsAppWebhookHandler) processTextMessage(message struct {
 	Type string `json:"type"`
 }) {
 	// Converter para estrutura interna
-	whatsappMsg := &MockWhatsAppMessage{
+	whatsappMsg := &whatsapp.WhatsAppMessage{
 		ID:        message.ID,
 		From:      message.From,
 		Text:      message.Text.Body,
@@ -150,7 +115,7 @@ func (h *WhatsAppWebhookHandler) processTextMessage(message struct {
 }
 
 // sendResponse envia resposta via API do WhatsApp
-func (h *WhatsAppWebhookHandler) sendResponse(response *MockWhatsAppResponse) error {
+func (h *WhatsAppWebhookHandler) sendResponse(response *whatsapp.WhatsAppResponse) error {
 	// Preparar resposta
 	webhookResp := WhatsAppWebhookResponse{
 		MessagingProduct: "whatsapp",
@@ -187,10 +152,8 @@ func (h *WhatsAppWebhookHandler) RegisterRoutes(router *mux.Router) {
 // HandleStatus retorna status do webhook
 func (h *WhatsAppWebhookHandler) HandleStatus(w http.ResponseWriter, r *http.Request) {
 	status := map[string]interface{}{
-		"status":     "active",
-		"agent_id":   h.agent.ID,
-		"agent_name": h.agent.Name,
-		"timestamp":  time.Now(),
+		"status":    "active",
+		"timestamp": time.Now(),
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -213,7 +176,3 @@ func (h *WhatsAppWebhookHandler) HandleHealth(w http.ResponseWriter, r *http.Req
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(health)
 }
-
-// Middleware para logging de requisições
-
-// Middleware para validação de token

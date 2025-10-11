@@ -11,7 +11,7 @@ func AvailableCommands() map[string]*Command {
 		"analyze": {
 			Name:            "analyze",
 			Description:     "Analisa código Terraform",
-			Pattern:         `^/analyze\s*(.*)`,
+			Pattern:         `(?s)^/analyze\s*(.*)`,
 			Handler:         handleAnalyzeCommand,
 			RequiresPayment: true,
 			TokenCost:       1,
@@ -19,7 +19,7 @@ func AvailableCommands() map[string]*Command {
 		"security": {
 			Name:            "security",
 			Description:     "Verifica segurança do código",
-			Pattern:         `^/security\s*(.*)`,
+			Pattern:         `(?s)^/security\s*(.*)`,
 			Handler:         handleSecurityCommand,
 			RequiresPayment: true,
 			TokenCost:       1,
@@ -27,7 +27,7 @@ func AvailableCommands() map[string]*Command {
 		"cost": {
 			Name:            "cost",
 			Description:     "Otimiza custos do código",
-			Pattern:         `^/cost\s*(.*)`,
+			Pattern:         `(?s)^/cost\s*(.*)`,
 			Handler:         handleCostCommand,
 			RequiresPayment: true,
 			TokenCost:       1,
