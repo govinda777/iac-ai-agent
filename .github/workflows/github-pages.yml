@@ -34,5 +34,5 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: . # O diretório raiz, já que estamos usando HTML/CSS/JS puros
+          folder: frontend
           branch: gh-pages
